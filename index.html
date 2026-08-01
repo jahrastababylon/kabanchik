@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dzikie Korytarze</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1D9E75">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dzikie Korytarze">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Флаг готовности Google Maps — объявлен ДО загрузки API, чтобы callback его нашёл
+  var googleMapsReady = false;
+  function onGoogleMapsReady() { googleMapsReady = true; }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDa6ll5wAieXBDpfb7UVlMkRytyoDh9_2o&libraries=visualization&callback=onGoogleMapsReady"></script>
+
+<style>
+  :root {
+    --green: #1D9E75; --green-dark: #085041; --green-soft: #E1F5EE;
+    --bg: #FAFAF7; --surface: #FFFFFF; --border: #E6E4DD;
+    --text: #26251F; --text-soft: #6B6A62;
+    --warn-bg: #FAEEDA; --warn-text: #633806;
+    --danger: #E24B4A; --gold: #E8A317;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; height: 100dvh;
+  }
+  button { font-family: inherit; }
+
+  /* ---------- Tutorial ---------- */
+  #tutorial {
+    position: fixed; inset: 0; z-index: 2000;
+    background: linear-gradient(160deg, #1D9E75 0%, #085041 100%);
+    display: flex; flex-direction: column; color: #fff;
+  }
+  #tutorial.hidden { display: none; }
+  .tut-slides {
+    flex: 1; display: flex; width: 100%; overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+  }
+  .tut-slide {
+    width: 100%; min-width: 100%; flex: 0 0 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 40px 32px; overflow-y: auto;
+  }
+  /* когда контента много (слайд с согласием) — прижимаем к верху и даём скролл */
+  .tut-slide.compact { justify-content: flex-start; padding-top: 32px; }
+  .tut-emoji { font-size: 72px; margin-bottom: 28px; }
+  .tut-title { font-size: 26px; font-weight: 700; margin-bottom: 14px; line-height: 1.2; }
+  .tut-text { font-size: 16px; line-height: 1.55; opacity: 0.92; max-width: 300px; }
+  .tut-dots { display: flex; justify-content: center; gap: 8px; padding: 16px; }
+  .tut-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: all 0.3s; }
+  .tut-dot.active { background: #fff; width: 22px; border-radius: 4px; }
+  .tut-footer { padding: 0 28px calc(32px + env(safe-area-inset-bottom)); }
+
+  .consent-box {
+    background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px;
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 18px; text-align: left;
+  }
+  .consent-box input { width: 22px; height: 22px; margin-top: 1px; accent-color: #fff; flex-shrink: 0; }
+  .consent-box label { font-size: 13px; line-height: 1.45; }
+  .consent-box a { color: #fff; }
+  .tut-btn {
+    background: #fff; color: var(--green-dark); border: none; border-radius: 14px;
+    padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%;
+    transition: opacity 0.2s;
+  }
+  .tut-btn:disabled { opacity: 0.4; }
+  .tut-skip {
+    background: none; border: none; color: rgba(255,255,255,0.8);
+    font-size: 14px; cursor: pointer; padding: 12px; width: 100%; margin-top: 4px;
+  }
+
+  /* ---------- Geo prompt ---------- */
+  #geoPrompt {
+    position: fixed; inset: 0; z-index: 1900; background: rgba(8,80,65,0.97);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 40px 32px; color: #fff;
+  }
+  #geoPrompt.show { display: flex; }
+  #geoPrompt .g-emoji { font-size: 64px; margin-bottom: 24px; }
+  #geoPrompt h2 { font-size: 24px; font-weight: 700; margin-bottom: 14px; }
+  #geoPrompt p { font-size: 16px; line-height: 1.5; opacity: 0.9; margin-bottom: 32px; max-width: 300px; }
+
+  /* ---------- Map ---------- */
+  #map { flex: 1; width: 100%; z-index: 1; }
+  .leaflet-control-attribution { font-size: 9px; }
+  .animal-marker {
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+    background: var(--surface); border: 2.5px solid var(--green); border-radius: 50% 50% 50% 4px;
+    width: 34px; height: 34px; box-shadow: var(--shadow); transform: rotate(-2deg);
+  }
+  .animal-marker.danger { border-color: var(--danger); }
+  .animal-marker.confirmed::after {
+    content: '✓'; position: absolute; top: -6px; right: -6px;
+    background: var(--green); color: #fff; font-size: 10px; font-weight: 700;
+    width: 16px; height: 16px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; border: 2px solid #fff;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 500;
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none;
+  }
+  .topbar h1 {
+    font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+    background: var(--surface); padding: 8px 14px; border-radius: 20px;
+    box-shadow: var(--shadow); pointer-events: auto;
+  }
+  .points-badge {
+    background: var(--surface); border-radius: 20px; padding: 8px 14px;
+    font-size: 13px; font-weight: 600; color: var(--gold);
+    box-shadow: var(--shadow); pointer-events: auto; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .fab {
+    position: absolute; bottom: 24px; right: 20px; z-index: 500;
+    height: 56px; padding: 0 22px 0 18px; border-radius: 28px;
+    background: var(--green); color: #fff; border: none;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(29,158,117,0.45);
+    display: flex; align-items: center; gap: 8px; transition: transform 0.15s;
+  }
+  .fab:active { transform: scale(0.94); }
+  .fab .plus { font-size: 22px; font-weight: 400; }
+  .locate-btn {
+    position: absolute; bottom: 92px; right: 20px; z-index: 500;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+
+  /* ---------- Sheet ---------- */
+  .sheet-backdrop {
+    position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.4);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001;
+    background: var(--surface); border-radius: 22px 22px 0 0;
+    padding: 8px 20px calc(20px + env(safe-area-inset-bottom));
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    max-height: 90dvh; overflow-y: auto;
+  }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 40px; height: 5px; background: var(--border); border-radius: 3px; margin: 8px auto 18px; }
+  .sheet h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .sheet .sub { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+  .field-label { font-size: 13px; font-weight: 600; color: var(--text-soft); margin-bottom: 10px; display: block; }
+
+  .animal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
+  .animal-btn {
+    padding: 14px 6px; border-radius: 14px; border: 2px solid var(--border);
+    background: var(--surface); cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; font-size: 13px; color: var(--text-soft);
+    font-weight: 500; transition: all 0.15s;
+  }
+  .animal-btn .emoji { font-size: 28px; }
+  .animal-btn.selected { border-color: var(--green); background: var(--green-soft); color: var(--green-dark); }
+
+  .behavior-row { display: flex; gap: 10px; margin-bottom: 22px; }
+  .behavior-btn {
+    flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border);
+    background: var(--surface); cursor: pointer; font-size: 13px; font-weight: 500;
+    color: var(--text-soft); transition: all 0.15s;
+  }
+  .behavior-btn.selected { border-color: var(--green); background: var(--green-soft); color: var(--green-dark); }
+
+  .photo-upload {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 18px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: var(--text-soft); font-size: 14px; cursor: pointer; margin-bottom: 12px;
+    transition: all 0.15s;
+  }
+  .photo-upload.has-photo { border-color: var(--green); border-style: solid; color: var(--green-dark); background: var(--green-soft); }
+  .photo-hint { font-size: 12px; color: var(--gold); margin-bottom: 22px; text-align: center; }
+
+  .submit-btn {
+    width: 100%; padding: 16px; border-radius: 14px; border: none;
+    background: var(--green); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .submit-btn:disabled { opacity: 0.4; }
+  .loc-info {
+    display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-soft);
+    background: var(--bg); border-radius: 10px; padding: 12px; margin-bottom: 22px;
+  }
+  .loc-info.ok { color: var(--green-dark); }
+  .loc-confirmed {
+    display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+    color: var(--green-dark); background: var(--green-soft); border-radius: 10px;
+    padding: 12px; margin-bottom: 22px; justify-content: center;
+  }
+  /* Поиск адреса */
+  .search-box {
+    position: absolute; top: 60px; left: 12px; right: 12px; z-index: 490;
+    background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
+    display: flex; align-items: center; padding: 0 12px; height: 46px;
+  }
+  .search-icon { font-size: 15px; margin-right: 8px; opacity: 0.6; }
+  #searchInput {
+    flex: 1; border: none; outline: none; background: none;
+    font-size: 15px; color: var(--text); font-family: inherit;
+  }
+  #searchInput::placeholder { color: var(--text-soft); }
+  .search-clear {
+    border: none; background: var(--bg); color: var(--text-soft);
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .search-results {
+    position: absolute; top: 52px; left: 0; right: 0;
+    background: var(--surface); border-radius: 14px; box-shadow: var(--shadow-lg);
+    overflow: hidden; display: none;
+  }
+  .search-results.show { display: block; }
+  .search-result-item {
+    padding: 12px 14px; font-size: 14px; cursor: pointer; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:active { background: var(--bg); }
+  .search-result-item .sr-icon { font-size: 14px; opacity: 0.6; flex-shrink: 0; }
+  .search-result-item .sr-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Панель управления: вид + фильтры */
+  .controls-bar {
+    position: absolute; top: 114px; left: 12px; right: 12px; z-index: 485;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .view-toggle {
+    display: flex; background: var(--surface); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 3px; gap: 2px;
+  }
+  .vt-btn {
+    border: none; background: none; padding: 7px 12px; border-radius: 9px;
+    font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .vt-btn.active { background: var(--green); color: #fff; }
+  .filter-chip {
+    border: none; background: var(--surface); box-shadow: var(--shadow);
+    border-radius: 12px; padding: 8px 12px; font-size: 13px; font-weight: 600;
+    color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; margin-left: auto;
+  }
+  .stats-badge {
+    background: var(--green-soft); color: var(--green-dark);
+    border-radius: 10px; padding: 1px 7px; font-size: 11px;
+  }
+  .filter-panel {
+    position: absolute; top: 158px; left: 12px; right: 12px; z-index: 484;
+    background: var(--surface); border-radius: 14px; box-shadow: var(--shadow-lg);
+    padding: 16px; display: none;
+  }
+  .filter-panel.show { display: block; }
+  .fp-section { margin-bottom: 14px; }
+  .fp-section:last-child { margin-bottom: 0; }
+  .fp-label { font-size: 12px; font-weight: 600; color: var(--text-soft); margin-bottom: 8px; }
+  .fp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .fp-chip {
+    border: 1.5px solid var(--border); background: var(--surface); border-radius: 18px;
+    padding: 6px 12px; font-size: 13px; color: var(--text-soft); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .fp-chip.active { border-color: var(--green); background: var(--green-soft); color: var(--green-dark); font-weight: 600; }
+  /* Фото в попапе */
+  .sp-photo {
+    width: 100%; max-width: 200px; border-radius: 8px; margin-top: 8px;
+    display: block; object-fit: cover; max-height: 150px;
+  }
+    position: absolute; bottom: 92px; left: 50%; transform: translateX(-50%) translateY(80px);
+    z-index: 480; background: var(--text); color: #fff; padding: 12px 20px;
+    border-radius: 24px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg);
+    white-space: nowrap; opacity: 0; transition: all 0.3s; pointer-events: none;
+  }
+  .hint-banner.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* Панель подтверждения точки */
+  .confirm-point {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 600;
+    background: var(--surface); border-radius: 20px 20px 0 0; padding: 20px 20px calc(24px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.12); transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  .confirm-point.show { transform: translateY(0); }
+  .cp-text { font-size: 15px; font-weight: 600; text-align: center; margin-bottom: 16px; color: var(--text); }
+  .cp-buttons { display: flex; gap: 12px; }
+  .cp-cancel {
+    flex: 1; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-soft); font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .cp-confirm {
+    flex: 2; padding: 14px; border-radius: 12px; border: none;
+    background: var(--green); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  /* Перетаскиваемый пин */
+  .pick-pin {
+    font-size: 40px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+    animation: pin-drop 0.3s ease-out;
+  }
+  @keyframes pin-drop { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ---------- Leaderboard sheet ---------- */
+  .lb-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .lb-rank { font-size: 15px; font-weight: 700; width: 28px; color: var(--text-soft); }
+  .lb-rank.top { color: var(--gold); }
+  .lb-name { flex: 1; font-size: 15px; }
+  .lb-points { font-size: 14px; font-weight: 600; color: var(--gold); }
+  .level-card {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 20px;
+  }
+  .level-card .lvl-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .level-card .lvl-pts { font-size: 14px; opacity: 0.9; }
+  .level-bar { height: 8px; background: rgba(255,255,255,0.25); border-radius: 4px; margin-top: 14px; overflow: hidden; }
+  .level-bar-fill { height: 100%; background: #fff; border-radius: 4px; transition: width 0.5s; }
+
+  /* ---------- Popup ---------- */
+  .sighting-popup .sp-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .sighting-popup .sp-meta { font-size: 12px; color: var(--text-soft); margin-top: 4px; }
+  .sighting-popup .sp-badge {
+    display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 10px; background: var(--warn-bg); color: var(--warn-text);
+  }
+  .sp-confirm-btn {
+    margin-top: 10px; width: 100%; padding: 8px; border: none; border-radius: 8px;
+    background: var(--green); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .sp-confirm-btn:disabled { background: var(--border); color: var(--text-soft); }
+  .sp-confirmed-label { margin-top: 8px; font-size: 12px; color: var(--green-dark); font-weight: 600; }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: #fff; padding: 12px 20px; border-radius: 12px;
+    font-size: 14px; z-index: 3000; opacity: 0; pointer-events: none;
+    transition: all 0.3s; box-shadow: var(--shadow-lg); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast .t-points { color: var(--gold); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ============ TUTORIAL ============ -->
+<div id="tutorial">
+  <div class="tut-slides" id="tutSlides">
+    <div class="tut-slide">
+      <div class="tut-emoji">🐗</div>
+      <div class="tut-title">Dzikie zwierzęta w mieście</div>
+      <div class="tut-text">Dziki, lisy, sarny coraz częściej pojawiają się w parkach i na osiedlach. Ta mapa pokazuje gdzie.</div>
+    </div>
+    <div class="tut-slide">
+      <div class="tut-emoji">📍</div>
+      <div class="tut-title">Zgłaszaj spotkania</div>
+      <div class="tut-text">Widziałeś zwierzę? Dodaj je na mapę jednym dotknięciem. Zdjęcie daje więcej punktów.</div>
+    </div>
+    <div class="tut-slide">
+      <div class="tut-emoji">🏆</div>
+      <div class="tut-title">Zdobywaj punkty i rangi</div>
+      <div class="tut-text">Za zgłoszenia i potwierdzenia zdobywasz punkty. Najlepsi obserwatorzy w mieście dostają nagrody.</div>
+    </div>
+    <div class="tut-slide compact">
+      <div class="tut-emoji">🛡️</div>
+      <div class="tut-title">Dbaj o bezpieczeństwo</div>
+      <div class="tut-text">Dostawaj ostrzeżenia gdy w pobliżu pojawi się dzik. Chroń siebie, dzieci i psy.</div>
+      <div class="consent-box" style="margin-top:28px" onclick="document.getElementById('consentCheck').click()">
+        <input type="checkbox" id="consentCheck" onclick="event.stopPropagation(); updateConsent()">
+        <label onclick="event.stopPropagation()">Zgadzam się na przetwarzanie danych o lokalizacji oraz wykorzystanie zanonimizowanych danych do analiz. <a href="#" onclick="event.preventDefault()">Polityka prywatności</a></label>
+      </div>
+    </div>
+  </div>
+  <div class="tut-dots" id="tutDots">
+    <div class="tut-dot active"></div><div class="tut-dot"></div><div class="tut-dot"></div><div class="tut-dot"></div>
+  </div>
+  <div class="tut-footer">
+    <button class="tut-btn" id="tutBtn" onclick="tutNext()">Dalej</button>
+    <div id="consentHint" style="display:none; text-align:center; font-size:13px; color:rgba(255,255,255,0.85); padding:10px 0 0">☝️ Zaznacz zgodę powyżej, aby kontynuować</div>
+    <button class="tut-skip" id="tutSkip" onclick="tutSkip()">Pomiń</button>
+  </div>
+</div>
+
+<!-- ============ WELCOME + GEO PROMPT ============ -->
+<div id="geoPrompt">
+  <div class="g-emoji">🦊</div>
+  <h2>Witaj w Dzikie Korytarze</h2>
+  <p>Mapa dzikich zwierząt w Krakowie, tworzona przez mieszkańców. Chcesz, żebyśmy użyli Twojej lokalizacji — łatwiej będzie oznaczać miejsca?</p>
+  <button class="tut-btn" style="max-width:300px" onclick="requestGeo()">Tak, użyj mojej lokalizacji</button>
+  <button class="tut-skip" onclick="skipGeo()">Nie teraz — pokaż mapę</button>
+</div>
+
+<!-- ============ MAP ============ -->
+<div class="topbar">
+  <h1>🗺️ Kraków</h1>
+  <div class="points-badge" onclick="openLeaderboard()">🏆 <span id="pointsVal">0</span></div>
+</div>
+
+<div id="map"></div>
+
+<!-- Поиск адреса -->
+<div class="search-box">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="searchInput" placeholder="Szukaj adresu lub miejsca…"
+         onkeydown="if(event.key==='Enter')searchAddress()" oninput="onSearchInput()">
+  <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none">✕</button>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Панель фильтров и переключатель вида -->
+<div class="controls-bar">
+  <div class="view-toggle">
+    <button class="vt-btn active" id="vtPins" onclick="setViewMode('pins')">🐾 Ostatnie spotkania</button>
+    <button class="vt-btn" id="vtHeat" onclick="setViewMode('heatmap')">🗺️ Gdzie bywają</button>
+  </div>
+  <button class="filter-chip" id="filterChip" onclick="toggleFilterPanel()">
+    ⚙️ Filtry <span id="statsBar" class="stats-badge">—</span>
+  </button>
+</div>
+
+<!-- Выдвижная панель фильтров -->
+<div class="filter-panel" id="filterPanel">
+  <div class="fp-section">
+    <div class="fp-label">Gatunek</div>
+    <div class="fp-chips" id="speciesFilter">
+      <button class="fp-chip active" onclick="setSpeciesFilter('all', this)">Wszystkie</button>
+    </div>
+  </div>
+  <div class="fp-section">
+    <div class="fp-label">Okres</div>
+    <div class="fp-chips">
+      <button class="fp-chip active" onclick="setTimeFilter('all', this)">Cały czas</button>
+      <button class="fp-chip" onclick="setTimeFilter('month', this)">Miesiąc</button>
+      <button class="fp-chip" onclick="setTimeFilter('week', this)">Tydzień</button>
+    </div>
+  </div>
+</div>
+
+<!-- Баннер-подсказка внизу -->
+<div class="hint-banner" id="hintBanner">
+  <span>👆 Dotknij mapy w miejscu, gdzie widziałeś zwierzę</span>
+</div>
+
+<!-- Панель подтверждения выбранной точки -->
+<div class="confirm-point" id="confirmPoint">
+  <div class="cp-text">📍 Przesuń pinezkę na dokładne miejsce</div>
+  <div class="cp-buttons">
+    <button class="cp-cancel" onclick="cancelPick()">Anuluj</button>
+    <button class="cp-confirm" onclick="confirmPoint()">Potwierdź miejsce</button>
+  </div>
+</div>
+
+<button class="locate-btn" onclick="recenterOnUser()" aria-label="Moja lokalizacja">📍</button>
+<button class="fab" id="fab" onclick="startAddFlow()"><span class="plus">+</span> Dodaj</button>
+
+<!-- ============ ADD SHEET ============ -->
+<div class="sheet-backdrop" id="backdrop" onclick="closeAllSheets()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <h2>Dodaj spotkanie</h2>
+  <div class="sub">Kogo widziałeś?</div>
+  <span class="field-label">Zwierzę</span>
+  <div class="animal-grid" id="animalGrid"></div>
+  <span class="field-label">Zachowanie</span>
+  <div class="behavior-row">
+    <button class="behavior-btn selected" data-behavior="spokojne" onclick="selectBehavior(this)">🟢 Spokojne</button>
+    <button class="behavior-btn" data-behavior="agresywne" onclick="selectBehavior(this)">🔴 Agresywne</button>
+  </div>
+  <span class="field-label">Zdjęcie</span>
+  <label class="photo-upload" id="photoUpload">
+    <input type="file" accept="image/*" capture="environment" style="display:none" id="photoInput" onchange="handlePhoto(event)">
+    <span id="photoLabel">📷 Dodaj zdjęcie</span>
+  </label>
+  <div class="photo-hint">+2 punkty za zdjęcie 🌟</div>
+  <div class="loc-confirmed" id="locConfirmed">📍 Miejsce wskazane na mapie</div>
+  <button class="submit-btn" id="submitBtn" onclick="submitSighting()">Oznacz spotkanie</button>
+</div>
+
+<!-- ============ LEADERBOARD SHEET ============ -->
+<div class="sheet" id="lbSheet">
+  <div class="sheet-handle"></div>
+  <div class="level-card">
+    <div class="lvl-name" id="lvlName">Świeżak</div>
+    <div class="lvl-pts"><span id="lvlPts">0</span> punktów</div>
+    <div class="level-bar"><div class="level-bar-fill" id="lvlBar" style="width:0%"></div></div>
+  </div>
+  <h2 style="margin-bottom:14px">🏆 Ranking Krakowa</h2>
+  <div id="lbList"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ CONFIG ============
+let tutStep = 0;  // объявлено первым — нужно туториалу до всего остального
+
+const SUPABASE_URL = 'https://jxvjurltvjgcqxvhbfhx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4dmp1cmx0dmpnY3F4dmhiZmh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTM4OTUsImV4cCI6MjA5ODY4OTg5NX0.HycGM6xiG0HVwRl774d6KPwvZHXGD9RGt8Xy5qgPXxg';
+
+// Клиент создаём защищённо: если библиотека не загрузилась, туториал всё равно работает
+let db = null;
+try {
+  if (typeof supabase !== 'undefined') {
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.error('Supabase library not loaded');
+  }
+} catch (e) { console.error('Supabase init error:', e); }
+
+const KRAKOW = [50.0647, 19.9450];
+
+// ============ LEVELS ============
+const LEVELS = [
+  { name: 'Świeżak', min: 0 },
+  { name: 'Tropiciel', min: 10 },
+  { name: 'Strażnik', min: 30 },
+  { name: 'Ekspert', min: 75 },
+  { name: 'Legenda', min: 150 }
+];
+
+// Fallback species (jeśli baza nie odpowie)
+const FALLBACK_SPECIES = [
+  { id: null, name_pl: 'Dzik', icon: '🐗', danger_level: 2 },
+  { id: null, name_pl: 'Lis', icon: '🦊', danger_level: 0 },
+  { id: null, name_pl: 'Sarna', icon: '🦌', danger_level: 0 },
+  { id: null, name_pl: 'Wilk', icon: '🐺', danger_level: 3 },
+  { id: null, name_pl: 'Borsuk', icon: '🦡', danger_level: 0 },
+  { id: null, name_pl: 'Inne', icon: '❓', danger_level: 1 }
+];
+
+// ============ STATE ============
+let map, userLocation = null, userMarker = null;
+let selectedSpecies = null, selectedBehavior = 'spokojne';
+let species = [], photoData = null, myPoints = 0;
+let confirmedIds = new Set();
+
+// ============ TUTORIAL ============
+function updateConsent() {
+  const checked = document.getElementById('consentCheck').checked;
+  document.getElementById('tutBtn').disabled = !checked;
+  const hint = document.getElementById('consentHint');
+  if (hint) hint.style.display = checked ? 'none' : 'block';
+}
+function goToSlide(step) {
+  tutStep = step;
+  document.getElementById('tutSlides').style.transform = `translateX(-${step * 100}%)`;
+  document.querySelectorAll('.tut-dot').forEach((d, i) => d.classList.toggle('active', i === step));
+  const isLast = step === 3;
+  document.getElementById('tutSkip').style.display = isLast ? 'none' : 'block';
+  document.getElementById('tutBtn').textContent = isLast ? 'Rozpocznij' : 'Dalej';
+  document.getElementById('tutBtn').disabled = isLast && !document.getElementById('consentCheck').checked;
+}
+function tutNext() {
+  if (tutStep < 3) goToSlide(tutStep + 1);
+  else finishTutorial();
+}
+function tutSkip() {
+  goToSlide(3); // прыгаем на слайд с согласием — его пропустить нельзя
+}
+function finishTutorial() {
+  localStorage.setItem('dk_onboarded', '1');
+  document.getElementById('tutorial').classList.add('hidden');
+  document.getElementById('geoPrompt').classList.add('show');
+}
+
+// ============ GEO PROMPT ============
+function requestGeo() {
+  document.getElementById('geoPrompt').classList.remove('show');
+  if (!navigator.geolocation) { showHintBanner(); return; }
+  showToast('Szukam Twojej lokalizacji…');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const coords = [pos.coords.latitude, pos.coords.longitude];
+      userLocation = coords;
+      map.panTo({ lat: coords[0], lng: coords[1] });
+      map.setZoom(18);
+      setUserMarker(coords);
+      showHintBanner();
+    },
+    err => {
+      console.warn('Geo error:', err);
+      showToast('Nie udało się — możesz wskazać miejsce ręcznie');
+      showHintBanner();
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// синий кружок «ты здесь»
+function setUserMarker(coords) {
+  if (userMarker) userMarker.setMap(null);
+  userMarker = new google.maps.Marker({
+    position: { lat: coords[0], lng: coords[1] },
+    map: map,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8, fillColor: '#1D9E75', fillOpacity: 1,
+      strokeColor: '#fff', strokeWeight: 3
+    },
+    zIndex: 999
+  });
+}
+function skipGeo() {
+  document.getElementById('geoPrompt').classList.remove('show');
+  showHintBanner();
+}
+// баннер-подсказка внизу карты: как добавить метку
+function showHintBanner() {
+  const b = document.getElementById('hintBanner');
+  if (b) b.classList.add('show');
+}
+
+// Ждём официальный callback Google Maps (гарантия что Map готов)
+function waitForGoogleMaps() {
+  return new Promise(resolve => {
+    const ready = () => googleMapsReady && window.google && window.google.maps && typeof window.google.maps.Map === 'function';
+    if (ready()) return resolve();
+    let tries = 0;
+    const t = setInterval(() => {
+      if (ready()) { clearInterval(t); resolve(); }
+      else if (++tries > 150) { clearInterval(t); console.error('Google Maps nie załadował się w czasie'); resolve(); }
+    }, 100);
+  });
+}
+
+// ============ BOOT ============
+async function boot() {
+  // Онбординг: первый раз — туториал, потом сразу карта
+  const seenOnboarding = localStorage.getItem('dk_onboarded');
+  if (seenOnboarding) {
+    document.getElementById('tutorial').classList.add('hidden');
+    document.getElementById('geoPrompt').classList.remove('show');
+  } else {
+    // показываем туториал, geoPrompt пока прячем (появится после туториала)
+    document.getElementById('tutorial').classList.remove('hidden');
+    document.getElementById('geoPrompt').classList.remove('show');
+  }
+
+  await waitForGoogleMaps();
+  try { initMap(); } catch (e) { console.error('Map init error:', e); showDbStatus('❌ Błąd mapy: ' + e.message); }
+
+  if (!db) {
+    showDbStatus('❌ Brak połączenia z bazą (biblioteka nie załadowana)');
+    return;
+  }
+
+  try {
+    // Проверка связи с базой + авторизация
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      const { error: authErr } = await db.auth.signInAnonymously();
+      if (authErr) {
+        console.error('Auth error:', authErr);
+        showDbStatus('❌ Błąd logowania: ' + authErr.message);
+        return;
+      }
+    }
+
+    // Тестовый запрос к базе
+    const { error: testErr } = await db.from('species').select('id').limit(1);
+    if (testErr) {
+      console.error('DB test error:', testErr);
+      showDbStatus('❌ Baza nie odpowiada: ' + testErr.message);
+      return;
+    }
+
+    await loadSpecies();
+    await loadSightings();
+    await loadMyPoints();
+    console.log('✅ Połączono z bazą, gatunków:', species.length);
+  } catch (e) {
+    console.error('Backend error:', e);
+    showDbStatus('❌ Błąd połączenia: ' + (e.message || e));
+  }
+}
+
+// Показывает статус базы вверху экрана (для отладки)
+function showDbStatus(msg) {
+  let el = document.getElementById('dbStatus');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'dbStatus';
+    el.style.cssText = 'position:absolute;top:0;left:0;right:0;z-index:9999;background:#E24B4A;color:#fff;padding:10px 14px;font-size:13px;text-align:center;font-family:sans-serif';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+}
+
+// ============ MAP ============
+let sightingMarkers = [];  // храним маркеры Google
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: KRAKOW[0], lng: KRAKOW[1] },
+    zoom: 13,
+    disableDefaultUI: true,
+    zoomControl: true,
+    gestureHandling: 'greedy',   // одним пальцем двигать карту
+    clickableIcons: false,        // не реагировать на POI Google
+    styles: [
+      { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+      { featureType: 'transit', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] }
+    ]
+  });
+
+  // Тап по карте в режиме выбора точки
+  map.addListener('click', e => {
+    onMapClick({ latlng: { lat: e.latLng.lat(), lng: e.latLng.lng() } });
+  });
+}
+
+// Иконка животного как SVG-пин с эмодзи
+function animalIcon(emoji, danger, confirmed) {
+  const border = danger ? '%23E24B4A' : '%231D9E75';
+  const check = confirmed
+    ? `<circle cx='27' cy='7' r='7' fill='%231D9E75' stroke='white' stroke-width='2'/><text x='27' y='11' font-size='9' text-anchor='middle' fill='white'>✓</text>`
+    : '';
+  const svg = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='44' viewBox='0 0 40 44'><path d='M20 2C11 2 4 9 4 18c0 11 16 24 16 24s16-13 16-24C36 9 29 2 20 2z' fill='white' stroke='${border}' stroke-width='2.5'/><text x='20' y='24' font-size='17' text-anchor='middle'>${emoji}</text>${check}</svg>`;
+  return {
+    url: svg,
+    scaledSize: new google.maps.Size(40, 44),
+    anchor: new google.maps.Point(20, 42)
+  };
+}
+
+// ============ SPECIES ============
+async function loadSpecies() {
+  const { data, error } = await db.from('species').select('*').order('danger_level', { ascending: false });
+  species = (error || !data || !data.length) ? FALLBACK_SPECIES : data;
+  if (error) console.warn('Species fallback:', error);
+  const grid = document.getElementById('animalGrid');
+  grid.innerHTML = '';
+  species.forEach(sp => {
+    const btn = document.createElement('button');
+    btn.className = 'animal-btn';
+    btn.innerHTML = `<span class="emoji">${sp.icon}</span>${sp.name_pl}`;
+    btn.onclick = () => selectSpecies(sp, btn);
+    grid.appendChild(btn);
+  });
+  populateSpeciesFilter();
+}
+function selectSpecies(sp, btn) {
+  selectedSpecies = sp;
+  document.querySelectorAll('.animal-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function selectBehavior(btn) {
+  selectedBehavior = btn.dataset.behavior;
+  document.querySelectorAll('.behavior-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ============ SIGHTINGS ============
+let allSightings = [];   // все загруженные метки (для фильтрации)
+let heatmapLayer = null;
+let viewMode = 'pins';   // 'pins' или 'heatmap'
+let filterSpecies = 'all';
+let filterTime = 'all';  // 'all' | 'week' | 'month'
+
+async function loadSightings() {
+  const { data, error } = await db.rpc('get_sightings_geojson');
+  if (error) { console.error('loadSightings error:', error); return; }
+  allSightings = (data || []).filter(s => s.lat != null && s.lng != null);
+  applyFilters();
+}
+
+// Применяет фильтры вида и времени, перерисовывает карту
+function applyFilters() {
+  const now = Date.now();
+  const filtered = allSightings.filter(s => {
+    if (filterSpecies !== 'all' && s.name_pl !== filterSpecies) return false;
+    if (filterTime !== 'all') {
+      const age = (now - new Date(s.seen_at).getTime()) / 1000;
+      if (filterTime === 'week' && age > 7*86400) return false;
+      if (filterTime === 'month' && age > 30*86400) return false;
+    }
+    return true;
+  });
+  renderSightings(filtered);
+  updateStats(filtered);
+}
+
+function clearMarkers() {
+  sightingMarkers.forEach(m => m.setMap(null));
+  sightingMarkers = [];
+}
+
+function renderSightings(list) {
+  clearMarkers();
+  if (heatmapLayer) { heatmapLayer.setMap(null); heatmapLayer = null; }
+
+  if (viewMode === 'heatmap') {
+    // Тепловая карта — горячие зоны концентрации животных
+    const points = list.map(s => new google.maps.LatLng(s.lat, s.lng));
+    heatmapLayer = new google.maps.visualization.HeatmapLayer({
+      data: points, map: map, radius: 32, opacity: 0.75,
+      gradient: [
+        'rgba(29,158,117,0)', 'rgba(29,158,117,0.6)', 'rgba(120,180,60,0.8)',
+        'rgba(230,160,20,0.9)', 'rgba(226,75,74,1)'
+      ]
+    });
+  } else {
+    // Обычные пины
+    list.forEach(s => {
+      addSightingMarker(s.id, [s.lat, s.lng],
+        { name_pl: s.name_pl, icon: s.icon, danger_level: s.danger_level },
+        s.behavior, s.seen_at, s.confirmed_count, s.photo_url);
+    });
+  }
+}
+
+function updateStats(list) {
+  const el = document.getElementById('statsBar');
+  if (el) el.textContent = list.length;
+}
+
+// Переключение режимов карты
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('vtPins').classList.toggle('active', mode === 'pins');
+  document.getElementById('vtHeat').classList.toggle('active', mode === 'heatmap');
+  applyFilters();
+  // понятная подсказка что это за режим
+  if (mode === 'heatmap') {
+    const n = allSightings.length;
+    if (n < 15) {
+      showToast('Im więcej zgłoszeń, tym dokładniejsze strefy 🐗');
+    } else {
+      showToast('Strefy gdzie zwierzęta bywają najczęściej');
+    }
+  }
+}
+
+// Фильтр по виду
+function setSpeciesFilter(name, btn) {
+  filterSpecies = name;
+  document.querySelectorAll('#speciesFilter .fp-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+// Фильтр по времени
+function setTimeFilter(period, btn) {
+  filterTime = period;
+  btn.parentElement.querySelectorAll('.fp-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function toggleFilterPanel() {
+  document.getElementById('filterPanel').classList.toggle('show');
+}
+
+// Заполняет фильтр видов из загруженных видов
+function populateSpeciesFilter() {
+  const box = document.getElementById('speciesFilter');
+  if (!box) return;
+  const chips = species.map(sp =>
+    `<button class="fp-chip" onclick="setSpeciesFilter('${sp.name_pl}', this)">${sp.icon} ${sp.name_pl}</button>`
+  ).join('');
+  box.innerHTML = `<button class="fp-chip active" onclick="setSpeciesFilter('all', this)">Wszystkie</button>` + chips;
+}
+
+let openInfoWindow = null;  // одно открытое окно за раз
+
+function addSightingMarker(id, coords, sp, behavior, seenAt, confirmedCount, photoUrl) {
+  const danger = (sp.danger_level >= 2) || (behavior === 'agresywne');
+  const confirmed = confirmedCount > 0;
+  const marker = new google.maps.Marker({
+    position: { lat: coords[0], lng: coords[1] },
+    map: map,
+    icon: animalIcon(sp.icon, danger, confirmed)
+  });
+  sightingMarkers.push(marker);
+
+  const timeAgo = formatTimeAgo(seenAt);
+  const badge = behavior === 'agresywne' ? '<div class="sp-badge">⚠️ agresywne</div>' : '';
+  const confirmLabel = confirmedCount > 0 ? `<div class="sp-confirmed-label">✓ Potwierdzone ${confirmedCount}×</div>` : '';
+  const photo = photoUrl ? `<img class="sp-photo" src="${photoUrl}" alt="zdjęcie">` : '';
+  const canConfirm = id && !confirmedIds.has(id);
+  const confirmBtn = id ? (canConfirm
+    ? `<button class="sp-confirm-btn" onclick="confirmSighting('${id}', this)">Ja też widziałem (+1)</button>`
+    : `<button class="sp-confirm-btn" disabled>Potwierdzone ✓</button>`) : '';
+
+  const info = new google.maps.InfoWindow({
+    content: `<div class="sighting-popup">
+      <div class="sp-title">${sp.icon} ${sp.name_pl}</div>
+      <div class="sp-meta">${timeAgo}</div>
+      ${photo}${badge}${confirmLabel}${confirmBtn}
+    </div>`
+  });
+
+  marker.addListener('click', () => {
+    if (openInfoWindow) openInfoWindow.close();
+    info.open(map, marker);
+    openInfoWindow = info;
+  });
+}
+function formatTimeAgo(ts) {
+  const diff = (Date.now() - new Date(ts).getTime()) / 1000;
+  if (diff < 60) return 'przed chwilą';
+  if (diff < 3600) return `${Math.floor(diff/60)} min temu`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} godz. temu`;
+  return `${Math.floor(diff/86400)} dni temu`;
+}
+
+// ============ CONFIRM ============
+async function confirmSighting(sightingId, btnEl) {
+  const { error } = await db.rpc('confirm_sighting', { target_sighting: sightingId });
+  if (error) { showToast('Błąd potwierdzenia'); console.error(error); return; }
+  confirmedIds.add(sightingId);
+  btnEl.disabled = true;
+  btnEl.textContent = 'Potwierdzone ✓';
+  showToast('Dzięki za potwierdzenie!', 1);
+  await loadMyPoints();
+}
+
+// ============ ПОИСК АДРЕСА (Nominatim / OpenStreetMap) ============
+let searchTimer = null;
+
+function onSearchInput() {
+  const val = document.getElementById('searchInput').value.trim();
+  document.getElementById('searchClear').style.display = val ? 'flex' : 'none';
+  clearTimeout(searchTimer);
+  if (val.length < 3) {
+    document.getElementById('searchResults').classList.remove('show');
+    return;
+  }
+  // debounce: ждём 500мс после последнего ввода
+  searchTimer = setTimeout(() => doSearch(val), 500);
+}
+
+async function doSearch(query) {
+  try {
+    // ограничиваем поиск Польшей, до 5 результатов
+    const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=pl&limit=5&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url, { headers: { 'Accept-Language': 'pl' } });
+    const data = await res.json();
+    renderSearchResults(data);
+  } catch (e) {
+    console.warn('Search error:', e);
+  }
+}
+
+function renderSearchResults(results) {
+  const box = document.getElementById('searchResults');
+  if (!results || !results.length) {
+    box.innerHTML = '<div class="search-result-item"><span class="sr-text" style="color:var(--text-soft)">Nie znaleziono</span></div>';
+    box.classList.add('show');
+    return;
+  }
+  box.innerHTML = results.map(r => {
+    const label = r.display_name.split(',').slice(0, 3).join(',');
+    return `<div class="search-result-item" onclick="goToResult(${r.lat}, ${r.lon})">
+      <span class="sr-icon">📍</span><span class="sr-text">${label}</span>
+    </div>`;
+  }).join('');
+  box.classList.add('show');
+}
+
+function goToResult(lat, lon) {
+  map.panTo({ lat: parseFloat(lat), lng: parseFloat(lon) });
+  map.setZoom(16);
+  document.getElementById('searchResults').classList.remove('show');
+  document.getElementById('searchInput').blur();
+  if (pickMode) showToast('Dotknij mapy, aby postawić pinezkę');
+}
+
+function searchAddress() {
+  const val = document.getElementById('searchInput').value.trim();
+  if (val.length >= 3) doSearch(val);
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchResults').classList.remove('show');
+}
+
+// ============ ADD FLOW (выбор точки → пин → подтверждение → форма) ============
+let pickPin = null;      // перетаскиваемый пин
+let pickMode = false;
+
+// Шаг 1: нажали «+ Dodaj» — входим в режим выбора точки на карте
+function startAddFlow() {
+  closeAllSheets();
+  pickMode = true;
+  document.getElementById('fab').style.display = 'none';
+  document.getElementById('hintBanner').classList.add('show');
+  if (userLocation) { map.panTo({ lat: userLocation[0], lng: userLocation[1] }); map.setZoom(18); }
+}
+
+// Шаг 2: тап по карте ставит перетаскиваемый пин
+function onMapClick(e) {
+  if (!pickMode) return;
+  const latlng = { lat: e.latlng.lat, lng: e.latlng.lng };
+  if (pickPin) {
+    pickPin.setPosition(latlng);
+  } else {
+    pickPin = new google.maps.Marker({
+      position: latlng,
+      map: map,
+      draggable: true,
+      icon: {
+        url: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='48' viewBox='0 0 44 48'><path d='M22 2C13 2 6 9 6 18c0 12 16 26 16 26s16-14 16-26C38 9 31 2 22 2z' fill='%231D9E75' stroke='white' stroke-width='2.5'/><circle cx='22' cy='18' r='6' fill='white'/></svg>`,
+        scaledSize: new google.maps.Size(44, 48),
+        anchor: new google.maps.Point(22, 46)
+      },
+      zIndex: 1000
+    });
+  }
+  document.getElementById('hintBanner').classList.remove('show');
+  document.getElementById('confirmPoint').classList.add('show');
+}
+
+// Шаг 3: подтвердили точку — открываем форму
+function confirmPoint() {
+  if (!pickPin) return;
+  const p = pickPin.getPosition();
+  userLocation = [p.lat(), p.lng()];
+  document.getElementById('confirmPoint').classList.remove('show');
+  pickMode = false;
+  openSheet();
+}
+
+// Отмена выбора точки
+function cancelPick() {
+  pickMode = false;
+  if (pickPin) { pickPin.setMap(null); pickPin = null; }
+  document.getElementById('confirmPoint').classList.remove('show');
+  document.getElementById('hintBanner').classList.remove('show');
+  document.getElementById('fab').style.display = '';
+}
+
+// Кнопка «моя локация» — центрирует карту вплотную на пользователе
+function recenterOnUser() {
+  if (userLocation) { map.panTo({ lat: userLocation[0], lng: userLocation[1] }); map.setZoom(18); return; }
+  if (!navigator.geolocation) { showToast('Lokalizacja niedostępna'); return; }
+  showToast('Szukam Ciebie…');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLocation = [pos.coords.latitude, pos.coords.longitude];
+      setUserMarker(userLocation);
+      map.panTo({ lat: userLocation[0], lng: userLocation[1] });
+      map.setZoom(18);
+    },
+    err => { console.warn('Geo error:', err); showToast('Nie udało się ustalić lokalizacji'); },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// ============ PHOTO ============
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  // сжимаем перед загрузкой (экономим egress)
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const max = 1000;
+      let { width, height } = img;
+      if (width > max || height > max) {
+        if (width > height) { height = height * max / width; width = max; }
+        else { width = width * max / height; height = max; }
+      }
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      photoData = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('photoUpload').classList.add('has-photo');
+      document.getElementById('photoLabel').textContent = '✅ Zdjęcie dodane';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============ SHEETS ============
+function openSheet() {
+  closeLeaderboard();
+  document.getElementById('backdrop').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+}
+function openLeaderboard() {
+  closeSheet();
+  document.getElementById('backdrop').classList.add('open');
+  document.getElementById('lbSheet').classList.add('open');
+  renderLevel();
+  loadLeaderboard();
+}
+function closeSheet() { document.getElementById('sheet').classList.remove('open'); document.getElementById('backdrop').classList.remove('open'); }
+function closeLeaderboard() { document.getElementById('lbSheet').classList.remove('open'); }
+function closeAllSheets() { closeSheet(); closeLeaderboard(); }
+
+// ============ SUBMIT ============
+async function submitSighting() {
+  if (!selectedSpecies || !selectedSpecies.id) {
+    if (!selectedSpecies) { showToast('Wybierz zwierzę'); return; }
+    // fallback species has no id — look up real id by name
+    const real = await getSpeciesIdByName(selectedSpecies.name_pl);
+    if (!real) { showToast('Błąd: brak gatunku w bazie'); return; }
+    selectedSpecies.id = real;
+  }
+  if (!userLocation) { showToast('Najpierw wskaż miejsce na mapie'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Zapisywanie…';
+
+  const point = `POINT(${userLocation[1]} ${userLocation[0]})`;
+  const hasPhoto = !!photoData;
+
+  const { data, error } = await db.from('sightings').insert({
+    species_id: selectedSpecies.id, location: point,
+    behavior: selectedBehavior, has_photo: hasPhoto, photo_url: photoData
+  }).select().single();
+
+  if (error) {
+    btn.disabled = false; btn.textContent = 'Oznacz spotkanie';
+    showToast('Błąd zapisu 😕'); console.error(error); return;
+  }
+
+  await db.rpc('award_sighting_points', { has_photo: hasPhoto });
+
+  // убираем пин выбора и возвращаем кнопку +
+  if (pickPin) { pickPin.setMap(null); pickPin = null; }
+  document.getElementById('fab').style.display = '';
+  userLocation = null;
+
+  btn.disabled = false; btn.textContent = 'Oznacz spotkanie';
+  resetSheet();
+  closeSheet();
+  showToast(`Dodane! <span class="t-points">+${hasPhoto ? 3 : 1} pkt</span>`, hasPhoto ? 3 : 1);
+  await loadSightings();   // перезагружаем — новая метка попадёт в фильтры и heatmap
+  await loadMyPoints();
+}
+
+async function getSpeciesIdByName(name) {
+  const { data } = await db.from('species').select('id').eq('name_pl', name).single();
+  return data ? data.id : null;
+}
+
+function resetSheet() {
+  selectedSpecies = null; selectedBehavior = 'spokojne'; photoData = null;
+  document.querySelectorAll('.animal-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.behavior-btn').forEach((b, i) => b.classList.toggle('selected', i === 0));
+  document.getElementById('photoUpload').classList.remove('has-photo');
+  document.getElementById('photoLabel').textContent = '📷 Dodaj zdjęcie';
+  document.getElementById('photoInput').value = '';
+}
+
+// ============ POINTS & LEVELS ============
+async function loadMyPoints() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const { data } = await db.from('profiles').select('points').eq('id', user.id).single();
+  myPoints = data ? data.points : 0;
+  document.getElementById('pointsVal').textContent = myPoints;
+}
+function currentLevel() {
+  let lvl = LEVELS[0], next = null;
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (myPoints >= LEVELS[i].min) { lvl = LEVELS[i]; next = LEVELS[i+1] || null; }
+  }
+  return { lvl, next };
+}
+function renderLevel() {
+  const { lvl, next } = currentLevel();
+  document.getElementById('lvlName').textContent = lvl.name;
+  document.getElementById('lvlPts').textContent = myPoints;
+  if (next) {
+    const pct = Math.min(100, ((myPoints - lvl.min) / (next.min - lvl.min)) * 100);
+    document.getElementById('lvlBar').style.width = pct + '%';
+  } else {
+    document.getElementById('lvlBar').style.width = '100%';
+  }
+}
+async function loadLeaderboard() {
+  const { data, error } = await db.rpc('get_leaderboard');
+  const list = document.getElementById('lbList');
+  if (error || !data || !data.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text-soft);padding:20px">Bądź pierwszy w rankingu! 🚀</div>';
+    return;
+  }
+  list.innerHTML = data.map(r => `
+    <div class="lb-row">
+      <div class="lb-rank ${r.rank <= 3 ? 'top' : ''}">${r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank}</div>
+      <div class="lb-name">${r.nickname}</div>
+      <div class="lb-points">${r.points} pkt</div>
+    </div>
+  `).join('');
+}
+
+// ============ TOAST ============
+let toastTimer;
+function showToast(msg, points) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// Регистрация service worker для PWA (установка на телефон, офлайн)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW register failed:', e));
+  });
+}
+
+// Запуск приложения
+boot();
+</script>
+</body>
+</html>
