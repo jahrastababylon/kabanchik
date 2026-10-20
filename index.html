@@ -524,7 +524,20 @@ function supaApi(){
       return { list:ok(list).map(num), conf:ok(conf).map(r => new Date(r.created_at).getTime()) };
     },
     async photo(id){ return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url; },
-    async add(o){ return ok(await sb.rpc('dk_add_sighting', { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_behavior:o.behavior, p_photo:o.photo_url, p_seen_at:o.seen_at })); },
+    async add(o){
+      let photo = o.photo_url;
+      if(photo && photo.startsWith('data:')){
+        // Zdjęcie idzie do Supabase Storage, w bazie zostaje tylko link.
+        // Jeśli magazynu jeszcze nie ma (brak migracji v5), zapisujemy jak dawniej.
+        try{
+          const blob = await (await fetch(photo)).blob();
+          const path = `${uid}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+          ok(await sb.storage.from('photos').upload(path, blob, { contentType:'image/jpeg', upsert:false }));
+          photo = sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
+        }catch(e){ console.warn('Storage niedostępny, zdjęcie zapisane w bazie:', e.message || e); }
+      }
+      return ok(await sb.rpc('dk_add_sighting', { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_behavior:o.behavior, p_photo:photo, p_seen_at:o.seen_at }));
+    },
     async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
     async leaderboard(since, near){ return ok(await sb.rpc('dk_leaderboard', { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null })); },
     async getNickname(){ const { data } = await sb.from('profiles').select('nickname').eq('id', uid).maybeSingle(); return data?.nickname || ''; },
