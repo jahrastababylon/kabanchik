@@ -20,7 +20,7 @@
 **Settings → Pages → Source: Deploy from a branch → Branch: `main`, папка `/ (root)` → Save.**
 Каждый новый коммит в `main` обновляет сайт через 1–2 минуты.
 
-Старая версия v2 (Google Maps) сохранена в теге `v2-google-maps`.
+Старая версия v2 (Google Maps) сохранена в истории: коммит `98d010b`.
 
 ## Вариант А. Netlify Drop (без git)
 
