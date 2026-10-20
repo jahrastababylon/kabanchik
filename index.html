@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -301,6 +301,11 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .consent{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--ink-2);padding:12px 14px;border-radius:14px;background:var(--surface)}
 .consent input{width:22px;height:22px;flex:none;accent-color:var(--moss);margin:0}
 
+.stylelist{display:flex;flex-wrap:wrap;gap:6px}
+.chip[disabled]{opacity:.45;cursor:default}
+.chip small{font-weight:500;font-size:11px}
+.settings .field{gap:8px}
+.leaflet-container .maplibregl-canvas{outline:none}
 @media (min-width:900px){
   .top{max-width:620px}
   .sheet.panel{left:max(12px,env(safe-area-inset-left,0px));right:auto;width:440px;margin:0;bottom:84px;border-radius:24px;max-height:calc(100% - 180px)}
@@ -313,55 +318,55 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 </head>
 <body>
 
-<div id="map" aria-label="Mapa z obserwacjami dzikich zwierząt"></div>
+<div id="map"></div>
 
 <header class="top">
   <div class="row">
     <div class="search">
-      <label for="q"><span id="icoSearch"></span><input id="q" type="search" placeholder="Szukaj miasta, adresu lub parku" autocomplete="off" enterkeyhint="search"></label>
+      <label for="q"><span id="icoSearch"></span><input id="q" type="search" autocomplete="off" enterkeyhint="search"></label>
       <div class="results" id="results" hidden></div>
     </div>
-    <button class="me" id="meChip" aria-label="Twój poziom i odznaki"></button>
+    <button class="me" id="meChip"></button>
   </div>
   <div class="row row2">
-    <div class="seg" role="tablist" aria-label="Widok mapy">
-      <button data-mode="pins" class="on">Spotkania</button>
-      <button data-mode="heat">Gdzie bywają</button>
-      <button data-mode="zones">Kwadraty</button>
+    <div class="seg" role="tablist" id="modeSeg">
+      <button data-mode="pins" class="on" data-i18n="mode_pins"></button>
+      <button data-mode="heat" data-i18n="mode_heat"></button>
+      <button data-mode="zones" data-i18n="mode_cells"></button>
     </div>
   </div>
   <div class="chips" id="chips"></div>
-  <div class="notice" id="notice" hidden><span id="noticeText"></span><button id="noticeClose" aria-label="Zamknij"></button></div>
+  <div class="notice" id="notice" hidden><span id="noticeText"></span><button id="noticeClose"></button></div>
 </header>
 
-<button class="float" id="locate" aria-label="Pokaż moją lokalizację"></button>
+<button class="float" id="locate"></button>
 <div class="empty-note" id="emptyNote" hidden></div>
 
-<nav class="tabbar" aria-label="Nawigacja">
-  <button class="tab on" data-tab="map"><span class="ic"></span>Mapa</button>
-  <button class="tab" data-tab="quests"><span class="ic"></span>Wyzwania<span class="dot" id="questDot" hidden></span></button>
-  <button class="fab" id="addBtn" aria-label="Zgłoś obserwację"><span></span><span>Zgłoś</span></button>
-  <button class="tab" data-tab="atlas"><span class="ic"></span>Atlas</button>
-  <button class="tab" data-tab="rank"><span class="ic"></span>Ranking</button>
+<nav class="tabbar" id="tabbar">
+  <button class="tab on" data-tab="map"><span class="ic"></span><span data-i18n="tab_map"></span></button>
+  <button class="tab" data-tab="quests"><span class="ic"></span><span data-i18n="tab_quests"></span><span class="dot" id="questDot" hidden></span></button>
+  <button class="fab" id="addBtn"><span></span><span data-i18n="tab_report"></span></button>
+  <button class="tab" data-tab="atlas"><span class="ic"></span><span data-i18n="tab_atlas"></span></button>
+  <button class="tab" data-tab="rank"><span class="ic"></span><span data-i18n="tab_rank"></span></button>
 </nav>
 
 <div class="cross" aria-hidden="true">
   <svg width="44" height="56" viewBox="0 0 44 56"><path d="M22 2C11 2 3 10.4 3 21c0 13.6 19 33 19 33s19-19.4 19-33C41 10.4 33 2 22 2z" fill="var(--fox)" stroke="var(--surface)" stroke-width="3"/><circle cx="22" cy="21" r="7" fill="var(--surface)"/></svg>
 </div>
 <div class="addbar">
-  <div class="hint"><b>Ustaw pinezkę</b> w miejscu, gdzie widziałeś zwierzę. Przesuń mapę albo stuknij w nią.</div>
+  <div class="hint" data-i18n-html="add_hint"></div>
   <div class="zone" id="pickHint"></div>
-  <div class="btns"><button class="btn ghost" id="addCancel">Anuluj</button><button class="btn primary" id="addOk">Tutaj</button></div>
+  <div class="btns"><button class="btn ghost" id="addCancel" data-i18n="cancel"></button><button class="btn primary" id="addOk" data-i18n="here"></button></div>
 </div>
 
 <div class="scrim" id="scrim"></div>
 
-<section class="sheet" id="card" aria-modal="true" role="dialog"><div class="sheet-head"><div></div><button class="iconbtn" data-close="card" aria-label="Zamknij"></button></div><div class="sheet-body" id="cardBody"></div></section>
-<section class="sheet" id="form" aria-modal="true" role="dialog"><div class="sheet-head"><h2>Co widziałeś?</h2><button class="iconbtn" data-close="form" aria-label="Zamknij"></button></div><div class="sheet-body" id="formBody"></div></section>
+<section class="sheet" id="card" aria-modal="true" role="dialog"><div class="sheet-head"><div></div><button class="iconbtn" data-close="card"></button></div><div class="sheet-body" id="cardBody"></div></section>
+<section class="sheet" id="form" aria-modal="true" role="dialog"><div class="sheet-head"><h2 data-i18n="form_title"></h2><button class="iconbtn" data-close="form"></button></div><div class="sheet-body" id="formBody"></div></section>
 
-<section class="sheet panel" id="p-quests"><div class="sheet-head"><h2>Wyzwania</h2><button class="iconbtn" data-tabclose aria-label="Zamknij"></button></div><div class="sheet-body" id="questsBody"></div></section>
-<section class="sheet panel" id="p-atlas"><div class="sheet-head"><h2>Twój atlas</h2><button class="iconbtn" data-tabclose aria-label="Zamknij"></button></div><div class="sheet-body" id="atlasBody"></div></section>
-<section class="sheet panel" id="p-rank"><div class="sheet-head"><h2>Ranking</h2><button class="iconbtn" data-tabclose aria-label="Zamknij"></button></div><div class="sheet-body" id="rankBody"></div></section>
+<section class="sheet panel" id="p-quests"><div class="sheet-head"><h2 data-i18n="tab_quests"></h2><button class="iconbtn" data-tabclose></button></div><div class="sheet-body" id="questsBody"></div></section>
+<section class="sheet panel" id="p-atlas"><div class="sheet-head"><h2 data-i18n="atlas_title"></h2><button class="iconbtn" data-tabclose></button></div><div class="sheet-body" id="atlasBody"></div></section>
+<section class="sheet panel" id="p-rank"><div class="sheet-head"><h2 data-i18n="tab_rank"></h2><button class="iconbtn" data-tabclose></button></div><div class="sheet-body" id="rankBody"></div></section>
 
 <div class="modal" id="modal" hidden><div class="mcard" id="mcard" role="dialog" aria-modal="true"></div></div>
 <div class="onb" id="onb" hidden><div class="onb-in" id="onbIn"></div></div>
@@ -371,46 +376,222 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* =====================================================================
-   KONFIGURACJA — jedyne miejsce, które zwykle trzeba zmieniać
+   KONFIGURACJA / CONFIGURATION
    ===================================================================== */
 const CONFIG = {
   APP_NAME: 'Dzikie Korytarze',
-  // Supabase → Project Settings → API. Pusty klucz = tryb demo (dane przykładowe, zapis w przeglądarce).
   SUPABASE_URL: 'https://jxvjurltvjgcqxvhbfhx.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4dmp1cmx0dmpnY3F4dmhiZmh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTM4OTUsImV4cCI6MjA5ODY4OTg5NX0.HycGM6xiG0HVwRl774d6KPwvZHXGD9RGt8Xy5qgPXxg',  // klucz publiczny z założenia; dane chroni RLS w bazie
-  // Darmowy klucz CARTO, bez konta: https://carto.com/basemaps/apikey/ — ładniejszy podkład + tryb ciemny.
-  // Pusty = OpenStreetMap (bez klucza, cały świat).
+  // Darmowy klucz CARTO, bez konta: https://carto.com/basemaps/apikey/ — odblokowuje style CARTO.
   CARTO_KEY: '',
-  // Własny serwer kafelków (np. MapTiler, Stadia). Ma pierwszeństwo, jeśli wpisany.
-  CUSTOM_TILES: '',            // np. 'https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=XXX'
+  // Własny serwer kafelków (np. MapTiler, Stadia). Pojawi się jako styl „Custom”.
+  CUSTOM_TILES: '',
   CUSTOM_ATTRIBUTION: '',
-  NEAR_RADIUS_KM: 25,          // zasięg rankingu „Okolica”
+  DEFAULT_STYLE: 'osm',        // osm | liberty | positron | dark | carto_voyager | carto_positron | carto_dark
+  NEAR_RADIUS_KM: 25,
 };
-let DEMO = !CONFIG.SUPABASE_ANON_KEY;
+let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
+
+/* =====================================================================
+   JĘZYK / LANGUAGE — polski i angielski; wybór automatyczny lub ręczny
+   ===================================================================== */
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } },
+};
+function detectLang(){
+  const saved = LS.get('dk_lang', 'auto');
+  if(saved === 'pl' || saved === 'en') return saved;
+  const list = navigator.languages?.length ? navigator.languages : [navigator.language || 'en'];
+  return list.some(l => /^pl\b/i.test(l)) ? 'pl' : 'en';
+}
+let LANG = detectLang();
+const EMERG = { pl:'numer alarmowy (112 w Europie, 911 w USA i Kanadzie)', en:'the emergency number (112 in Europe, 911 in the US and Canada)' };
+const STR = {
+  pl: {
+    search:'Szukaj miasta, adresu lub parku', me_aria:'Twój poziom i odznaki', locate_aria:'Pokaż moją lokalizację', close:'Zamknij',
+    mode_pins:'Spotkania', mode_heat:'Gdzie bywają', mode_cells:'Kwadraty',
+    tab_map:'Mapa', tab_quests:'Wyzwania', tab_report:'Zgłoś', tab_atlas:'Atlas', tab_rank:'Ranking',
+    add_hint:'<b>Ustaw pinezkę</b> w miejscu, gdzie widziałeś zwierzę. Przesuń mapę albo stuknij w nią.',
+    cancel:'Anuluj', here:'Tutaj', form_title:'Co widziałeś?', atlas_title:'Twój atlas',
+    t_1:'24 godz.', t_7:'Tydzień', t_30:'Miesiąc', t_all:'Wszystko', period:'Okres', all:'Wszystkie',
+    note_zoom_city:'Przybliż mapę do swojego miasta', note_empty:'Nikt tu jeszcze niczego nie zgłosił. Bądź pierwszy!',
+    note_heat_empty:'Brak danych do mapy cieplnej w tym miejscu', note_zoom_cells:'Przybliż mapę, żeby zobaczyć kwadraty 1 km',
+    note_cells_hint:'Zielone kwadraty to miejsca, które odkryłeś',
+    streak_title:'Seria dni', your_sighting:'To Twoja obserwacja', confirmed:'Potwierdzone', confirm_btn:'Też go widziałem',
+    loading_photo:'Ładuję zdjęcie…', photo_na:'Zdjęcie niedostępne', photo_err:'Nie udało się wczytać zdjęcia', photo_of:'Zdjęcie',
+    behavior:'Zachowanie', reported_by:'Zgłosił(a)', you:'Ty', anon:'Anonimowy tropiciel', confirmations:'Potwierdzenia', unknown:'Nieznany',
+    saving:'Zapisuję…', confirm_fail:'Nie udało się potwierdzić',
+    cell_found:'Odkryty kwadrat', cell_new:'Kwadrat do odkrycia', cell:'Kwadrat', sightings:'Obserwacje', last:'Ostatnia',
+    cell_tip_found:'Masz tu już swoją obserwację. Kolejne nadal dają XP.',
+    cell_tip_new:'Zgłoś tu dowolne zwierzę, żeby odkryć ten kwadrat. Pięć kwadratów to odznaka Odkrywca.',
+    report_here:'Zgłoś obserwację tutaj', pick_known:'Ten kwadrat już odkryłeś', pick_new:'Nowy kwadrat na Twojej mapie',
+    f_species:'Gatunek', f_when:'Kiedy', f_behavior:'Zachowanie', optional:'(opcjonalnie)', f_note:'Notatka',
+    f_note_ph:'np. trzy warchlaki przy ścieżce', f_photo:'Zdjęcie', add_photo:'Dodaj zdjęcie', change_photo:'Zmień zdjęcie',
+    compressing:'Kompresuję…', f_reward:'Nagroda', submit:'Zgłoś obserwację',
+    x_sighting:'Obserwacja', x_photo:'Zdjęcie', x_species:'Nowy gatunek', x_cell:'Nowy kwadrat mapy',
+    photo_read_err:'Nie udało się odczytać zdjęcia. Spróbuj pliku JPG lub PNG.',
+    e_species:'Wybierz gatunek', e_when:'Podaj datę i godzinę', e_future:'Data nie może być z przyszłości',
+    e_old:'Można zgłosić obserwację sprzed maksymalnie 7 dni', save_fail:'Nie udało się zapisać', no_space:'Za mało miejsca w przeglądarce — zapisano bez zdjęcia',
+    r_saved:'Obserwacja zapisana', r_thanks:'Dzięki za potwierdzenie', r_confirm:'Potwierdzenie obserwacji',
+    r_new_species:'Nowy gatunek w atlasie', r_new_cell:'Odkryty nowy kwadrat mapy', r_total:'razem', r_quest:'Wyzwanie', r_done:'ukończone',
+    r_new_level:'Nowy poziom', r_to:'do', r_max:'Najwyższy poziom', r_badge:'Nowa odznaka', r_badges:'Nowe odznaki', next:'Dalej',
+    q_today_done:'Dzisiejszy dzień zaliczony.', q_keep:'Zgłoś coś dziś, żeby nie przerwać serii.', q_start:'Zgłoś obserwację, żeby zacząć serię.',
+    q_in_row:'z rzędu', q_weekly:'Wyzwania tygodnia', q_new_in:'nowe za', q_all3:'Ukończ wszystkie trzy, żeby zdobyć odznakę Zadaniowiec.',
+    days:['Pn','Wt','Śr','Cz','Pt','So','Nd'],
+    your_level:'Twój poziom', species_h:'Gatunki', cells_h:'Odkryte kwadraty', show_on_map:'Pokaż na mapie', badges_h:'Odznaki',
+    points_h:'Za co są punkty', p_each:'Każda obserwacja', p_photo:'Obserwacja ze zdjęciem', p_species:'Pierwszy raz nowy gatunek',
+    p_give:'Potwierdzasz cudzą obserwację', p_get:'Ktoś potwierdza Twoją',
+    settings_h:'Ustawienia', lang_l:'Język', lang_auto:'Automatycznie', map_style_l:'Styl mapy', needs_key:'wymaga klucza CARTO',
+    style_note:'Styl zapisuje się w tej przeglądarce. Wybierz, który podoba Ci się najbardziej.',
+    near:'Okolica', world:'Świat', week:'Tydzień', all_time:'Cały czas', rank_loading:'Ładuję ranking…',
+    near_note:'Okolica liczy się od środka mapy.', demo_rank:'Tryb demo: pozostali gracze to przykładowe dane.',
+    not_in_rank:'Nie ma Cię jeszcze w tym rankingu. Zgłoś obserwację w tej okolicy.', rank_empty:'Nikt jeszcze nie zdobył tu punktów w tym okresie. Możesz być pierwszy.',
+    rank_fail:'Nie udało się wczytać rankingu', playing_as:'Grasz jako', change:'Zmień', save:'Zapisz',
+    nick_ph:'Pseudonim, 2–24 znaki', nick_l:'Pseudonim', nick_short:'Pseudonim musi mieć co najmniej 2 znaki', nick_saved:'Zapisano pseudonim', nick_fail:'Pseudonim nie został zapisany',
+    no_results:'Nic nie znaleziono', search_down:'Wyszukiwarka nie odpowiada. Spróbuj za chwilę.',
+    geo_none:'Ta przeglądarka nie udostępnia lokalizacji', geo_https:'Lokalizacja działa tylko przez https:// albo localhost. Wyszukaj miasto ręcznie.',
+    geo_denied:'Brak dostępu do lokalizacji. Włącz ją w ustawieniach przeglądarki albo wyszukaj miasto.',
+    tiles_fail:'Nie udało się wczytać podkładu mapy. Sprawdź internet albo wybierz inny styl w Atlasie.',
+    style_fail:'Ten styl mapy się nie wczytał, wracam do OpenStreetMap.',
+    lib_fail:'Nie udało się wczytać biblioteki mapy. Sprawdź połączenie z internetem i odśwież stronę.',
+    demo_notice:'Tryb demo: przykładowe obserwacje pojawiają się wokół miejsca, które oglądasz. Zapis tylko w tej przeglądarce.',
+    db_fallback:'Baza nie odpowiada albo brakuje w niej migracji supabase_v4.sql. Na razie działa tryb demo — zapis tylko w tej przeglądarce.',
+    start_fail:'Nie udało się uruchomić aplikacji',
+    onb1_e:'', onb1_t:'Miasto dzielimy z dzikimi zwierzętami',
+    onb1_p:'Dziki, lisy i sarny korzystają z tych samych parków i ulic co my — w każdym mieście. Zaznaczaj, gdzie je widzisz, a razem stworzymy mapę dzikich korytarzy.',
+    onb2_e:'Zgłoszenie w 20 sekund', onb2_t:'Zobaczyłeś zwierzę? Postaw pinezkę',
+    onb2_p:'Stuknij pomarańczowy przycisk, ustaw pinezkę i wybierz gatunek. Zdjęcie jest mile widziane, ale nieobowiązkowe. Inni mogą potwierdzić Twoją obserwację.',
+    onb3_e:'Gra w tropiciela', onb3_t:'Zbieraj XP, odznaki i kwadraty mapy',
+    onb3_p:'Awansuj od Świeżaka do Legendy. Uzupełniaj atlas gatunków, odkrywaj kolejne kwadraty 1 km, utrzymuj serię dni i rywalizuj z okolicą albo z całym światem.',
+    onb4_e:'Ostatni krok', onb4_t:'Jak mamy Cię nazywać?',
+    onb4_p:'Pseudonim zobaczą inni w rankingu. Możesz go zmienić później. Za chwilę zapytamy o lokalizację, żeby pokazać mapę wokół Ciebie.',
+    onb_nick_ph:'np. LisiTrop',
+    consent:'Zgadzam się na zapisywanie lokalizacji i czasu moich zgłoszeń, ich publikację na mapie pod pseudonimem oraz udostępnianie zanonimizowanych danych miastom i naukowcom (RODO/GDPR). Zgodę możesz wycofać, pisząc do administratora projektu.',
+    emergency:'W sytuacji zagrożenia dzwoń na', back:'Wstecz', onb_go:'Pokaż mapę wokół mnie', step:'Krok',
+    ago_now:'przed chwilą', ago_min:'min temu', ago_h:'godz. temu', ago_y:'wczoraj', ago_d:'dni temu',
+  },
+  en: {
+    search:'Search a city, address or park', me_aria:'Your level and badges', locate_aria:'Show my location', close:'Close',
+    mode_pins:'Sightings', mode_heat:'Hotspots', mode_cells:'Squares',
+    tab_map:'Map', tab_quests:'Quests', tab_report:'Report', tab_atlas:'Atlas', tab_rank:'Ranking',
+    add_hint:'<b>Place the pin</b> where you saw the animal. Drag the map or tap on it.',
+    cancel:'Cancel', here:'Here', form_title:'What did you see?', atlas_title:'Your atlas',
+    t_1:'24 hours', t_7:'Week', t_30:'Month', t_all:'All time', period:'Period', all:'All',
+    note_zoom_city:'Zoom in to your city', note_empty:'No one has reported anything here yet. Be the first!',
+    note_heat_empty:'No data for the heatmap here yet', note_zoom_cells:'Zoom in to see the 1 km squares',
+    note_cells_hint:'Green squares are places you have discovered',
+    streak_title:'Day streak', your_sighting:'This is your sighting', confirmed:'Confirmed', confirm_btn:'I saw it too',
+    loading_photo:'Loading photo…', photo_na:'Photo unavailable', photo_err:'Could not load the photo', photo_of:'Photo',
+    behavior:'Behaviour', reported_by:'Reported by', you:'You', anon:'Anonymous tracker', confirmations:'Confirmations', unknown:'Unknown',
+    saving:'Saving…', confirm_fail:'Could not confirm',
+    cell_found:'Discovered square', cell_new:'Square to discover', cell:'Square', sightings:'Sightings', last:'Latest',
+    cell_tip_found:'You already have a sighting here. More sightings still earn XP.',
+    cell_tip_new:'Report any animal here to discover this square. Five squares earn the Explorer badge.',
+    report_here:'Report a sighting here', pick_known:'You have already discovered this square', pick_new:'New square on your map',
+    f_species:'Species', f_when:'When', f_behavior:'Behaviour', optional:'(optional)', f_note:'Note',
+    f_note_ph:'e.g. three piglets by the path', f_photo:'Photo', add_photo:'Add photo', change_photo:'Change photo',
+    compressing:'Compressing…', f_reward:'Reward', submit:'Report sighting',
+    x_sighting:'Sighting', x_photo:'Photo', x_species:'New species', x_cell:'New map square',
+    photo_read_err:'Could not read the photo. Try a JPG or PNG file.',
+    e_species:'Choose a species', e_when:'Enter the date and time', e_future:'The date cannot be in the future',
+    e_old:'You can report sightings from the last 7 days only', save_fail:'Could not save', no_space:'Not enough browser storage — saved without the photo',
+    r_saved:'Sighting saved', r_thanks:'Thanks for confirming', r_confirm:'Confirmed a sighting',
+    r_new_species:'New species in your atlas', r_new_cell:'New map square discovered', r_total:'total', r_quest:'Quest', r_done:'done',
+    r_new_level:'New level', r_to:'to', r_max:'Top level', r_badge:'New badge', r_badges:'New badges', next:'Continue',
+    q_today_done:'Today is done.', q_keep:'Report something today to keep your streak.', q_start:'Report a sighting to start a streak.',
+    q_in_row:'in a row', q_weekly:'Weekly quests', q_new_in:'new in', q_all3:'Complete all three to earn the Taskmaster badge.',
+    days:['Mo','Tu','We','Th','Fr','Sa','Su'],
+    your_level:'Your level', species_h:'Species', cells_h:'Discovered squares', show_on_map:'Show on map', badges_h:'Badges',
+    points_h:'How to earn points', p_each:'Each sighting', p_photo:'Sighting with a photo', p_species:'First time a new species',
+    p_give:'You confirm someone’s sighting', p_get:'Someone confirms yours',
+    settings_h:'Settings', lang_l:'Language', lang_auto:'Automatic', map_style_l:'Map style', needs_key:'needs a CARTO key',
+    style_note:'The style is saved in this browser. Pick the one you like best.',
+    near:'Nearby', world:'World', week:'Week', all_time:'All time', rank_loading:'Loading ranking…',
+    near_note:'“Nearby” is measured from the centre of the map.', demo_rank:'Demo mode: other players are sample data.',
+    not_in_rank:'You are not in this ranking yet. Report a sighting in this area.', rank_empty:'No one has earned points here in this period yet. You can be the first.',
+    rank_fail:'Could not load the ranking', playing_as:'Playing as', change:'Change', save:'Save',
+    nick_ph:'Nickname, 2–24 characters', nick_l:'Nickname', nick_short:'The nickname must have at least 2 characters', nick_saved:'Nickname saved', nick_fail:'The nickname was not saved',
+    no_results:'Nothing found', search_down:'Search is not responding. Try again in a moment.',
+    geo_none:'This browser does not share location', geo_https:'Location works only over https:// or localhost. Search for your city instead.',
+    geo_denied:'No access to your location. Turn it on in the browser settings or search for your city.',
+    tiles_fail:'Could not load the base map. Check your connection or pick another style in the Atlas.',
+    style_fail:'This map style did not load, switching back to OpenStreetMap.',
+    lib_fail:'Could not load the map library. Check your internet connection and reload the page.',
+    demo_notice:'Demo mode: sample sightings appear around the place you are viewing. Saved in this browser only.',
+    db_fallback:'The database is not responding or is missing the supabase_v4.sql migration. Running in demo mode for now — saved in this browser only.',
+    start_fail:'Could not start the app',
+    onb1_e:'', onb1_t:'We share our cities with wild animals',
+    onb1_p:'Wild boars, foxes and deer use the same parks and streets as we do — in every city. Mark where you see them and together we will map the wild corridors.',
+    onb2_e:'Report in 20 seconds', onb2_t:'Saw an animal? Drop a pin',
+    onb2_p:'Tap the orange button, place the pin and choose the species. A photo is welcome but optional. Others can confirm your sighting.',
+    onb3_e:'The tracker game', onb3_t:'Collect XP, badges and map squares',
+    onb3_p:'Level up from Rookie to Legend. Fill your species atlas, discover 1 km squares, keep a daily streak and compete with your area or the whole world.',
+    onb4_e:'Last step', onb4_t:'What should we call you?',
+    onb4_p:'Others will see your nickname in the ranking. You can change it later. Next we will ask for your location to show the map around you.',
+    onb_nick_ph:'e.g. FoxTracker',
+    consent:'I agree that the location and time of my reports are stored, published on the map under my nickname, and shared as anonymised data with cities and researchers (GDPR). You can withdraw consent by writing to the project administrator.',
+    emergency:'In an emergency call', back:'Back', onb_go:'Show the map around me', step:'Step',
+    ago_now:'just now', ago_min:'min ago', ago_h:'h ago', ago_y:'yesterday', ago_d:'days ago',
+  },
+};
+const t = k => STR[LANG][k] ?? STR.pl[k] ?? k;
+const LOCALE = () => LANG === 'pl' ? 'pl-PL' : 'en-GB';
+function plural(n, pl3, en2){
+  if(LANG === 'en') return n === 1 ? en2[0] : en2[1];
+  const a = Math.abs(n) % 100, b = a % 10;
+  if(n === 1) return pl3[0]; if(b >= 2 && b <= 4 && (a < 12 || a > 14)) return pl3[1]; return pl3[2];
+}
+const P = {
+  day:      [['dzień','dni','dni'], ['day','days']],
+  sighting: [['obserwacja','obserwacje','obserwacji'], ['sighting','sightings']],
+  species:  [['gatunek','gatunki','gatunków'], ['species','species']],
+};
+const pw = (n, k) => plural(n, P[k][0], P[k][1]);
+
+/* Nazwy gatunków i zachowań: w bazie po polsku, wyświetlane w wybranym języku */
+const SP_EN = { 'Dzik':'Wild boar', 'Lis':'Red fox', 'Sarna':'Roe deer', 'Wilk':'Wolf', 'Borsuk':'Badger', 'Inne':'Other' };
+const spName = sp => !sp ? t('unknown') : (LANG === 'en' ? (SP_EN[sp.name_pl] || sp.name_pl) : sp.name_pl);
+const BEHAVIORS = ['Przechodził','Żerował','Z młodymi','W grupie','Agresywny','Ranny lub martwy'];
+const BEH_EN = { 'Przechodził':'Passing by', 'Żerował':'Feeding', 'Z młodymi':'With young', 'W grupie':'In a group', 'Agresywny':'Aggressive', 'Ranny lub martwy':'Injured or dead' };
+const behName = b => LANG === 'en' ? (BEH_EN[b] || b) : b;
+function behText(s){
+  if(!s || LANG === 'pl') return s;
+  const i = s.indexOf(' — '), head = i < 0 ? s : s.slice(0, i), tail = i < 0 ? '' : s.slice(i);
+  const parts = head.split(', ');
+  return parts.every(p => BEH_EN[p]) ? parts.map(p => BEH_EN[p]).join(', ') + tail : s;
+}
+const SP_TIPS = {
+  pl: {
+    'Dzik':  `Nie podchodź i nie dokarmiaj. Samica z młodymi bywa agresywna — wycofaj się powoli. Agresywnego lub rannego dzika zgłoś służbom miejskim albo na ${EMERG.pl}.`,
+    'Lis':   'Lis w mieście to norma. Nie dokarmiaj. Jeśli nie boi się ludzi albo chwieje się na nogach, zgłoś to służbom miejskim lub weterynaryjnym.',
+    'Sarna': 'Uważaj na drogach o zmierzchu. Nie dotykaj młodych — matka zwykle jest w pobliżu.',
+    'Wilk':  `Wilk unika ludzi. Nie zbliżaj się, trzymaj psa na smyczy. Wilk w zabudowie: ${EMERG.pl}.`,
+    'Borsuk':'Płochliwy i aktywny nocą. Obserwuj z daleka.',
+    'Inne':  'Jeśli znasz gatunek, wpisz go w notatce.',
+  },
+  en: {
+    'Dzik':  `Keep your distance and do not feed it. A sow with piglets can be aggressive — back away slowly. Report an aggressive or injured boar to the city services or call ${EMERG.en}.`,
+    'Lis':   'Foxes in cities are normal. Do not feed them. If one is not afraid of people or is unsteady on its feet, report it to the city or veterinary services.',
+    'Sarna': 'Take care on roads at dusk. Do not touch fawns — the mother is usually nearby.',
+    'Wilk':  `Wolves avoid people. Do not approach, keep your dog on a lead. A wolf in a built-up area: call ${EMERG.en}.`,
+    'Borsuk':'Shy and active at night. Watch from a distance.',
+    'Inne':  'If you know the species, write it in the note.',
+  },
+};
 
 /* ---------- reguły gry ---------- */
 const XP = { sighting:10, photo:10, newSpecies:25, confirmGiven:5, confirmReceived:5 };
 const LEVELS = [
-  { name:'Świeżak',   xp:0 },
-  { name:'Tropiciel', xp:100 },
-  { name:'Strażnik',  xp:300 },
-  { name:'Ekspert',   xp:700 },
-  { name:'Legenda',   xp:1500 },
+  { pl:'Świeżak',   en:'Rookie',  xp:0 },
+  { pl:'Tropiciel', en:'Tracker', xp:100 },
+  { pl:'Strażnik',  en:'Ranger',  xp:300 },
+  { pl:'Ekspert',   en:'Expert',  xp:700 },
+  { pl:'Legenda',   en:'Legend',  xp:1500 },
 ];
-const CELL = 0.009;   // bok kwadratu ≈ 1 km
+const CELL = 0.009;
 const SP_ORDER = ['Dzik','Lis','Sarna','Wilk','Borsuk','Inne'];
-const EMERGENCY = 'numer alarmowy (112 w Europie, 911 w USA i Kanadzie)';
-const SP_TIPS = {
-  'Dzik':  `Nie podchodź i nie dokarmiaj. Samica z młodymi bywa agresywna — wycofaj się powoli. Agresywnego lub rannego dzika zgłoś służbom miejskim albo na ${EMERGENCY}.`,
-  'Lis':   'Lis w mieście to norma. Nie dokarmiaj. Jeśli nie boi się ludzi albo chwieje się na nogach, zgłoś to służbom miejskim lub weterynaryjnym.',
-  'Sarna': 'Uważaj na drogach o zmierzchu. Nie dotykaj młodych — matka zwykle jest w pobliżu.',
-  'Wilk':  `Wilk unika ludzi. Nie zbliżaj się, trzymaj psa na smyczy. Wilk w zabudowie: ${EMERGENCY}.`,
-  'Borsuk':'Płochliwy i aktywny nocą. Obserwuj z daleka.',
-  'Inne':  'Jeśli znasz gatunek, wpisz go w notatce.',
-};
-const BEHAVIORS = ['Przechodził','Żerował','Z młodymi','W grupie','Agresywny','Ranny lub martwy'];
 
-/* Punkt startowy, gdy nie znamy jeszcze lokalizacji — zgadujemy po strefie czasowej urządzenia */
 const TZ = {
   'Europe/Warsaw':[52.2297,21.0122],'Europe/Minsk':[53.9045,27.5615],'Europe/Ljubljana':[46.0569,14.5058],
   'Asia/Nicosia':[35.1856,33.3823],'Europe/Nicosia':[35.1856,33.3823],'Asia/Famagusta':[35.1251,33.9415],
@@ -440,13 +621,8 @@ const TZ = {
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const LS = {
-  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } },
-};
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-function pl(n, f){ const a = Math.abs(n) % 100, b = a % 10; if(n === 1) return f[0]; if(b >= 2 && b <= 4 && (a < 12 || a > 14)) return f[1]; return f[2]; }
-function rng(seed){ let h = 2166136261; for(const c of seed){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function rng(seed){ let h = 2166136261; for(const c of seed){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return () => { h += 0x6D2B79F5; let x = h; x = Math.imul(x ^ x >>> 15, x | 1); x ^= x + Math.imul(x ^ x >>> 7, x | 61); return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
 function dist(a, b, c, d){ const R = 6371000, r = Math.PI/180; const dl = ((d - b + 540) % 360) - 180; const x = dl*r*Math.cos((a+c)/2*r), y = (c-a)*r; return Math.sqrt(x*x + y*y) * R; }
 function cellOf(lat, lng){
   const r = Math.floor(lat / CELL), latc = (r + .5) * CELL;
@@ -460,11 +636,11 @@ function weekKey(){ return dayKey(weekStart()); }
 function toLocalInput(d){ const p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 function ago(iso){
   const m = Math.round((Date.now() - new Date(iso)) / 60000);
-  if(m < 1) return 'przed chwilą';
-  if(m < 60) return m + ' min temu';
-  const h = Math.round(m / 60); if(h < 24) return h + ' godz. temu';
-  const d = Math.round(h / 24); if(d === 1) return 'wczoraj'; if(d < 7) return d + ' dni temu';
-  return new Date(iso).toLocaleDateString('pl-PL', { day:'numeric', month:'short' });
+  if(m < 1) return t('ago_now');
+  if(m < 60) return m + ' ' + t('ago_min');
+  const h = Math.round(m / 60); if(h < 24) return h + ' ' + t('ago_h');
+  const d = Math.round(h / 24); if(d === 1) return t('ago_y'); if(d < 7) return d + ' ' + t('ago_d');
+  return new Date(iso).toLocaleDateString(LOCALE(), { day:'numeric', month:'short' });
 }
 
 /* ---------- ikony ---------- */
@@ -503,8 +679,6 @@ function ring(pct, size = 36, stroke = 4){
 
 /* =====================================================================
    WARSTWA DANYCH — Supabase albo demo (localStorage)
-   area(b)   → obserwacje w widocznym obszarze mapy
-   mine()    → wszystkie moje obserwacje + moje potwierdzenia (do XP i odznak)
    ===================================================================== */
 function supaApi(){
   const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
@@ -534,7 +708,7 @@ function supaApi(){
           const path = `${uid}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.jpg`;
           ok(await sb.storage.from('photos').upload(path, blob, { contentType:'image/jpeg', upsert:false }));
           photo = sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
-        }catch(e){ console.warn('Storage niedostępny, zdjęcie zapisane w bazie:', e.message || e); }
+        }catch(e){ console.warn('Storage unavailable, photo saved in DB:', e.message || e); }
       }
       return ok(await sb.rpc('dk_add_sighting', { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_behavior:o.behavior, p_photo:photo, p_seen_at:o.seen_at }));
     },
@@ -560,11 +734,10 @@ function demoApi(){
   const BEH = ['Przechodził','Żerował','Z młodymi','W grupie','Przechodził',null];
   let db = LS.get(KEY, null) || { s:[], clusters:[], gives:{}, nickname:'', conf:[] };
   const save = () => LS.set(KEY, db);
-  // Przykładowe dane powstają wokół miejsca, które oglądasz — działa w każdym mieście świata.
   function seedAround(lat, lng){
     const r = rng('demo' + lat.toFixed(2) + ',' + lng.toFixed(2)), k = Math.max(.2, Math.cos(lat * Math.PI / 180));
     for(let h = 0; h < 9; h++){
-      const spread = h < 3 ? .014 : .08;  // trzy skupiska tuż obok, reszta w promieniu kilku km
+      const spread = h < 3 ? .014 : .08;
       const hl = lat + (r() - .5) * spread, hg = lng + (r() - .5) * spread / k;
       const main = POOL[Math.floor(r() * POOL.length)], n = 2 + Math.floor(r() * 5);
       for(let i = 0; i < n; i++){
@@ -580,7 +753,7 @@ function demoApi(){
   }
   const view = s => ({ id:s.id, species_id:s.species_id, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
     seen_at:s.seen_at, confirmed_count:s.cc, confirmed_by_me:!!s.byMe, is_mine:s.author === 'me',
-    nickname: s.author === 'me' ? (db.nickname || 'Ty') : s.author });
+    nickname: s.author === 'me' ? (db.nickname || t('you')) : s.author });
   const inBox = (s, b) => s.lat >= b.s && s.lat <= b.n && (b.w <= b.e ? s.lng >= b.w && s.lng <= b.e : s.lng >= b.w || s.lng <= b.e);
   return {
     async init(){ return 'me'; },
@@ -595,22 +768,22 @@ function demoApi(){
     async add(o){
       const id = 'm' + Date.now().toString(36);
       db.s.push({ id, ...o, author:'me', cc:0 });
-      if(!save()){ db.s[db.s.length - 1].photo_url = null; save(); toast('Za mało miejsca w przeglądarce — zapisano bez zdjęcia'); }
+      if(!save()){ db.s[db.s.length - 1].photo_url = null; save(); toast(t('no_space')); }
       return id;
     },
     async confirm(id){ const s = db.s.find(x => x.id === id); if(s && !s.byMe && s.author !== 'me'){ s.byMe = true; s.cc++; db.conf.push(Date.now()); save(); } },
     async leaderboard(since, near){
-      const t = since ? new Date(since).getTime() : 0, by = {};
+      const tt = since ? new Date(since).getTime() : 0, by = {};
       const U = a => by[a] ||= { n:0, ph:0, sp:new Set(), cg:0, cr:0 };
       for(const s of db.s){
         if(near && dist(s.lat, s.lng, near.lat, near.lng) > near.r) continue;
-        if(new Date(s.seen_at).getTime() < t) continue;
+        if(new Date(s.seen_at).getTime() < tt) continue;
         const u = U(s.author); u.n++; if(s.photo_url) u.ph++; u.sp.add(s.species_id); u.cr += s.cc;
       }
       for(const [a, g] of Object.entries(db.gives)) if(by[a]) by[a].cg = since ? Math.round(g / 4) : g;
-      if(by.me || db.conf.length) U('me').cg = db.conf.filter(c => c >= t).length;
+      if(by.me || db.conf.length) U('me').cg = db.conf.filter(c => c >= tt).length;
       return Object.entries(by).map(([a, u]) => ({
-        nickname: a === 'me' ? (db.nickname || 'Ty') : a,
+        nickname: a === 'me' ? (db.nickname || t('you')) : a,
         xp: u.n*XP.sighting + u.ph*XP.photo + u.sp.size*XP.newSpecies + u.cg*XP.confirmGiven + u.cr*XP.confirmReceived,
         sightings: u.n, species: u.sp.size, is_me: a === 'me',
       })).filter(x => x.xp > 0).sort((a, b) => b.xp - a.xp).slice(0, 50);
@@ -650,28 +823,29 @@ function streakOf(my){
 function levelOf(xp){
   let i = 0; LEVELS.forEach((l, k) => { if(xp >= l.xp) i = k; });
   const cur = LEVELS[i], nx = LEVELS[i+1];
-  return { idx:i, name:cur.name, next:nx, pct: nx ? (xp - cur.xp) / (nx.xp - cur.xp) : 1, toNext: nx ? nx.xp - xp : 0 };
+  return { idx:i, name:cur[LANG], next:nx && { name:nx[LANG], xp:nx.xp }, pct: nx ? (xp - cur.xp) / (nx.xp - cur.xp) : 1, toNext: nx ? nx.xp - xp : 0 };
 }
 const spIdByName = n => S.species.find(s => s.name_pl === n)?.id;
 const hourOf = s => new Date(s.seen_at).getHours();
 
 const BADGES = [
-  { id:'first',    icon:'paw',     name:'Pierwszy trop',     desc:'Pierwsza obserwacja',                    prog: st => [st.my.length, 1] },
-  { id:'ten',      icon:'book',    name:'Notes terenowy',    desc:'10 obserwacji',                          prog: st => [st.my.length, 10] },
-  { id:'photo5',   icon:'camera',  name:'Fotopułapka',       desc:'5 obserwacji ze zdjęciem',               prog: st => [st.photos, 5] },
-  { id:'collector',icon:'star',    name:'Kolekcjoner',       desc:'Wszystkie gatunki z atlasu',             prog: st => { const need = S.species.filter(s => s.name_pl !== 'Inne'); return [need.filter(s => st.species.has(s.id)).length, need.length || 5]; } },
-  { id:'wolf',     icon:'eye',     name:'Wilczy zew',        desc:'Zgłoś wilka',                            prog: st => [st.species.has(spIdByName('Wilk')) ? 1 : 0, 1] },
-  { id:'night',    icon:'moon',    name:'Nocny marek',       desc:'Obserwacja między 22:00 a 4:00',         prog: st => [st.my.some(s => hourOf(s) >= 22 || hourOf(s) < 4) ? 1 : 0, 1] },
-  { id:'dawn',     icon:'sun',     name:'Ranny ptaszek',     desc:'Obserwacja między 5:00 a 7:00',          prog: st => [st.my.some(s => hourOf(s) >= 5 && hourOf(s) < 7) ? 1 : 0, 1] },
-  { id:'cells5',   icon:'grid',    name:'Odkrywca',          desc:'Odkryj 5 kwadratów mapy',                prog: st => [st.cells.size, 5] },
-  { id:'cells25',  icon:'map',     name:'Kartograf',         desc:'Odkryj 25 kwadratów mapy',               prog: st => [st.cells.size, 25] },
-  { id:'traveler', icon:'globe',   name:'Podróżnik',         desc:'Obserwacje w miejscach oddalonych o 50 km', prog: st => [st.far, 1] },
-  { id:'streak3',  icon:'flame',   name:'Na tropie',         desc:'3 dni z rzędu',                          prog: st => [st.streak, 3] },
-  { id:'streak7',  icon:'flame',   name:'Tydzień w terenie', desc:'7 dni z rzędu',                          prog: st => [st.streak, 7] },
-  { id:'helper',   icon:'check',   name:'Pomocna łapa',      desc:'Potwierdź 10 cudzych obserwacji',        prog: st => [st.given, 10] },
-  { id:'trusted',  icon:'users',   name:'Wiarygodne źródło', desc:'Twoje obserwacje potwierdzono 5 razy',   prog: st => [st.received, 5] },
-  { id:'tasker',   icon:'flag',    name:'Zadaniowiec',       desc:'Wszystkie wyzwania tygodnia',            prog: () => [LS.get('dk_qweeks', []).length ? 1 : 0, 1] },
+  { id:'first',    icon:'paw',    pl:['Pierwszy trop','Pierwsza obserwacja'],                    en:['First track','Your first sighting'],                  prog: st => [st.my.length, 1] },
+  { id:'ten',      icon:'book',   pl:['Notes terenowy','10 obserwacji'],                         en:['Field notebook','10 sightings'],                      prog: st => [st.my.length, 10] },
+  { id:'photo5',   icon:'camera', pl:['Fotopułapka','5 obserwacji ze zdjęciem'],                 en:['Camera trap','5 sightings with a photo'],             prog: st => [st.photos, 5] },
+  { id:'collector',icon:'star',   pl:['Kolekcjoner','Wszystkie gatunki z atlasu'],               en:['Collector','Every species in the atlas'],             prog: st => { const need = S.species.filter(s => s.name_pl !== 'Inne'); return [need.filter(s => st.species.has(s.id)).length, need.length || 5]; } },
+  { id:'wolf',     icon:'eye',    pl:['Wilczy zew','Zgłoś wilka'],                               en:['Call of the wild','Report a wolf'],                   prog: st => [st.species.has(spIdByName('Wilk')) ? 1 : 0, 1] },
+  { id:'night',    icon:'moon',   pl:['Nocny marek','Obserwacja między 22:00 a 4:00'],           en:['Night owl','A sighting between 22:00 and 4:00'],      prog: st => [st.my.some(s => hourOf(s) >= 22 || hourOf(s) < 4) ? 1 : 0, 1] },
+  { id:'dawn',     icon:'sun',    pl:['Ranny ptaszek','Obserwacja między 5:00 a 7:00'],          en:['Early bird','A sighting between 5:00 and 7:00'],      prog: st => [st.my.some(s => hourOf(s) >= 5 && hourOf(s) < 7) ? 1 : 0, 1] },
+  { id:'cells5',   icon:'grid',   pl:['Odkrywca','Odkryj 5 kwadratów mapy'],                     en:['Explorer','Discover 5 map squares'],                  prog: st => [st.cells.size, 5] },
+  { id:'cells25',  icon:'map',    pl:['Kartograf','Odkryj 25 kwadratów mapy'],                   en:['Cartographer','Discover 25 map squares'],             prog: st => [st.cells.size, 25] },
+  { id:'traveler', icon:'globe',  pl:['Podróżnik','Obserwacje w miejscach oddalonych o 50 km'],  en:['Traveller','Sightings 50 km apart'],                  prog: st => [st.far, 1] },
+  { id:'streak3',  icon:'flame',  pl:['Na tropie','3 dni z rzędu'],                              en:['On the trail','3 days in a row'],                     prog: st => [st.streak, 3] },
+  { id:'streak7',  icon:'flame',  pl:['Tydzień w terenie','7 dni z rzędu'],                      en:['A week outdoors','7 days in a row'],                  prog: st => [st.streak, 7] },
+  { id:'helper',   icon:'check',  pl:['Pomocna łapa','Potwierdź 10 cudzych obserwacji'],         en:['Helping paw','Confirm 10 sightings by others'],       prog: st => [st.given, 10] },
+  { id:'trusted',  icon:'users',  pl:['Wiarygodne źródło','Twoje obserwacje potwierdzono 5 razy'], en:['Trusted source','Your sightings confirmed 5 times'], prog: st => [st.received, 5] },
+  { id:'tasker',   icon:'flag',   pl:['Zadaniowiec','Wszystkie wyzwania tygodnia'],              en:['Taskmaster','All weekly quests'],                     prog: () => [LS.get('dk_qweeks', []).length ? 1 : 0, 1] },
 ];
+const bName = b => b[LANG][0], bDesc = b => b[LANG][1];
 const unlocked = st => BADGES.filter(b => { const [a, n] = b.prog(st); return a >= n; }).map(b => b.id);
 
 function questCtx(st){
@@ -686,13 +860,13 @@ function weeklyQuests(){
   const cands = S.species.filter(s => ['Dzik','Lis','Sarna','Borsuk'].includes(s.name_pl));
   const sp = cands[Math.floor(r() * cands.length)];
   const T = [
-    { id:'add3',    icon:'paw',     title:'Zgłoś 3 obserwacje',              target:3, p: c => c.wk.length },
-    { id:'photo2',  icon:'camera',  title:'Dodaj 2 obserwacje ze zdjęciem',  target:2, p: c => c.wk.filter(s => s.has_photo).length },
-    { id:'conf2',   icon:'check',   title:'Potwierdź 2 cudze zgłoszenia',    target:2, p: c => c.conf },
-    sp && { id:'sp-'+sp.id, icon:'eye', title:`Wypatrz gatunek: ${sp.name_pl}`, target:1, p: c => c.wk.filter(s => s.species_id === sp.id).length },
-    { id:'cells2',  icon:'grid',    title:'Odkryj 2 nowe kwadraty mapy',     target:2, p: c => c.newCells },
-    { id:'dusk',    icon:'moon',    title:'Obserwacja po 20:00',             target:1, p: c => c.wk.filter(s => hourOf(s) >= 20).length },
-    { id:'variety', icon:'star',    title:'2 różne gatunki w tym tygodniu',  target:2, p: c => new Set(c.wk.map(s => s.species_id)).size },
+    { id:'add3',    icon:'paw',    pl:'Zgłoś 3 obserwacje',             en:'Report 3 sightings',               target:3, p: c => c.wk.length },
+    { id:'photo2',  icon:'camera', pl:'Dodaj 2 obserwacje ze zdjęciem', en:'Add 2 sightings with a photo',     target:2, p: c => c.wk.filter(s => s.has_photo).length },
+    { id:'conf2',   icon:'check',  pl:'Potwierdź 2 cudze zgłoszenia',   en:'Confirm 2 sightings by others',    target:2, p: c => c.conf },
+    sp && { id:'sp-'+sp.id, icon:'eye', pl:`Wypatrz gatunek: ${sp.name_pl}`, en:`Spot a species: ${SP_EN[sp.name_pl] || sp.name_pl}`, target:1, p: c => c.wk.filter(s => s.species_id === sp.id).length },
+    { id:'cells2',  icon:'grid',   pl:'Odkryj 2 nowe kwadraty mapy',    en:'Discover 2 new map squares',       target:2, p: c => c.newCells },
+    { id:'dusk',    icon:'moon',   pl:'Obserwacja po 20:00',            en:'A sighting after 20:00',           target:1, p: c => c.wk.filter(s => hourOf(s) >= 20).length },
+    { id:'variety', icon:'star',   pl:'2 różne gatunki w tym tygodniu', en:'2 different species this week',    target:2, p: c => new Set(c.wk.map(s => s.species_id)).size },
   ].filter(Boolean);
   for(let i = T.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [T[i], T[j]] = [T[j], T[i]]; }
   return T.slice(0, 3);
@@ -708,31 +882,69 @@ function snapshot(){
 }
 
 /* =====================================================================
-   MAPA — cały świat
+   MAPA — cały świat, wybór stylu podkładu
    ===================================================================== */
-let map, tiles, markers, heat = null, cellsLayer, meDot = null;
+let map, base = null, markers, heat = null, cellsLayer, meDot = null;
 const ATTR_OSM = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
-function providers(dark){
-  const list = [];
-  if(CONFIG.CUSTOM_TILES) list.push({ url:CONFIG.CUSTOM_TILES, opts:{ attribution:CONFIG.CUSTOM_ATTRIBUTION || ATTR_OSM }, invert:false });
-  if(CONFIG.CARTO_KEY) list.push({ url:`https://{s}.basemaps.cartocdn.com/${dark ? 'dark_all' : 'rastertiles/voyager'}/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CONFIG.CARTO_KEY)}`,
-    opts:{ subdomains:'abcd', attribution:ATTR_OSM + ' © <a href="https://carto.com/attributions">CARTO</a>' }, invert:false });
-  list.push({ url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', opts:{ attribution:ATTR_OSM }, invert:dark });
-  return list;
+const ATTR_OFM = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ' + ATTR_OSM;
+const ATTR_CARTO = ATTR_OSM + ' © <a href="https://carto.com/attributions">CARTO</a>';
+const carto = p => `https://{s}.basemaps.cartocdn.com/${p}/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CONFIG.CARTO_KEY)}`;
+const STYLES = [
+  { id:'osm',            name:'OpenStreetMap',            raster:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr:ATTR_OSM, invertDark:true },
+  { id:'liberty',        name:'OpenFreeMap · Liberty',     vector:'https://tiles.openfreemap.org/styles/liberty', attr:ATTR_OFM },
+  { id:'positron',       name:'OpenFreeMap · Positron',    vector:'https://tiles.openfreemap.org/styles/positron', attr:ATTR_OFM },
+  { id:'bright',         name:'OpenFreeMap · Bright',      vector:'https://tiles.openfreemap.org/styles/bright', attr:ATTR_OFM },
+  { id:'dark',           name:'OpenFreeMap · Dark',        vector:'https://tiles.openfreemap.org/styles/dark', attr:ATTR_OFM },
+  { id:'carto_voyager',  name:'CARTO · Voyager',           raster:() => carto('rastertiles/voyager'), attr:ATTR_CARTO, sub:'abcd', key:true },
+  { id:'carto_positron', name:'CARTO · Positron',          raster:() => carto('light_all'), attr:ATTR_CARTO, sub:'abcd', key:true },
+  { id:'carto_dark',     name:'CARTO · Dark Matter',       raster:() => carto('dark_all'), attr:ATTR_CARTO, sub:'abcd', key:true },
+];
+if(CONFIG.CUSTOM_TILES) STYLES.push({ id:'custom', name:'Custom', raster:CONFIG.CUSTOM_TILES, attr:CONFIG.CUSTOM_ATTRIBUTION || ATTR_OSM });
+const styleAvailable = s => !s.key || !!CONFIG.CARTO_KEY;
+function currentStyleId(){
+  const id = LS.get('dk_style', CONFIG.DEFAULT_STYLE);
+  const s = STYLES.find(x => x.id === id);
+  return s && styleAvailable(s) ? id : 'osm';
 }
-function isDark(){ const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
-function setTiles(idx = 0){
-  const list = providers(isDark()), src = list[idx];
-  if(tiles){ map.removeLayer(tiles); tiles = null; }
-  if(!src){ notice('Nie udało się wczytać podkładu mapy. Sprawdź internet albo ustaw CARTO_KEY w konfiguracji.', true); return; }
-  document.body.classList.toggle('tiles-invert', !!src.invert);
-  let okT = 0, errT = 0, moved = false;
-  const next = () => { if(moved) return; moved = true; setTiles(idx + 1); };
-  tiles = L.tileLayer(src.url, { maxZoom:19, crossOrigin:true, ...src.opts })
+function isDark(){ const th = document.documentElement.dataset.theme; return th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+
+const loadedScripts = {};
+function loadScript(src){ return loadedScripts[src] ||= new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.appendChild(s); }); }
+function loadCss(href){ if(!document.querySelector(`link[href="${href}"]`)){ const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); } }
+async function ensureMapLibre(){
+  loadCss('https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.0/dist/maplibre-gl.css');
+  await loadScript('https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.0/dist/maplibre-gl.js');
+  await loadScript('https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js');
+}
+
+let baseSeq = 0;
+async function setBase(id = currentStyleId()){
+  const seq = ++baseSeq, s = STYLES.find(x => x.id === id) || STYLES[0];
+  if(base){ map.removeLayer(base); base = null; }
+  document.body.classList.toggle('tiles-invert', !!(s.invertDark && isDark()));
+  const fail = () => {
+    if(seq !== baseSeq) return;
+    if(s.id !== 'osm'){ toast(t('style_fail')); LS.set('dk_style', 'osm'); setBase('osm'); renderPanelIfOpen('atlas'); }
+    else notice(t('tiles_fail'), true);
+  };
+  if(s.vector){
+    try{ await ensureMapLibre(); }catch(e){ fail(); return; }
+    if(seq !== baseSeq) return;
+    base = L.maplibreGL({ style:s.vector, attribution:s.attr }).addTo(map);
+    let okv = false;
+    const gl = base.getMaplibreMap?.();
+    gl?.on('load', () => okv = true);
+    gl?.on('error', e => { if(!okv) console.warn('style error', e?.error?.message || e); });
+    setTimeout(() => { if(!okv && seq === baseSeq) fail(); }, 9000);
+    return;
+  }
+  const url = typeof s.raster === 'function' ? s.raster() : s.raster;
+  let okT = 0, errT = 0;
+  base = L.tileLayer(url, { maxZoom:19, subdomains:s.sub || 'abc', attribution:s.attr })
     .on('tileload', () => okT++)
-    .on('tileerror', () => { if(!okT && ++errT >= 4) next(); })
+    .on('tileerror', () => { if(!okT && ++errT >= 4) fail(); })
     .addTo(map);
-  setTimeout(() => { if(!okT && tiles) next(); }, 6000);
+  setTimeout(() => { if(!okT && seq === baseSeq) fail(); }, 7000);
 }
 function initialView(){
   const saved = LS.get('dk_view', null);
@@ -746,26 +958,27 @@ function initialView(){
 function initMap(){
   const v = initialView();
   map = L.map('map', { zoomControl:false, minZoom:2, worldCopyJump:true }).setView([v.lat, v.lng], v.z);
-  setTiles();
-  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { setTiles(); renderMap(); });
+  setBase();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { setBase(); renderMap(); });
   markers = L.layerGroup().addTo(map);
   cellsLayer = L.layerGroup();
   map.on('click', e => { if(S.adding) map.panTo(e.latlng); });
   map.on('move', () => { if(S.adding) updatePickHint(); });
-  let t; map.on('moveend', () => {
+  let tm; map.on('moveend', () => {
     const c = map.getCenter(); LS.set('dk_view', { lat:c.lat, lng:c.lng, z:map.getZoom() });
-    clearTimeout(t); t = setTimeout(() => loadArea().then(renderMap).catch(err => console.error(err)), 350);
+    clearTimeout(tm); tm = setTimeout(() => loadArea().then(renderMap).catch(err => console.error(err)), 350);
   });
 }
 let areaSeq = 0;
+const wrap = x => ((x + 180) % 360 + 360) % 360 - 180;
 async function loadArea(){
+  if(!API) return;
   const b = map.getBounds().pad(.35), seq = ++areaSeq;
   const box = { s:Math.max(-85, b.getSouth()), n:Math.min(85, b.getNorth()), w:wrap(b.getWest()), e:wrap(b.getEast()), z:map.getZoom() };
   if(b.getEast() - b.getWest() >= 360){ box.w = -180; box.e = 180; }
   const list = await API.area(box);
   if(seq === areaSeq) S.area = list;
 }
-const wrap = x => ((x + 180) % 360 + 360) % 360 - 180;
 function visible(){
   const cutoff = S.time === 'all' ? 0 : Date.now() - (+S.time) * 864e5;
   return S.area.filter(s => (S.spFilter.size === 0 || S.spFilter.has(s.species_id)) && new Date(s.seen_at).getTime() >= cutoff);
@@ -783,13 +996,13 @@ function renderMap(){
   const list = visible(), z = map.getZoom();
   let note = '';
   if(S.mode === 'pins'){
-    list.forEach(s => L.marker([s.lat, s.lng], { icon:pinIcon(s), keyboard:false, title:(S.spById[s.species_id]?.name_pl || '') })
+    list.forEach(s => L.marker([s.lat, s.lng], { icon:pinIcon(s), keyboard:false, title:spName(S.spById[s.species_id]) })
       .on('click', () => openCard(s.id)).addTo(markers));
-    if(!list.length) note = z < 9 ? 'Przybliż mapę do swojego miasta' : 'Nikt tu jeszcze niczego nie zgłosił. Bądź pierwszy!';
+    if(!list.length) note = z < 9 ? t('note_zoom_city') : t('note_empty');
   } else if(S.mode === 'heat'){
     if(L.heatLayer && list.length) heat = L.heatLayer(list.map(s => [s.lat, s.lng, .7]), { radius:30, blur:24, maxZoom:15, minOpacity:.3,
       gradient:{ .2:'#7cc39a', .5:'#e9c44a', .8:'#e2832b', 1:'#be3f2c' } }).addTo(map);
-    if(!list.length) note = 'Brak danych do mapy cieplnej w tym miejscu';
+    if(!list.length) note = t('note_heat_empty');
   } else {
     const moss = css('--moss'), ink2 = css('--ink-2'), vb = map.getBounds().pad(.2);
     const mineCells = new Map(); S.mine.forEach(s => { const c = cellOf(s.lat, s.lng); mineCells.set(c.id, c); });
@@ -797,29 +1010,45 @@ function renderMap(){
     other.forEach(c => L.rectangle(c.bounds, { color:ink2, weight:1.2, dashArray:'5 6', fillColor:ink2, fillOpacity:.06 }).on('click', () => openCell(c)).addTo(cellsLayer));
     mineCells.forEach(c => { if(vb.contains([c.lat, c.lng])) L.rectangle(c.bounds, { color:moss, weight:2, fillColor:moss, fillOpacity:.3 }).on('click', () => openCell(c)).addTo(cellsLayer); });
     cellsLayer.addTo(map);
-    if(z < 12) note = 'Przybliż mapę, żeby zobaczyć kwadraty 1 km';
-    else if(!mineCells.size) note = 'Zielone kwadraty to miejsca, które odkryłeś';
+    if(z < 12) note = t('note_zoom_cells');
+    else if(!mineCells.size) note = t('note_cells_hint');
   }
   $('#emptyNote').textContent = note; $('#emptyNote').hidden = !note;
 }
 
 /* =====================================================================
-   UI: HUD, filtry, zakładki
+   UI: teksty statyczne, HUD, filtry, zakładki
    ===================================================================== */
+function applyStatic(){
+  document.documentElement.lang = LANG;
+  document.title = CONFIG.APP_NAME;
+  $$('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  $$('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+  $('#q').placeholder = t('search');
+  $('#meChip').setAttribute('aria-label', t('me_aria'));
+  $('#locate').setAttribute('aria-label', t('locate_aria'));
+  $('#map').setAttribute('aria-label', CONFIG.APP_NAME);
+  $$('[data-close],[data-tabclose],#noticeClose').forEach(b => b.setAttribute('aria-label', t('close')));
+  $('#addBtn').setAttribute('aria-label', t('submit'));
+}
+function setLang(v){
+  LS.set('dk_lang', v); LANG = detectLang();
+  applyStatic(); renderChips(); renderAll();
+}
 function renderHud(){
   const st = myStats(), lv = levelOf(st.xp);
   $('#meChip').innerHTML = `<span class="lv">${ring(lv.pct)}<b>${lv.idx + 1}</b></span>
     <span class="txt"><span>${lv.name}</span><span>${st.xp} XP</span></span>
-    ${st.streak ? `<span class="streak" title="Seria dni">${ICON.flame}${st.streak}</span>` : ''}`;
+    ${st.streak ? `<span class="streak" title="${esc(t('streak_title'))}">${ICON.flame}${st.streak}</span>` : ''}`;
   const open = weeklyQuests().length - questsDone(st).length;
   $('#questDot').hidden = !open; $('#questDot').textContent = open;
 }
 function renderChips(){
-  const t = { '1':'24 godz.', '7':'Tydzień', '30':'Miesiąc', 'all':'Wszystko' };
+  const opts = { '1':t('t_1'), '7':t('t_7'), '30':t('t_30'), 'all':t('t_all') };
   $('#chips').innerHTML = `<label class="chip">${small(ICON.clock)}
-      <select id="timeSel" aria-label="Okres">${Object.entries(t).map(([v, l]) => `<option value="${v}"${S.time === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
-    <button class="chip${S.spFilter.size ? '' : ' on'}" data-sp="">Wszystkie</button>
-    ${S.species.map(s => `<button class="chip${S.spFilter.has(s.id) ? ' on' : ''}" data-sp="${esc(s.id)}">${esc(s.icon)} ${esc(s.name_pl)}</button>`).join('')}`;
+      <select id="timeSel" aria-label="${esc(t('period'))}">${Object.entries(opts).map(([v, l]) => `<option value="${v}"${S.time === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+    <button class="chip${S.spFilter.size ? '' : ' on'}" data-sp="">${esc(t('all'))}</button>
+    ${S.species.map(s => `<button class="chip${S.spFilter.has(s.id) ? ' on' : ''}" data-sp="${esc(s.id)}">${esc(s.icon)} ${esc(spName(s))}</button>`).join('')}`;
   $('#timeSel').onchange = e => { S.time = e.target.value; renderMap(); };
   $$('#chips [data-sp]').forEach(b => b.onclick = () => {
     const id = b.dataset.sp;
@@ -828,26 +1057,25 @@ function renderChips(){
   });
 }
 function renderAll(){ renderHud(); renderMap(); if(S.tab !== 'map') renderPanel(S.tab); }
-
-function setTab(t){
-  S.tab = t;
-  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  ['quests','atlas','rank'].forEach(p => $('#p-' + p).classList.toggle('open', p === t));
-  if(t !== 'map') renderPanel(t);
+function setTab(tb){
+  S.tab = tb;
+  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tb));
+  ['quests','atlas','rank'].forEach(p => $('#p-' + p).classList.toggle('open', p === tb));
+  if(tb !== 'map') renderPanel(tb);
 }
-function renderPanel(t){ if(t === 'quests') renderQuests(); else if(t === 'atlas') renderAtlas(); else if(t === 'rank') renderRank(); }
+function renderPanel(tb){ if(tb === 'quests') renderQuests(); else if(tb === 'atlas') renderAtlas(); else if(tb === 'rank') renderRank(); }
+function renderPanelIfOpen(tb){ if(S.tab === tb) renderPanel(tb); }
 function setMode(m){ S.mode = m; $$('.seg button[data-mode]').forEach(x => x.classList.toggle('on', x.dataset.mode === m)); renderMap(); }
-
 function openSheet(id){ closeSheets(); $('#' + id).classList.add('open'); $('#scrim').classList.add('on'); }
 function closeSheets(){ ['card','form'].forEach(i => $('#' + i).classList.remove('open')); $('#scrim').classList.remove('on'); }
 
-/* ---------- nazwa miejsca (Nominatim, z pamięcią podręczną) ---------- */
+/* ---------- nazwa miejsca (Nominatim) ---------- */
 const placeCache = {};
 async function placeName(lat, lng){
-  const k = lat.toFixed(3) + ',' + lng.toFixed(3);
+  const k = LANG + lat.toFixed(3) + ',' + lng.toFixed(3);
   if(k in placeCache) return placeCache[k];
   try{
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&zoom=15&accept-language=pl&lat=${lat}&lon=${lng}`);
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&zoom=15&accept-language=${LANG}&lat=${lat}&lon=${lng}`);
     const a = (await r.json()).address || {};
     const local = a.park || a.nature_reserve || a.suburb || a.quarter || a.neighbourhood || a.village || a.hamlet || '';
     const city = a.city || a.town || a.municipality || a.county || '';
@@ -859,39 +1087,40 @@ async function placeName(lat, lng){
 const findSighting = id => S.area.find(x => x.id === id) || S.mine.find(x => x.id === id);
 async function openCard(id){
   const s = findSighting(id); if(!s) return;
-  const sp = S.spById[s.species_id] || { name_pl:'Nieznany', icon:'?', danger_level:0 };
+  const sp = S.spById[s.species_id] || { name_pl:'?', icon:'?', danger_level:0 };
   const risky = (sp.danger_level >= 2) || /Agresywny|Ranny/.test(s.behavior || '');
   const when = new Date(s.seen_at);
   let action;
-  if(s.is_mine) action = `<button class="btn block" disabled>To Twoja obserwacja</button>`;
-  else if(s.confirmed_by_me) action = `<button class="btn moss block" disabled>${ICON.check} Potwierdzone</button>`;
-  else action = `<button class="btn primary block" id="confirmBtn">${ICON.check} Też go widziałem · +${XP.confirmGiven} XP</button>`;
+  if(s.is_mine) action = `<button class="btn block" disabled>${esc(t('your_sighting'))}</button>`;
+  else if(s.confirmed_by_me) action = `<button class="btn moss block" disabled>${ICON.check} ${esc(t('confirmed'))}</button>`;
+  else action = `<button class="btn primary block" id="confirmBtn">${ICON.check} ${esc(t('confirm_btn'))} · +${XP.confirmGiven} XP</button>`;
+  const tip = SP_TIPS[LANG][sp.name_pl];
   $('#cardBody').innerHTML = `
     <div class="sc-head"><div class="sc-ico d${sp.danger_level}">${esc(sp.icon)}</div>
-      <div><h2>${esc(sp.name_pl)}</h2><div class="meta"><span>${ICON.clock}${ago(s.seen_at)} · ${when.toLocaleString('pl-PL', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span><span id="placeLbl">${ICON.pin}…</span></div></div></div>
-    ${s.has_photo ? `<div class="photo" id="photoBox">Ładuję zdjęcie…</div>` : ''}
+      <div><h2>${esc(spName(sp))}</h2><div class="meta"><span>${ICON.clock}${ago(s.seen_at)} · ${when.toLocaleString(LOCALE(), { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span><span id="placeLbl">${ICON.pin}…</span></div></div></div>
+    ${s.has_photo ? `<div class="photo" id="photoBox">${esc(t('loading_photo'))}</div>` : ''}
     <dl class="kv">
-      ${s.behavior ? `<dt>Zachowanie</dt><dd>${esc(s.behavior)}</dd>` : ''}
-      <dt>Zgłosił(a)</dt><dd>${s.is_mine ? 'Ty' : esc(s.nickname || 'Anonimowy tropiciel')}</dd>
-      <dt>Potwierdzenia</dt><dd class="mono">${s.confirmed_count || 0}</dd>
+      ${s.behavior ? `<dt>${esc(t('behavior'))}</dt><dd>${esc(behText(s.behavior))}</dd>` : ''}
+      <dt>${esc(t('reported_by'))}</dt><dd>${s.is_mine ? esc(t('you')) : esc(s.nickname || t('anon'))}</dd>
+      <dt>${esc(t('confirmations'))}</dt><dd class="mono">${s.confirmed_count || 0}</dd>
     </dl>
-    ${SP_TIPS[sp.name_pl] ? `<div class="tip${risky ? ' warn' : ''}">${ICON.shield}<div>${esc(SP_TIPS[sp.name_pl])}</div></div>` : ''}
+    ${tip ? `<div class="tip${risky ? ' warn' : ''}">${ICON.shield}<div>${esc(tip)}</div></div>` : ''}
     ${action}`;
   openSheet('card');
   placeName(s.lat, s.lng).then(n => { const el = $('#placeLbl'); if(el) n ? el.innerHTML = ICON.pin + esc(n) : el.remove(); });
   const cb = $('#confirmBtn');
   if(cb) cb.onclick = async () => {
-    cb.disabled = true; cb.textContent = 'Zapisuję…';
+    cb.disabled = true; cb.textContent = t('saving');
     const before = snapshot();
     try{ await API.confirm(s.id); }
-    catch(e){ toast('Nie udało się potwierdzić: ' + (e.message || e)); cb.disabled = false; return; }
+    catch(e){ toast(t('confirm_fail') + ': ' + (e.message || e)); cb.disabled = false; return; }
     await reload(); closeSheets(); reward(before, 'confirm');
   };
   if(s.has_photo){
     try{ const url = await API.photo(s.id); const box = $('#photoBox');
-      if(box && url){ const img = new Image(); img.className = 'photo'; img.alt = 'Zdjęcie: ' + sp.name_pl; img.src = url; box.replaceWith(img); }
-      else if(box) box.textContent = 'Zdjęcie niedostępne';
-    }catch(e){ const box = $('#photoBox'); if(box) box.textContent = 'Nie udało się wczytać zdjęcia'; }
+      if(box && url){ const img = new Image(); img.className = 'photo'; img.alt = t('photo_of') + ': ' + spName(sp); img.src = url; box.replaceWith(img); }
+      else if(box) box.textContent = t('photo_na');
+    }catch(e){ const box = $('#photoBox'); if(box) box.textContent = t('photo_err'); }
   }
 }
 
@@ -902,11 +1131,11 @@ function openCell(c){
   const counts = {}; inC.forEach(s => counts[s.species_id] = (counts[s.species_id] || 0) + 1);
   const last = inC[0];
   $('#cardBody').innerHTML = `
-    <div><div class="eyebrow">${mine ? 'Odkryty kwadrat' : 'Kwadrat do odkrycia'} · 1 km</div><h2 style="font-size:24px;margin-top:4px" id="cellName">Kwadrat ${esc(c.id)}</h2></div>
-    <dl class="kv"><dt>Obserwacje</dt><dd class="mono">${inC.length}</dd>${last ? `<dt>Ostatnia</dt><dd>${ago(last.seen_at)}</dd>` : ''}</dl>
-    ${inC.length ? `<div class="xprev">${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<span>${esc(S.spById[id]?.icon || '?')} ${esc(S.spById[id]?.name_pl || '')} × ${n}</span>`).join('')}</div>` : ''}
-    <div class="tip">${ICON.grid}<div>${mine ? 'Masz tu już swoją obserwację. Kolejne nadal dają XP.' : 'Zgłoś tu dowolne zwierzę, żeby odkryć ten kwadrat. Pięć kwadratów to odznaka Odkrywca.'}</div></div>
-    <button class="btn primary block" id="cellAdd">${ICON.plus} Zgłoś obserwację tutaj</button>`;
+    <div><div class="eyebrow">${esc(mine ? t('cell_found') : t('cell_new'))} · 1 km</div><h2 style="font-size:24px;margin-top:4px" id="cellName">${esc(t('cell'))} ${esc(c.id)}</h2></div>
+    <dl class="kv"><dt>${esc(t('sightings'))}</dt><dd class="mono">${inC.length}</dd>${last ? `<dt>${esc(t('last'))}</dt><dd>${ago(last.seen_at)}</dd>` : ''}</dl>
+    ${inC.length ? `<div class="xprev">${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<span>${esc(S.spById[id]?.icon || '?')} ${esc(spName(S.spById[id]))} × ${n}</span>`).join('')}</div>` : ''}
+    <div class="tip">${ICON.grid}<div>${esc(mine ? t('cell_tip_found') : t('cell_tip_new'))}</div></div>
+    <button class="btn primary block" id="cellAdd">${ICON.plus} ${esc(t('report_here'))}</button>`;
   openSheet('card');
   placeName(c.lat, c.lng).then(n => { const el = $('#cellName'); if(el && n) el.textContent = n; });
   $('#cellAdd').onclick = () => startAdd([c.lat, c.lng]);
@@ -925,32 +1154,33 @@ function updatePickHint(){
   const c = map.getCenter(), cell = cellOf(c.lat, c.lng), st = myStats(), el = $('#pickHint');
   const f = st.cells.has(cell.id);
   el.className = 'zone' + (f ? '' : ' new');
-  el.innerHTML = f ? `${ICON.check}Ten kwadrat już odkryłeś` : `${ICON.grid}Nowy kwadrat na Twojej mapie`;
+  el.innerHTML = f ? `${ICON.check}${esc(t('pick_known'))}` : `${ICON.grid}${esc(t('pick_new'))}`;
 }
 
 const F = { species:null, behaviors:new Set(), photo:null };
 function openForm(){
   F.species = null; F.behaviors = new Set(); F.photo = null;
   const st = myStats(), now = new Date(), min = new Date(Date.now() - 7*864e5);
+  const opt = `<span class="muted" style="font-weight:500">${esc(t('optional'))}</span>`;
   $('#formBody').innerHTML = `
-    <div class="field"><label>Gatunek</label><div class="spgrid" id="spGrid">
-      ${S.species.map(s => `<button class="spbtn" data-id="${esc(s.id)}"><span class="e">${esc(s.icon)}</span>${esc(s.name_pl)}${st.species.has(s.id) ? '' : `<span class="new">+${XP.newSpecies}</span>`}</button>`).join('')}
+    <div class="field"><label>${esc(t('f_species'))}</label><div class="spgrid" id="spGrid">
+      ${S.species.map(s => `<button class="spbtn" data-id="${esc(s.id)}"><span class="e">${esc(s.icon)}</span>${esc(spName(s))}${st.species.has(s.id) ? '' : `<span class="new">+${XP.newSpecies}</span>`}</button>`).join('')}
     </div></div>
-    <div class="field"><label for="fWhen">Kiedy</label><input class="input mono" type="datetime-local" id="fWhen" value="${toLocalInput(now)}" min="${toLocalInput(min)}" max="${toLocalInput(now)}"></div>
-    <div class="field"><label>Zachowanie <span class="muted" style="font-weight:500">(opcjonalnie)</span></label><div class="bchips" id="bChips">
-      ${BEHAVIORS.map(b => `<button class="chip" data-b="${esc(b)}">${esc(b)}</button>`).join('')}</div></div>
-    <div class="field"><label for="fNote">Notatka <span class="muted" style="font-weight:500">(opcjonalnie)</span></label><input class="input" id="fNote" maxlength="140" placeholder="np. trzy warchlaki przy ścieżce"></div>
-    <div class="field"><label>Zdjęcie <span class="muted" style="font-weight:500">(+${XP.photo} XP)</span></label>
-      <div class="photo-pick"><img id="fPrev" alt="" hidden><label for="fPhoto">${ICON.camera}<span id="fPhotoTxt">Dodaj zdjęcie</span></label><input type="file" id="fPhoto" accept="image/*"></div></div>
-    <div class="field"><label>Nagroda</label><div class="xprev" id="xPrev"></div></div>
-    <button class="btn primary block" id="fSubmit">Zgłoś obserwację</button>`;
+    <div class="field"><label for="fWhen">${esc(t('f_when'))}</label><input class="input mono" type="datetime-local" id="fWhen" value="${toLocalInput(now)}" min="${toLocalInput(min)}" max="${toLocalInput(now)}"></div>
+    <div class="field"><label>${esc(t('f_behavior'))} ${opt}</label><div class="bchips" id="bChips">
+      ${BEHAVIORS.map(b => `<button class="chip" data-b="${esc(b)}">${esc(behName(b))}</button>`).join('')}</div></div>
+    <div class="field"><label for="fNote">${esc(t('f_note'))} ${opt}</label><input class="input" id="fNote" maxlength="140" placeholder="${esc(t('f_note_ph'))}"></div>
+    <div class="field"><label>${esc(t('f_photo'))} <span class="muted" style="font-weight:500">(+${XP.photo} XP)</span></label>
+      <div class="photo-pick"><img id="fPrev" alt="" hidden><label for="fPhoto">${ICON.camera}<span id="fPhotoTxt">${esc(t('add_photo'))}</span></label><input type="file" id="fPhoto" accept="image/*"></div></div>
+    <div class="field"><label>${esc(t('f_reward'))}</label><div class="xprev" id="xPrev"></div></div>
+    <button class="btn primary block" id="fSubmit">${esc(t('submit'))}</button>`;
   $$('#spGrid .spbtn').forEach(b => b.onclick = () => { F.species = b.dataset.id; $$('#spGrid .spbtn').forEach(x => x.classList.toggle('on', x === b)); xpPreview(); });
   $$('#bChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.b; F.behaviors.has(v) ? F.behaviors.delete(v) : F.behaviors.add(v); b.classList.toggle('on'); });
   $('#fPhoto').onchange = async e => {
     const file = e.target.files[0]; if(!file) return;
-    $('#fPhotoTxt').textContent = 'Kompresuję…';
-    try{ F.photo = await compress(file, DEMO ? 640 : 1000, DEMO ? .6 : .7); const p = $('#fPrev'); p.src = F.photo; p.hidden = false; $('#fPhotoTxt').textContent = 'Zmień zdjęcie'; }
-    catch(err){ toast(err.message); $('#fPhotoTxt').textContent = 'Dodaj zdjęcie'; }
+    $('#fPhotoTxt').textContent = t('compressing');
+    try{ F.photo = await compress(file, DEMO ? 640 : 1000, DEMO ? .6 : .7); const p = $('#fPrev'); p.src = F.photo; p.hidden = false; $('#fPhotoTxt').textContent = t('change_photo'); }
+    catch(err){ toast(err.message); $('#fPhotoTxt').textContent = t('add_photo'); }
     xpPreview();
   };
   $('#fSubmit').onclick = submitForm;
@@ -958,13 +1188,13 @@ function openForm(){
   openSheet('form');
 }
 function xpPreview(){
-  const st = myStats(), parts = [`Obserwacja +${XP.sighting}`];
-  if(F.photo) parts.push(`Zdjęcie +${XP.photo}`);
-  if(F.species && !st.species.has(F.species)) parts.push(`Nowy gatunek +${XP.newSpecies}`);
-  if(S.pick && !st.cells.has(cellOf(S.pick.lat, S.pick.lng).id)) parts.push('Nowy kwadrat mapy');
+  const st = myStats(), parts = [`${t('x_sighting')} +${XP.sighting}`];
+  if(F.photo) parts.push(`${t('x_photo')} +${XP.photo}`);
+  if(F.species && !st.species.has(F.species)) parts.push(`${t('x_species')} +${XP.newSpecies}`);
+  if(S.pick && !st.cells.has(cellOf(S.pick.lat, S.pick.lng).id)) parts.push(t('x_cell'));
   $('#xPrev').innerHTML = parts.map(p => `<span>${esc(p)}</span>`).join('');
   const total = XP.sighting + (F.photo ? XP.photo : 0) + (F.species && !st.species.has(F.species) ? XP.newSpecies : 0);
-  $('#fSubmit').textContent = `Zgłoś obserwację · +${total} XP`;
+  $('#fSubmit').textContent = `${t('submit')} · +${total} XP`;
 }
 function compress(file, max, q){
   return new Promise((res, rej) => {
@@ -974,22 +1204,22 @@ function compress(file, max, q){
       const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q));
     };
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Nie udało się odczytać zdjęcia. Spróbuj pliku JPG lub PNG.')); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(t('photo_read_err'))); };
     img.src = url;
   });
 }
 async function submitForm(){
-  if(!F.species){ toast('Wybierz gatunek'); return; }
+  if(!F.species){ toast(t('e_species')); return; }
   const when = new Date($('#fWhen').value);
-  if(isNaN(when)){ toast('Podaj datę i godzinę'); return; }
-  if(when > new Date(Date.now() + 60000)){ toast('Data nie może być z przyszłości'); return; }
-  if(when < new Date(Date.now() - 7*864e5 - 60000)){ toast('Można zgłosić obserwację sprzed maksymalnie 7 dni'); return; }
+  if(isNaN(when)){ toast(t('e_when')); return; }
+  if(when > new Date(Date.now() + 60000)){ toast(t('e_future')); return; }
+  if(when < new Date(Date.now() - 7*864e5 - 60000)){ toast(t('e_old')); return; }
   const note = $('#fNote').value.trim();
   const behavior = [[...F.behaviors].join(', '), note].filter(Boolean).join(' — ') || null;
-  const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = 'Zapisuję…';
+  const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = t('saving');
   const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.species.has(F.species);
   try{ await API.add({ species_id:F.species, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
-  catch(e){ toast('Nie udało się zapisać: ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
+  catch(e){ toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
   closeSheets();
   if(S.spFilter.size && !S.spFilter.has(F.species)) S.spFilter.clear();
   if(S.time !== 'all' && Date.now() - when > (+S.time) * 864e5) S.time = '30';
@@ -1012,29 +1242,29 @@ function reward(before, kind, extra = {}){
 
   const lines = [];
   if(kind === 'add'){
-    lines.push(['Obserwacja', `+${XP.sighting}`]);
-    if(extra.photo) lines.push(['Zdjęcie', `+${XP.photo}`]);
-    if(extra.newSpecies){ const sp = S.spById[extra.newSpecies]; lines.push([`Nowy gatunek w atlasie: ${sp?.icon || ''} ${sp?.name_pl || ''}`, `+${XP.newSpecies}`]); }
-  } else lines.push(['Potwierdzenie obserwacji', `+${XP.confirmGiven}`]);
-  if(newCells) lines.push(['Odkryty nowy kwadrat mapy', `razem ${after.cells.size}`]);
-  qs.forEach(q => lines.push([`Wyzwanie: ${q.title}`, 'ukończone']));
+    lines.push([t('x_sighting'), `+${XP.sighting}`]);
+    if(extra.photo) lines.push([t('x_photo'), `+${XP.photo}`]);
+    if(extra.newSpecies){ const sp = S.spById[extra.newSpecies]; lines.push([`${t('r_new_species')}: ${sp?.icon || ''} ${spName(sp)}`, `+${XP.newSpecies}`]); }
+  } else lines.push([t('r_confirm'), `+${XP.confirmGiven}`]);
+  if(newCells) lines.push([t('r_new_cell'), `${t('r_total')} ${after.cells.size}`]);
+  qs.forEach(q => lines.push([`${t('r_quest')}: ${q[LANG]}`, t('r_done')]));
 
   const lb = levelOf(before.xp), la = levelOf(after.xp);
   const startPct = lvUp ? 0 : lb.pct;
   $('#mcard').innerHTML = `
-    <div class="gain"><span>${kind === 'add' ? 'Obserwacja zapisana' : 'Dzięki za potwierdzenie'}</span><b id="gainNum">+0</b><span>XP</span></div>
-    ${lvUp ? `<div class="lvup"><div class="eyebrow" style="color:inherit;opacity:.8">Nowy poziom</div><b>${la.name}</b></div>` : ''}
+    <div class="gain"><span>${esc(kind === 'add' ? t('r_saved') : t('r_thanks'))}</span><b id="gainNum">+0</b><span>XP</span></div>
+    ${lvUp ? `<div class="lvup"><div class="eyebrow" style="color:inherit;opacity:.8">${esc(t('r_new_level'))}</div><b>${esc(la.name)}</b></div>` : ''}
     <div class="lines">${lines.map(([a, b]) => `<div><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div>
-    <div class="mprog"><div style="display:flex;justify-content:space-between;gap:8px"><span>${la.name}</span><span class="mono">${la.next ? `${la.toNext} XP do: ${la.next.name}` : 'Najwyższy poziom'}</span></div><div class="bar"><i id="mBar" style="width:${startPct*100}%"></i></div></div>
-    ${newBadges.length ? `<div class="sec"><div class="eyebrow" style="text-align:center">${newBadges.length === 1 ? 'Nowa odznaka' : 'Nowe odznaki'}</div>
-      <div class="newbadges">${newBadges.map(b => `<div class="badge"><div class="medal">${ICON[b.icon]}</div><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`).join('')}</div></div>` : ''}
-    <button class="btn moss block" id="mOk">Dalej</button>`;
+    <div class="mprog"><div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(la.name)}</span><span class="mono">${la.next ? `${la.toNext} XP ${esc(t('r_to'))}: ${esc(la.next.name)}` : esc(t('r_max'))}</span></div><div class="bar"><i id="mBar" style="width:${startPct*100}%"></i></div></div>
+    ${newBadges.length ? `<div class="sec"><div class="eyebrow" style="text-align:center">${esc(newBadges.length === 1 ? t('r_badge') : t('r_badges'))}</div>
+      <div class="newbadges">${newBadges.map(b => `<div class="badge"><div class="medal">${ICON[b.icon]}</div><b>${esc(bName(b))}</b><small>${esc(bDesc(b))}</small></div>`).join('')}</div></div>` : ''}
+    <button class="btn moss block" id="mOk">${esc(t('next'))}</button>`;
   $('#modal').hidden = false;
   $('#mOk').focus();
   $('#mOk').onclick = () => { $('#modal').hidden = true; };
   requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('#mBar'); if(b) b.style.width = (la.pct * 100) + '%'; }));
   const t0 = performance.now(), el = $('#gainNum');
-  const step = t => { const k = Math.min(1, (t - t0) / 700); el.textContent = '+' + Math.round(gained * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
+  const step = ts => { const k = Math.min(1, (ts - t0) / 700); el.textContent = '+' + Math.round(gained * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
 
@@ -1043,48 +1273,58 @@ function renderQuests(){
   const st = myStats(), c = questCtx(st), qs = weeklyQuests();
   const ws = weekStart(), daysLeft = Math.ceil((ws.getTime() + 7*864e5 - Date.now()) / 864e5);
   const active = new Set(st.my.map(s => dayKey(s.seen_at)));
-  const names = ['Pn','Wt','Śr','Cz','Pt','So','Nd'], today = dayKey(new Date());
+  const names = t('days'), today = dayKey(new Date());
   const doneToday = active.has(today);
   $('#questsBody').innerHTML = `
     <div class="streakcard">
-      <div class="big">${ICON.flame}<div><b>${st.streak}</b></div><div><div style="font-weight:700">${pl(st.streak, ['dzień','dni','dni'])} z rzędu</div><div class="muted" style="font-size:13px">${doneToday ? 'Dzisiejszy dzień zaliczony.' : st.streak ? 'Zgłoś coś dziś, żeby nie przerwać serii.' : 'Zgłoś obserwację, żeby zacząć serię.'}</div></div></div>
+      <div class="big">${ICON.flame}<div><b>${st.streak}</b></div><div><div style="font-weight:700">${pw(st.streak, 'day')} ${esc(t('q_in_row'))}</div><div class="muted" style="font-size:13px">${esc(doneToday ? t('q_today_done') : st.streak ? t('q_keep') : t('q_start'))}</div></div></div>
       <div class="days">${names.map((n, i) => { const d = new Date(ws); d.setDate(d.getDate() + i); const k = dayKey(d); return `<div class="${active.has(k) ? 'on' : ''}${k === today ? ' today' : ''}"><i></i>${n}</div>`; }).join('')}</div>
     </div>
     <div class="sec">
-      <div class="sec-h"><h3>Wyzwania tygodnia</h3><span class="mono">nowe za ${daysLeft} ${pl(daysLeft, ['dzień','dni','dni'])}</span></div>
+      <div class="sec-h"><h3>${esc(t('q_weekly'))}</h3><span class="mono">${esc(t('q_new_in'))} ${daysLeft} ${pw(daysLeft, 'day')}</span></div>
       ${qs.map(q => { const p = Math.min(q.p(c), q.target), d = p >= q.target; return `
         <div class="quest${d ? ' done' : ''}"><div class="qi">${d ? ICON.check : ICON[q.icon]}</div>
-          <div><b>${esc(q.title)}</b><div class="bar"><i style="width:${p / q.target * 100}%"></i></div></div>
+          <div><b>${esc(q[LANG])}</b><div class="bar"><i style="width:${p / q.target * 100}%"></i></div></div>
           <span class="mono">${p}/${q.target}</span></div>`; }).join('')}
-      <p class="muted" style="margin:0;font-size:13px">Ukończ wszystkie trzy, żeby zdobyć odznakę Zadaniowiec.</p>
+      <p class="muted" style="margin:0;font-size:13px">${esc(t('q_all3'))}</p>
     </div>`;
 }
 function renderAtlas(){
   const st = myStats(), lv = levelOf(st.xp), ul = new Set(unlocked(st));
   const counts = {}; st.my.forEach(s => counts[s.species_id] = (counts[s.species_id] || 0) + 1);
   const atlasSp = S.species.filter(s => s.name_pl !== 'Inne');
+  const langSaved = LS.get('dk_lang', 'auto'), styleId = currentStyleId();
   $('#atlasBody').innerHTML = `
     <div class="levelcard">
       <div class="top-l"><div style="position:relative;width:64px;height:64px">${ring(lv.pct, 64, 6)}<b class="mono" style="position:absolute;inset:0;display:grid;place-items:center;font-size:22px">${lv.idx + 1}</b></div>
-        <div><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || 'Twój poziom')}</div><h3>${lv.name}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} do: ${lv.next.name}` : ''}</div></div></div>
-      <div class="ladder">${LEVELS.map((l, i) => `<div class="${i <= lv.idx ? 'on' : ''}"><i></i><span>${l.name}</span><span>${l.xp}</span></div>`).join('')}</div>
+        <div><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || t('your_level'))}</div><h3>${esc(lv.name)}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} ${esc(t('r_to'))}: ${esc(lv.next.name)}` : ''}</div></div></div>
+      <div class="ladder">${LEVELS.map((l, i) => `<div class="${i <= lv.idx ? 'on' : ''}"><i></i><span>${esc(l[LANG])}</span><span>${l.xp}</span></div>`).join('')}</div>
     </div>
-    <div class="sec"><div class="sec-h"><h3>Gatunki</h3><span class="mono">${atlasSp.filter(s => st.species.has(s.id)).length}/${atlasSp.length}</span></div>
-      <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(s.icon)}</span><b>${n ? esc(s.name_pl) : '???'}</b><span class="mono">${n ? n + ' × ' : `+${XP.newSpecies} XP`}</span></div>`; }).join('')}</div></div>
-    <div class="sec"><div class="sec-h"><h3>Odkryte kwadraty</h3><span class="mono">${st.cells.size} × 1 km²</span></div>
-      <button class="btn ghost" id="showCells">${ICON.grid} Pokaż na mapie</button></div>
-    <div class="sec"><div class="sec-h"><h3>Odznaki</h3><span class="mono">${ul.size}/${BADGES.length}</span></div>
-      <div class="badges">${BADGES.map(b => { const [a, n] = b.prog(st), on = ul.has(b.id); return `<div class="badge${on ? '' : ' locked'}"><div class="medal">${ICON[b.icon]}</div><b>${esc(b.name)}</b><small>${on ? esc(b.desc) : `${esc(b.desc)} · ${Math.min(a, n)}/${n}`}</small></div>`; }).join('')}</div></div>
-    <div class="sec"><h3>Za co są punkty</h3><div class="rules">
-      <span>Każda obserwacja</span><span>+${XP.sighting}</span>
-      <span>Obserwacja ze zdjęciem</span><span>+${XP.photo}</span>
-      <span>Pierwszy raz nowy gatunek</span><span>+${XP.newSpecies}</span>
-      <span>Potwierdzasz cudzą obserwację</span><span>+${XP.confirmGiven}</span>
-      <span>Ktoś potwierdza Twoją</span><span>+${XP.confirmReceived}</span></div></div>`;
+    <div class="sec"><div class="sec-h"><h3>${esc(t('species_h'))}</h3><span class="mono">${atlasSp.filter(s => st.species.has(s.id)).length}/${atlasSp.length}</span></div>
+      <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(s.icon)}</span><b>${n ? esc(spName(s)) : '???'}</b><span class="mono">${n ? n + ' × ' : `+${XP.newSpecies} XP`}</span></div>`; }).join('')}</div></div>
+    <div class="sec"><div class="sec-h"><h3>${esc(t('cells_h'))}</h3><span class="mono">${st.cells.size} × 1 km²</span></div>
+      <button class="btn ghost" id="showCells">${ICON.grid} ${esc(t('show_on_map'))}</button></div>
+    <div class="sec"><div class="sec-h"><h3>${esc(t('badges_h'))}</h3><span class="mono">${ul.size}/${BADGES.length}</span></div>
+      <div class="badges">${BADGES.map(b => { const [a, n] = b.prog(st), on = ul.has(b.id); return `<div class="badge${on ? '' : ' locked'}"><div class="medal">${ICON[b.icon]}</div><b>${esc(bName(b))}</b><small>${on ? esc(bDesc(b)) : `${esc(bDesc(b))} · ${Math.min(a, n)}/${n}`}</small></div>`; }).join('')}</div></div>
+    <div class="sec"><h3>${esc(t('points_h'))}</h3><div class="rules">
+      <span>${esc(t('p_each'))}</span><span>+${XP.sighting}</span>
+      <span>${esc(t('p_photo'))}</span><span>+${XP.photo}</span>
+      <span>${esc(t('p_species'))}</span><span>+${XP.newSpecies}</span>
+      <span>${esc(t('p_give'))}</span><span>+${XP.confirmGiven}</span>
+      <span>${esc(t('p_get'))}</span><span>+${XP.confirmReceived}</span></div></div>
+    <div class="sec settings"><h3>${esc(t('settings_h'))}</h3>
+      <div class="field"><label>${esc(t('lang_l'))}</label><div class="bchips">
+        ${[['auto', t('lang_auto')], ['pl', 'Polski'], ['en', 'English']].map(([v, l]) => `<button class="chip${langSaved === v ? ' on' : ''}" data-lang="${v}">${esc(l)}</button>`).join('')}</div></div>
+      <div class="field"><label>${esc(t('map_style_l'))}</label><div class="stylelist">
+        ${STYLES.map(s => { const av = styleAvailable(s); return `<button class="chip${styleId === s.id ? ' on' : ''}" data-style="${s.id}"${av ? '' : ' disabled'}>${esc(s.name)}${av ? '' : ` <small>· ${esc(t('needs_key'))}</small>`}</button>`; }).join('')}</div>
+        <p class="muted" style="margin:0;font-size:12.5px">${esc(t('style_note'))}</p></div>
+    </div>`;
   $('#showCells').onclick = () => {
     setTab('map'); setMode('zones');
     if(st.my.length){ const b = L.latLngBounds(st.my.map(s => [s.lat, s.lng])); map.fitBounds(b.pad(.3), { maxZoom:14 }); }
   };
+  $$('#atlasBody [data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
+  $$('#atlasBody [data-style]').forEach(b => b.onclick = () => { LS.set('dk_style', b.dataset.style); setBase(b.dataset.style); renderAtlas(); });
 }
 async function renderRank(){
   const body = $('#rankBody'), R = CONFIG.NEAR_RADIUS_KM;
@@ -1092,15 +1332,15 @@ async function renderRank(){
     <div class="nickrow" id="nickRow"></div>
     <div class="row" style="flex-wrap:wrap">
       <div class="seg" style="box-shadow:none;background:var(--surface-2)">
-        <button data-scope="near" class="${S.rankScope === 'near' ? 'on' : ''}">Okolica ${R} km</button>
-        <button data-scope="world" class="${S.rankScope === 'world' ? 'on' : ''}">Świat</button></div>
+        <button data-scope="near" class="${S.rankScope === 'near' ? 'on' : ''}">${esc(t('near'))} ${R} km</button>
+        <button data-scope="world" class="${S.rankScope === 'world' ? 'on' : ''}">${esc(t('world'))}</button></div>
       <div class="seg" style="box-shadow:none;background:var(--surface-2)">
-        <button data-p="week" class="${S.rankPeriod === 'week' ? 'on' : ''}">Tydzień</button>
-        <button data-p="all" class="${S.rankPeriod === 'all' ? 'on' : ''}">Cały czas</button></div>
+        <button data-p="week" class="${S.rankPeriod === 'week' ? 'on' : ''}">${esc(t('week'))}</button>
+        <button data-p="all" class="${S.rankPeriod === 'all' ? 'on' : ''}">${esc(t('all_time'))}</button></div>
     </div>
-    <div class="rank-list" id="rankList"><p class="muted">Ładuję ranking…</p></div>
-    ${S.rankScope === 'near' ? '<p class="muted" style="margin:0;font-size:12.5px">Okolica liczy się od środka mapy.</p>' : ''}
-    ${DEMO ? '<p class="muted" style="margin:0;font-size:12.5px">Tryb demo: pozostali gracze to przykładowe dane.</p>' : ''}`;
+    <div class="rank-list" id="rankList"><p class="muted">${esc(t('rank_loading'))}</p></div>
+    ${S.rankScope === 'near' ? `<p class="muted" style="margin:0;font-size:12.5px">${esc(t('near_note'))}</p>` : ''}
+    ${DEMO ? `<p class="muted" style="margin:0;font-size:12.5px">${esc(t('demo_rank'))}</p>` : ''}`;
   renderNickRow();
   $$('#rankBody [data-p]').forEach(b => b.onclick = () => { S.rankPeriod = b.dataset.p; renderRank(); });
   $$('#rankBody [data-scope]').forEach(b => b.onclick = () => { S.rankScope = b.dataset.scope; renderRank(); });
@@ -1111,23 +1351,23 @@ async function renderRank(){
     const me = rows.find(r => r.is_me);
     $('#rankList').innerHTML = rows.length ? rows.map((r, i) => `
       <div class="rrow${r.is_me ? ' isme' : ''}${i === 0 ? ' top1' : ''}"><span class="n">${i + 1}</span>
-        <div style="min-width:0"><b>${esc(r.is_me ? (S.nickname || 'Ty') : r.nickname)}${r.is_me ? ' · Ty' : ''}</b><small>${r.sightings} ${pl(r.sightings, ['obserwacja','obserwacje','obserwacji'])} · ${r.species} ${pl(r.species, ['gatunek','gatunki','gatunków'])}</small></div>
+        <div style="min-width:0"><b>${esc(r.is_me ? (S.nickname || t('you')) : String(r.nickname).replace(/^Tropiciel #/, LANG === 'en' ? 'Tracker #' : 'Tropiciel #'))}${r.is_me ? ' · ' + esc(t('you')) : ''}</b><small>${r.sightings} ${pw(r.sightings, 'sighting')} · ${r.species} ${pw(r.species, 'species')}</small></div>
         <span class="x">${r.xp}</span></div>`).join('')
-      + (me ? '' : `<p class="muted" style="font-size:13px">Nie ma Cię jeszcze w tym rankingu. Zgłoś obserwację w tej okolicy.</p>`)
-      : '<p class="muted">Nikt jeszcze nie zdobył tu punktów w tym okresie. Możesz być pierwszy.</p>';
-  }catch(e){ $('#rankList').innerHTML = `<p class="muted">Nie udało się wczytać rankingu: ${esc(e.message || e)}</p>`; }
+      + (me ? '' : `<p class="muted" style="font-size:13px">${esc(t('not_in_rank'))}</p>`)
+      : `<p class="muted">${esc(t('rank_empty'))}</p>`;
+  }catch(e){ $('#rankList').innerHTML = `<p class="muted">${esc(t('rank_fail'))}: ${esc(e.message || e)}</p>`; }
 }
 function renderNickRow(){
   const row = $('#nickRow');
-  row.innerHTML = `<span>Grasz jako <b>${esc(S.nickname || 'Anonimowy tropiciel')}</b></span><button class="btn ghost" style="height:36px;font-size:13px" id="nickEdit">${small(ICON.edit)} Zmień</button>`;
+  row.innerHTML = `<span>${esc(t('playing_as'))} <b>${esc(S.nickname || t('anon'))}</b></span><button class="btn ghost" style="height:36px;font-size:13px" id="nickEdit">${small(ICON.edit)} ${esc(t('change'))}</button>`;
   $('#nickEdit').onclick = () => {
-    row.innerHTML = `<form class="nickform" id="nickForm"><input class="input" id="nickIn" maxlength="24" value="${esc(S.nickname)}" placeholder="Pseudonim, 2–24 znaki" aria-label="Pseudonim"><button class="btn moss" style="height:46px">Zapisz</button></form>`;
+    row.innerHTML = `<form class="nickform" id="nickForm"><input class="input" id="nickIn" maxlength="24" value="${esc(S.nickname)}" placeholder="${esc(t('nick_ph'))}" aria-label="${esc(t('nick_l'))}"><button class="btn moss" style="height:46px">${esc(t('save'))}</button></form>`;
     $('#nickIn').focus();
     $('#nickForm').onsubmit = async e => {
       e.preventDefault(); const v = $('#nickIn').value.trim();
-      if(v.length < 2){ toast('Pseudonim musi mieć co najmniej 2 znaki'); return; }
-      try{ await API.setNickname(v); S.nickname = v; toast('Zapisano pseudonim'); renderRank(); }
-      catch(err){ toast('Nie udało się zapisać: ' + (err.message || err)); }
+      if(v.length < 2){ toast(t('nick_short')); return; }
+      try{ await API.setNickname(v); S.nickname = v; toast(t('nick_saved')); renderRank(); }
+      catch(err){ toast(t('nick_fail') + ': ' + (err.message || err)); }
     };
   };
 }
@@ -1143,9 +1383,9 @@ function initSearch(){
       try{
         const b = map.getBounds();
         const vb = map.getZoom() >= 8 ? `&viewbox=${b.getWest()},${b.getNorth()},${b.getEast()},${b.getSouth()}` : '';
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=6&accept-language=pl${vb}&q=${encodeURIComponent(v)}`);
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=6&accept-language=${LANG}${vb}&q=${encodeURIComponent(v)}`);
         const d = await r.json();
-        box.innerHTML = d.length ? d.map(x => `<button data-ll="${x.lat},${x.lon}" data-bb="${(x.boundingbox || []).join(',')}">${esc(x.display_name.split(',').slice(0, 3).join(','))}</button>`).join('') : '<button disabled>Nic nie znaleziono</button>';
+        box.innerHTML = d.length ? d.map(x => `<button data-ll="${x.lat},${x.lon}" data-bb="${(x.boundingbox || []).join(',')}">${esc(x.display_name.split(',').slice(0, 3).join(','))}</button>`).join('') : `<button disabled>${esc(t('no_results'))}</button>`;
         box.hidden = false;
         $$('#results [data-ll]').forEach(btn => btn.onclick = () => {
           const bb = btn.dataset.bb.split(',').map(Number);
@@ -1153,21 +1393,21 @@ function initSearch(){
           else { const [a, o] = btn.dataset.ll.split(',').map(Number); map.setView([a, o], 15); }
           box.hidden = true; q.blur();
         });
-      }catch(e){ box.innerHTML = '<button disabled>Wyszukiwarka nie odpowiada. Spróbuj za chwilę.</button>'; box.hidden = false; }
+      }catch(e){ box.innerHTML = `<button disabled>${esc(t('search_down'))}</button>`; box.hidden = false; }
     }, 500);
   });
   q.addEventListener('blur', () => setTimeout(() => box.hidden = true, 200));
 }
 function locate(silent){
-  if(!navigator.geolocation){ if(!silent) toast('Ta przeglądarka nie udostępnia lokalizacji'); return; }
+  if(!navigator.geolocation){ if(!silent) toast(t('geo_none')); return; }
   navigator.geolocation.getCurrentPosition(p => {
     const ll = [p.coords.latitude, p.coords.longitude]; map.setView(ll, 14);
     if(!meDot) meDot = L.marker(ll, { icon:L.divIcon({ className:'', iconSize:[18,18], html:'<div class="medot"></div>' }), interactive:false, zIndexOffset:-100 }).addTo(map);
     else meDot.setLatLng(ll);
-  }, err => {
+  }, () => {
     if(silent) return;
-    if(location.protocol !== 'https:' && !/^(localhost|127\.)/.test(location.hostname)) toast('Lokalizacja działa tylko przez https:// albo localhost. Wyszukaj miasto ręcznie.');
-    else toast('Brak dostępu do lokalizacji. Włącz ją w ustawieniach przeglądarki albo wyszukaj miasto.');
+    if(location.protocol !== 'https:' && !/^(localhost|127\.)/.test(location.hostname)) toast(t('geo_https'));
+    else toast(t('geo_denied'));
   }, { enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
 }
 async function locateIfAllowed(){
@@ -1177,9 +1417,9 @@ async function locateIfAllowed(){
 /* ---------- toast + komunikaty ---------- */
 let toastT;
 function toast(msg, kind){
-  $$('.toast').forEach(t => t.remove());
-  const t = document.createElement('div'); t.className = 'toast' + (kind ? ' ' + kind : ''); t.textContent = msg; t.setAttribute('role', 'status');
-  document.body.appendChild(t); clearTimeout(toastT); toastT = setTimeout(() => t.remove(), kind === 'xp' ? 1600 : 3600);
+  $$('.toast').forEach(x => x.remove());
+  const el = document.createElement('div'); el.className = 'toast' + (kind ? ' ' + kind : ''); el.textContent = msg; el.setAttribute('role', 'status');
+  document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), kind === 'xp' ? 1600 : 3600);
 }
 const noticeMsgs = [];
 function notice(text, err){
@@ -1194,40 +1434,36 @@ const TOPO = `<svg class="topo" viewBox="0 0 400 300" preserveAspectRatio="xMidY
   ${[0,1,2,3,4,5,6].map(i => `<ellipse cx="120" cy="120" rx="${30+i*26}" ry="${20+i*19}" transform="rotate(-18 120 120)"/>`).join('')}
   ${[0,1,2,3,4].map(i => `<ellipse cx="320" cy="230" rx="${22+i*24}" ry="${16+i*17}" transform="rotate(24 320 230)"/>`).join('')}</svg>`;
 const SLIDES = [
-  { art:`${TOPO}<div class="p" style="left:16%;top:22%">🐗</div><div class="p" style="left:58%;top:16%">🦊</div><div class="p" style="left:36%;top:56%">🦌</div><div class="p" style="left:72%;top:52%">🦡</div>`,
-    eyebrow:CONFIG.APP_NAME, title:'Miasto dzielimy z dzikimi zwierzętami',
-    text:'Dziki, lisy i sarny korzystają z tych samych parków i ulic co my — w każdym mieście. Zaznaczaj, gdzie je widzisz, a razem stworzymy mapę dzikich korytarzy.' },
-  { art:`${TOPO}<div class="p" style="left:44%;top:30%;width:64px;height:64px;background:var(--fox);color:var(--fox-ink)">${ICON.plus}</div>`,
-    eyebrow:'Zgłoszenie w 20 sekund', title:'Zobaczyłeś zwierzę? Postaw pinezkę',
-    text:'Stuknij pomarańczowy przycisk, ustaw pinezkę i wybierz gatunek. Zdjęcie jest mile widziane, ale nieobowiązkowe. Inni mogą potwierdzić Twoją obserwację.' },
-  { art:`${TOPO}<div class="big">+35 XP</div><div class="p" style="right:12%;left:auto;top:20%;border-radius:0;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);background:var(--fox);color:var(--fox-ink)">${ICON.star}</div>`,
-    eyebrow:'Gra w tropiciela', title:'Zbieraj XP, odznaki i kwadraty mapy',
-    text:'Awansuj od Świeżaka do Legendy. Uzupełniaj atlas gatunków, odkrywaj kolejne kwadraty 1 km, utrzymuj serię dni i rywalizuj z okolicą albo z całym światem.' },
-  { last:true, eyebrow:'Ostatni krok', title:'Jak mamy Cię nazywać?',
-    text:'Pseudonim zobaczą inni w rankingu. Możesz go zmienić później. Za chwilę zapytamy o lokalizację, żeby pokazać mapę wokół Ciebie.' },
+  { k:'onb1', art:`${TOPO}<div class="p" style="left:16%;top:22%">🐗</div><div class="p" style="left:58%;top:16%">🦊</div><div class="p" style="left:36%;top:56%">🦌</div><div class="p" style="left:72%;top:52%">🦡</div>` },
+  { k:'onb2', art:`${TOPO}<div class="p" style="left:44%;top:30%;width:64px;height:64px;background:var(--fox);color:var(--fox-ink)">${ICON.plus}</div>` },
+  { k:'onb3', art:`${TOPO}<div class="big">+35 XP</div><div class="p" style="right:12%;left:auto;top:20%;border-radius:0;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);background:var(--fox);color:var(--fox-ink)">${ICON.star}</div>` },
+  { k:'onb4', last:true },
 ];
 let onbStep = 0;
 function openOnboarding(){ onbStep = 0; $('#onb').hidden = false; renderOnb(); }
 function renderOnb(){
-  const s = SLIDES[onbStep];
+  const s = SLIDES[onbStep], eyebrow = t(s.k + '_e') || CONFIG.APP_NAME;
+  const langChips = `<div class="bchips" style="justify-content:flex-end">${[['pl','PL'],['en','EN']].map(([v, l]) => `<button class="chip${LANG === v ? ' on' : ''}" data-onblang="${v}" style="height:30px">${l}</button>`).join('')}</div>`;
   $('#onbIn').innerHTML = `
+    ${onbStep === 0 ? langChips : ''}
     ${s.art ? `<div class="onb-art">${s.art}</div>` : ''}
-    <div class="dots" aria-label="Krok ${onbStep + 1} z ${SLIDES.length}">${SLIDES.map((_, i) => `<i class="${i === onbStep ? 'on' : ''}"></i>`).join('')}</div>
-    <div style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">${esc(s.eyebrow)}</div><h1>${esc(s.title)}</h1><p>${esc(s.text)}</p></div>
+    <div class="dots" aria-label="${esc(t('step'))} ${onbStep + 1} / ${SLIDES.length}">${SLIDES.map((_, i) => `<i class="${i === onbStep ? 'on' : ''}"></i>`).join('')}</div>
+    <div style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(t(s.k + '_t'))}</h1><p>${esc(t(s.k + '_p'))}</p></div>
     ${s.last ? `
-      <div class="field"><label for="onbNick">Pseudonim</label><input class="input" id="onbNick" maxlength="24" placeholder="np. LisiTrop" value="${esc(S.nickname)}"></div>
-      <label class="consent"><input type="checkbox" id="onbOk"><span>Zgadzam się na zapisywanie lokalizacji i czasu moich zgłoszeń, ich publikację na mapie pod pseudonimem oraz udostępnianie zanonimizowanych danych miastom i naukowcom (RODO/GDPR). Zgodę możesz wycofać, pisząc do administratora projektu.</span></label>
-      <p style="font-size:13px">W sytuacji zagrożenia dzwoń na ${esc(EMERGENCY)}.</p>` : ''}
+      <div class="field"><label for="onbNick">${esc(t('nick_l'))}</label><input class="input" id="onbNick" maxlength="24" placeholder="${esc(t('onb_nick_ph'))}" value="${esc(S.nickname)}"></div>
+      <label class="consent"><input type="checkbox" id="onbOk"><span>${esc(t('consent'))}</span></label>
+      <p style="font-size:13px">${esc(t('emergency'))} ${esc(EMERG[LANG])}.</p>` : ''}
     <div class="btns" style="margin-top:auto">
-      ${onbStep ? '<button class="btn ghost" id="onbBack">Wstecz</button>' : ''}
-      <button class="btn ${s.last ? 'primary' : 'moss'}" id="onbNext"${s.last ? ' disabled' : ''}>${s.last ? 'Pokaż mapę wokół mnie' : 'Dalej'}</button></div>`;
+      ${onbStep ? `<button class="btn ghost" id="onbBack">${esc(t('back'))}</button>` : ''}
+      <button class="btn ${s.last ? 'primary' : 'moss'}" id="onbNext"${s.last ? ' disabled' : ''}>${esc(s.last ? t('onb_go') : t('next'))}</button></div>`;
+  $$('[data-onblang]').forEach(b => b.onclick = () => { setLang(b.dataset.onblang); renderOnb(); });
   $('#onbBack') && ($('#onbBack').onclick = () => { onbStep--; renderOnb(); });
   if(s.last){
     $('#onbOk').onchange = e => { $('#onbNext').disabled = !e.target.checked; };
     $('#onbNext').onclick = async () => {
       const n = $('#onbNick').value.trim();
-      if(n && n.length < 2){ toast('Pseudonim musi mieć co najmniej 2 znaki'); return; }
-      if(n && n !== S.nickname){ try{ await API.setNickname(n); S.nickname = n; }catch(e){ toast('Pseudonim nie został zapisany: ' + (e.message || e)); } }
+      if(n && n.length < 2){ toast(t('nick_short')); return; }
+      if(n && n !== S.nickname){ try{ await API.setNickname(n); S.nickname = n; }catch(e){ toast(t('nick_fail') + ': ' + (e.message || e)); } }
       LS.set('dk_onb_v4', true); $('#onb').hidden = true; renderHud();
       locate(false);
     };
@@ -1241,7 +1477,6 @@ async function loadMine(){ const m = await API.mine(); S.mine = m.list; S.myConf
 async function reload(){ await Promise.all([loadMine(), loadArea()]); }
 
 function bindStatic(){
-  document.title = CONFIG.APP_NAME;
   $('#icoSearch').innerHTML = ICON.search;
   $('#locate').innerHTML = ICON.locate;
   $('#noticeClose').innerHTML = ICON.close;
@@ -1264,8 +1499,9 @@ function bindStatic(){
 }
 
 async function boot(){
+  applyStatic();
   bindStatic();
-  if(!window.L){ notice('Nie udało się wczytać biblioteki mapy. Sprawdź połączenie z internetem i odśwież stronę.', true); return; }
+  if(!window.L){ notice(t('lib_fail'), true); return; }
   initMap();
   const start = async () => {
     API = DEMO ? demoApi() : supaApi();
@@ -1278,15 +1514,14 @@ async function boot(){
   };
   try{
     await start();
-    if(DEMO) notice('Tryb demo: przykładowe obserwacje pojawiają się wokół miejsca, które oglądasz. Zapis tylko w tej przeglądarce.');
+    if(DEMO) notice(t('demo_notice'));
   }catch(e){
     console.error(e);
     if(!DEMO){
-      // Baza niedostępna albo bez migracji v4 — pokazujemy tryb demo zamiast pustej mapy
       DEMO = true;
-      notice('Baza nie odpowiada albo brakuje w niej migracji supabase_v4.sql (' + (e.message || e) + '). Na razie działa tryb demo — zapis tylko w tej przeglądarce.', true);
+      notice(t('db_fallback'), true);
       try{ await start(); }catch(e2){ console.error(e2); }
-    } else notice('Nie udało się uruchomić aplikacji: ' + (e.message || e), true);
+    } else notice(t('start_fail') + ': ' + (e.message || e), true);
   }
   renderChips(); renderAll();
   if(!LS.get('dk_onb_v4', false)) openOnboarding(); else locateIfAllowed();
