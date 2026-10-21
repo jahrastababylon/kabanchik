@@ -1488,7 +1488,7 @@ function pickTaxon(x){
   F.tx = { name:nm.charAt(0).toUpperCase() + nm.slice(1), sci:x.name, id:x.id };
   $('#fTaxon').value = F.tx.name;
   $('#taxSugg').innerHTML = ''; $('#taxPopular').hidden = true;
-  $('#taxPicked').hidden = false; $('#taxPicked').innerHTML = `${ICON.check}${esc(t('recognized'))}: ${esc(F.tx.name)} · <i>${esc(F.tx.sci)}</i>`;
+  $('#taxPicked').hidden = false; $('#taxPicked').innerHTML = `${ICON.check}<span>${esc(t('recognized'))}: ${esc(F.tx.name)} · <i>${esc(F.tx.sci)}</i></span>`;
   const edu = $('#spEdu'); eduLoading(edu);
   inatDetail(x.id).then(d => renderEdu(edu, d)).catch(() => renderEdu(edu, x));
 }
