@@ -332,6 +332,32 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .birdlist{display:flex;flex-wrap:wrap;gap:6px}
 .birdlist span{padding:5px 10px;border-radius:999px;background:var(--moss-soft);font-size:12.5px;font-weight:600}
 .req{color:var(--danger)}
+.sugg{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.sugg:empty{display:none}
+.sugg button{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;text-align:left;padding:8px 12px 8px 8px;border:0;border-bottom:1px solid var(--line);background:var(--surface)}
+.sugg button:last-child{border-bottom:0}
+.sugg button:hover,.sugg button:focus-visible{background:var(--surface-2)}
+.sugg .th{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--surface-2);display:grid;place-items:center;font-size:22px}
+.sugg b{display:block;font-size:14.5px}
+.sugg i{font-size:12.5px;color:var(--ink-2)}
+.sugg small{font:600 11px var(--f-mono);color:var(--ink-2);white-space:nowrap}
+.sugg .msg{padding:10px 12px;font-size:13px;color:var(--ink-2);background:var(--surface)}
+.popular{display:flex;flex-wrap:wrap;gap:6px}
+.popular .chip{box-shadow:none;height:30px;font-size:12.5px}
+.edu{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:var(--surface-2)}
+.edu:empty{display:none}
+.edu img{width:100%;max-width:100%;aspect-ratio:3/2;object-fit:cover;background:var(--line)}
+.edu .eb{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
+.edu .eh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.edu .eh b{font:800 17px var(--f-display)}
+.edu .eh i{color:var(--ink-2);font-size:13px}
+.edu .eyebrow{color:var(--moss)}
+.edu p{margin:0;font-size:13.5px;line-height:1.5}
+.edu .src{font-size:11px;color:var(--ink-2)}
+.edu .src a{color:inherit}
+.edu.loading{min-height:60px;align-items:center;justify-content:center;font-size:13px;color:var(--ink-2)}
+.picked{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--moss)}
+.picked svg{width:16px;height:16px}
 .sheet-body>*{flex-shrink:0}
 .btns.col{flex-direction:column;align-items:stretch}
 .btns.col .btn{flex:none;width:100%}
@@ -504,7 +530,10 @@ const STR = {
     emergency:'W sytuacji zagrożenia dzwoń na', back:'Wstecz', onb_go:'Pokaż mapę wokół mnie', step:'Krok',
     f_taxon_bird:'Jaki to ptak?', f_taxon_other:'Co to za zwierzę?', f_taxon_ph_bird:'np. sroka, dzięcioł, czapla', f_taxon_ph_other:'np. jeż, wiewiórka, kuna',
     e_taxon_bird:'Wpisz, jakiego ptaka widziałeś', e_taxon_other:'Wpisz, jakie zwierzę widziałeś',
-    report_tap:'Zgłoś tutaj', birds_h:'Ptaki', birds_none:'Zgłoś ptaka, a pojawi się tutaj. 5 gatunków = odznaka Ornitolog.',
+    report_tap:'Zgłoś tutaj', popular:'Często widywane', pick_from_list:'Wybierz gatunek z listy podpowiedzi — tak dane będą dokładne',
+    no_match:'Nic nie znaleziono. Spróbuj innej nazwy albo nazwy łacińskiej.', species_db_off:'Baza gatunków nie odpowiada — wpisz nazwę ręcznie.',
+    searching:'Szukam…', did_you_know:'Czy wiesz, że…', more_wiki:'Więcej w Wikipedii', photo_by:'Zdjęcie', recognized:'Rozpoznano', obs_world:'obs.',
+    edu_src:'Dane: iNaturalist, Wikipedia', birds_h:'Ptaki', birds_none:'Zgłoś ptaka, a pojawi się tutaj. 5 gatunków = odznaka Ornitolog.',
     perks_h:'Co daje XP', perk_now:'masz', card_btn:'Pobierz kartę tropiciela', cert_btn:'Pobierz certyfikat', share_fail:'Nie udało się przygotować obrazka',
     unlocks:'Odblokowuje', next_unlock:'Następna nagroda',
     ago_now:'przed chwilą', ago_min:'min temu', ago_h:'godz. temu', ago_y:'wczoraj', ago_d:'dni temu',
@@ -572,7 +601,10 @@ const STR = {
     emergency:'In an emergency call', back:'Back', onb_go:'Show the map around me', step:'Step',
     f_taxon_bird:'Which bird?', f_taxon_other:'Which animal?', f_taxon_ph_bird:'e.g. magpie, woodpecker, heron', f_taxon_ph_other:'e.g. hedgehog, squirrel, marten',
     e_taxon_bird:'Write which bird you saw', e_taxon_other:'Write which animal you saw',
-    report_tap:'Report here', birds_h:'Birds', birds_none:'Report a bird and it will appear here. 5 species = Birder badge.',
+    report_tap:'Report here', popular:'Often seen', pick_from_list:'Pick the species from the suggestions — that keeps the data accurate',
+    no_match:'Nothing found. Try another name or the Latin name.', species_db_off:'The species database is not responding — type the name yourself.',
+    searching:'Searching…', did_you_know:'Did you know…', more_wiki:'More on Wikipedia', photo_by:'Photo', recognized:'Selected', obs_world:'obs.',
+    edu_src:'Data: iNaturalist, Wikipedia', birds_h:'Birds', birds_none:'Report a bird and it will appear here. 5 species = Birder badge.',
     perks_h:'What XP gives you', perk_now:'yours', card_btn:'Download tracker card', cert_btn:'Download certificate', share_fail:'Could not prepare the image',
     unlocks:'Unlocks', next_unlock:'Next reward',
     ago_now:'just now', ago_min:'min ago', ago_h:'h ago', ago_y:'yesterday', ago_d:'days ago',
@@ -613,6 +645,67 @@ const OTHERS = [
   ['Jeż','Hedgehog'],['Wiewiórka','Squirrel'],['Zając','Hare'],['Kuna','Marten'],['Bóbr','Beaver'],['Wydra','Otter'],['Nietoperz','Bat'],
   ['Łoś','Elk / Moose'],['Jeleń','Red deer'],['Szop pracz','Raccoon'],['Kojot','Coyote'],['Wąż','Snake'],['Żółw','Turtle'],['Żaba','Frog'],
 ];
+/* ---------- wiedza o gatunkach: iNaturalist (zdjęcia, nazwy) + Wikipedia (opis) ---------- */
+const INAT = 'https://api.inaturalist.org/v1';
+const LATIN = { 'Dzik':'Sus scrofa', 'Lis':'Vulpes vulpes', 'Sarna':'Capreolus capreolus', 'Wilk':'Canis lupus', 'Borsuk':'Meles meles' };
+const iCache = new Map();
+const cached = (k, fn) => { if(!iCache.has(k)) iCache.set(k, fn().catch(e => { iCache.delete(k); throw e; })); return iCache.get(k); };
+function inatSearch(q, birds){
+  return cached(`s:${birds ? 1 : 0}:${LANG}:${q.toLowerCase()}`, async () => {
+    const r = await fetch(`${INAT}/taxa/autocomplete?q=${encodeURIComponent(q)}&locale=${LANG}&per_page=15&is_active=true&taxon_id=${birds ? 3 : 1}`);
+    if(!r.ok) throw new Error('iNaturalist ' + r.status);
+    return (await r.json()).results
+      .filter(x => x.rank_level <= 20 && (birds ? x.iconic_taxon_name === 'Aves' : x.iconic_taxon_name !== 'Aves'))
+      .slice(0, 6);
+  });
+}
+function inatDetail(id){
+  return cached(`d:${LANG}:${id}`, async () => {
+    const r = await fetch(`${INAT}/taxa/${id}?locale=${LANG}`);
+    if(!r.ok) throw new Error('iNaturalist ' + r.status);
+    return (await r.json()).results[0];
+  });
+}
+async function inatByLatin(latin){
+  const list = await cached(`l:${LANG}:${latin}`, async () => {
+    const r = await fetch(`${INAT}/taxa/autocomplete?q=${encodeURIComponent(latin)}&locale=${LANG}&per_page=5`);
+    if(!r.ok) throw new Error('iNaturalist ' + r.status);
+    return (await r.json()).results;
+  });
+  const hit = list.find(x => x.name === latin) || list[0];
+  return hit ? inatDetail(hit.id) : null;
+}
+function wikiExtract(url){
+  const m = url && url.match(/^https?:\/\/([a-z-]+)\.wikipedia\.org\/wiki\/(.+)$/);
+  if(!m) return Promise.resolve('');
+  return cached('w:' + url, async () => {
+    const r = await fetch(`https://${m[1]}.wikipedia.org/api/rest_v1/page/summary/${m[2]}`);
+    return r.ok ? ((await r.json()).extract || '') : '';
+  }).catch(() => '');
+}
+// Tylko zdjęcia na wolnej licencji (Creative Commons), z podpisem autora
+function freePhoto(tx){
+  const cand = [tx?.default_photo, ...((tx?.taxon_photos) || []).map(p => p.photo)].filter(Boolean);
+  const p = cand.find(p => p.license_code);
+  return p ? { sq:p.square_url, md:p.medium_url || p.url, attr:p.attribution } : null;
+}
+const stripTags = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const cut = (s, n) => s.length > n ? s.slice(0, s.lastIndexOf(' ', n) > n * .6 ? s.lastIndexOf(' ', n) : n) + '…' : s;
+async function renderEdu(box, tx, eyebrow){
+  if(!box || !tx) return;
+  let text = stripTags(tx.wikipedia_summary);
+  if(text.length < 220 && tx.wikipedia_url){ const ext = await wikiExtract(tx.wikipedia_url); if(ext.length > text.length) text = ext; }
+  if(!box.isConnected) return;
+  const ph = freePhoto(tx), name = tx.preferred_common_name || tx.name;
+  box.className = 'edu';
+  box.innerHTML = `${ph ? `<img src="${esc(ph.md)}" alt="${esc(name)}" loading="lazy">` : ''}
+    <div class="eb"><div class="eyebrow">${esc(eyebrow || t('did_you_know'))}</div>
+      <div class="eh"><b>${esc(name.charAt(0).toUpperCase() + name.slice(1))}</b><i>${esc(tx.name)}</i></div>
+      ${text ? `<p>${esc(cut(text, 420))}</p>` : ''}
+      <div class="src">${ph ? `${esc(t('photo_by'))}: ${esc(ph.attr)} · ` : ''}${tx.wikipedia_url ? `<a href="${esc(tx.wikipedia_url)}" target="_blank" rel="noopener">${esc(t('more_wiki'))}</a> · ` : ''}<a href="https://www.inaturalist.org/taxa/${tx.id}" target="_blank" rel="noopener">iNaturalist</a></div></div>`;
+}
+function eduLoading(box){ if(box){ box.className = 'edu loading'; box.textContent = t('searching'); } }
+
 function taxonTitle(s){
   const sp = S.spById[s.species_id];
   if(!s.taxon) return spName(sp);
@@ -756,12 +849,23 @@ function ring(pct, size = 36, stroke = 4){
 /* =====================================================================
    WARSTWA DANYCH — Supabase albo demo (localStorage)
    ===================================================================== */
-let V6 = null;
 function supaApi(){
   const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
   let uid = null;
   const ok = ({ data, error }) => { if(error) throw error; return data; };
   const num = r => ({ ...r, lat:+r.lat, lng:+r.lng });
+  // Najnowsza dostępna wersja funkcji w bazie (v7 → v6 → v4); zapamiętujemy, która działa
+  const fnUse = {};
+  const missing = e => /PGRST202|Could not find the function/i.test((e?.code || '') + ' ' + (e?.message || ''));
+  async function rpcBest(op, names, argsFor){
+    let last;
+    for(const n of (fnUse[op] ? [fnUse[op]] : names)){
+      const r = await sb.rpc(n, argsFor(n));
+      if(!r.error){ fnUse[op] = n; return r.data; }
+      last = r.error; if(!missing(r.error)) throw r.error;
+    }
+    throw last;
+  }
   return {
     async init(){
       let session = ok(await sb.auth.getSession()).session;
@@ -769,17 +873,14 @@ function supaApi(){
       uid = session.user.id; return uid;
     },
     async species(){ return ok(await sb.from('species').select('id,name_pl,icon,danger_level')); },
-    // v6 (z polem taxon) albo starsze funkcje, jeśli migracja v6 nie była uruchomiona
     async area(b){
       const args = { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 };
-      if(V6 !== false){ const r = await sb.rpc('dk_sightings_in_bbox_v2', args); if(!r.error){ V6 = true; return r.data.map(num); } V6 = false; }
-      return ok(await sb.rpc('dk_sightings_in_bbox', args)).map(num);
+      return (await rpcBest('area', ['dk_sightings_in_bbox_v3', 'dk_sightings_in_bbox_v2', 'dk_sightings_in_bbox'], () => args)).map(num);
     },
     async mine(){
-      let list = V6 !== false ? await sb.rpc('dk_my_sightings_v2') : { error:true };
-      if(list.error){ V6 = false; list = await sb.rpc('dk_my_sightings'); }
-      const conf = await sb.rpc('dk_my_confirmations');
-      return { list:ok(list).map(num), conf:ok(conf).map(r => new Date(r.created_at).getTime()) };
+      const list = await rpcBest('mine', ['dk_my_sightings_v3', 'dk_my_sightings_v2', 'dk_my_sightings'], () => ({}));
+      const conf = ok(await sb.rpc('dk_my_confirmations'));
+      return { list:list.map(num), conf:conf.map(r => new Date(r.created_at).getTime()) };
     },
     async photo(id){ return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url; },
     async add(o){
@@ -795,15 +896,11 @@ function supaApi(){
         }catch(e){ console.warn('Storage unavailable, photo saved in DB:', e.message || e); }
       }
       const base = { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_photo:photo, p_seen_at:o.seen_at };
-      if(V6 !== false){
-        const r = await sb.rpc('dk_add_sighting_v2', { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null });
-        if(!r.error) return r.data;
-        if(!/dk_add_sighting_v2|PGRST202|function/i.test(r.error.message + r.error.code)) throw r.error;
-        V6 = false;
-      }
-      // bez migracji v6: nazwę gatunku zapisujemy na początku opisu
-      const beh = [o.taxon, o.behavior].filter(Boolean).join(' — ') || null;
-      return ok(await sb.rpc('dk_add_sighting', { ...base, p_behavior:beh }));
+      return rpcBest('add', ['dk_add_sighting_v3', 'dk_add_sighting_v2', 'dk_add_sighting'], n =>
+        n.endsWith('_v3') ? { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null, p_taxon_sci:o.taxon_sci || null, p_taxon_inat:o.taxon_inat || null }
+        : n.endsWith('_v2') ? { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null }
+        // bez migracji v6/v7: nazwę gatunku zapisujemy na początku opisu
+        : { ...base, p_behavior:[o.taxon, o.behavior].filter(Boolean).join(' — ') || null });
     },
     async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
     async leaderboard(since, near){ return ok(await sb.rpc('dk_leaderboard', { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null })); },
@@ -846,7 +943,7 @@ function demoApi(){
     USERS.forEach(u => db.gives[u] = (db.gives[u] || 0) + Math.floor(r() * 6));
     db.clusters.push([lat, lng]); save();
   }
-  const view = s => ({ id:s.id, species_id:s.species_id, taxon:s.taxon || null, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
+  const view = s => ({ id:s.id, species_id:s.species_id, taxon:s.taxon || null, taxon_sci:s.taxon_sci || null, taxon_inat:s.taxon_inat || null, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
     seen_at:s.seen_at, confirmed_count:s.cc, confirmed_by_me:!!s.byMe, is_mine:s.author === 'me',
     nickname: s.author === 'me' ? (db.nickname || t('you')) : s.author });
   const inBox = (s, b) => s.lat >= b.s && s.lat <= b.n && (b.w <= b.e ? s.lng >= b.w && s.lng <= b.e : s.lng >= b.w || s.lng <= b.e);
@@ -1221,8 +1318,12 @@ async function openCard(id){
       <dt>${esc(t('confirmations'))}</dt><dd class="mono">${s.confirmed_count || 0}</dd>
     </dl>
     ${tip ? `<div class="tip${risky ? ' warn' : ''}">${ICON.shield}<div>${esc(tip)}</div></div>` : ''}
+    <div class="edu" id="cardEdu"></div>
     ${action}`;
   openSheet('card');
+  { const box = $('#cardEdu'), latin = LATIN[sp.name_pl];
+    const job = s.taxon_inat ? inatDetail(s.taxon_inat) : s.taxon_sci ? inatByLatin(s.taxon_sci) : latin ? inatByLatin(latin) : null;
+    if(job){ eduLoading(box); job.then(tx => renderEdu(box, tx)).catch(() => { box.innerHTML = ''; box.className = 'edu'; }); } }
   placeName(s.lat, s.lng).then(n => { const el = $('#placeLbl'); if(el) n ? el.innerHTML = ICON.pin + esc(n) : el.remove(); });
   const cb = $('#confirmBtn');
   if(cb) cb.onclick = async () => {
@@ -1275,7 +1376,7 @@ function updatePickHint(){
 
 const F = { species:null, behaviors:new Set(), photo:null };
 function openForm(){
-  F.species = null; F.behaviors = new Set(); F.photo = null;
+  F.species = null; F.behaviors = new Set(); F.photo = null; F.tx = null; F.offline = false;
   const st = myStats(), now = new Date(), min = new Date(Date.now() - 7*864e5);
   const opt = `<span class="muted" style="font-weight:500">${esc(t('optional'))}</span>`;
   $('#formBody').innerHTML = `
@@ -1283,7 +1384,11 @@ function openForm(){
       ${S.species.map(s => `<button class="spbtn" data-id="${esc(s.id)}"><span class="e">${esc(spIcon(s))}</span>${esc(spName(s))}${st.species.has(s.id) ? '' : `<span class="new">+${XP.newSpecies}</span>`}</button>`).join('')}
     </div></div>
     <div class="field" id="taxonField" hidden><label for="fTaxon" id="fTaxonL"></label>
-      <input class="input" id="fTaxon" maxlength="60" list="taxonList" autocomplete="off"><datalist id="taxonList"></datalist></div>
+      <input class="input" id="fTaxon" maxlength="60" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="taxSugg">
+      <div class="picked" id="taxPicked" hidden></div>
+      <div class="sugg" id="taxSugg" role="listbox"></div>
+      <div class="popular" id="taxPopular"></div></div>
+    <div class="edu" id="spEdu"></div>
     <div class="field"><label for="fWhen">${esc(t('f_when'))}</label><input class="input mono" type="datetime-local" id="fWhen" value="${toLocalInput(now)}" min="${toLocalInput(min)}" max="${toLocalInput(now)}"></div>
     <div class="field"><label>${esc(t('f_behavior'))} ${opt}</label><div class="bchips" id="bChips">
       ${BEHAVIORS.map(b => `<button class="chip" data-b="${esc(b)}">${esc(behName(b))}</button>`).join('')}</div></div>
@@ -1296,11 +1401,22 @@ function openForm(){
     F.species = b.dataset.id; $$('#spGrid .spbtn').forEach(x => x.classList.toggle('on', x === b));
     const sp = S.spById[F.species], need = needsTaxon(sp), bird = sp?.name_pl === 'Ptak';
     $('#taxonField').hidden = !need;
+    F.tx = null; F.offline = false;
+    const edu = $('#spEdu'); edu.innerHTML = ''; edu.className = 'edu';
     if(need){
       $('#fTaxonL').innerHTML = `${esc(t(bird ? 'f_taxon_bird' : 'f_taxon_other'))} <span class="req">*</span>`;
       $('#fTaxon').placeholder = t(bird ? 'f_taxon_ph_bird' : 'f_taxon_ph_other');
-      $('#taxonList').innerHTML = (bird ? BIRDS : OTHERS).map(([p, e]) => `<option value="${esc(LANG === 'en' ? e : p)}">`).join('');
+      $('#fTaxon').value = ''; $('#taxSugg').innerHTML = ''; $('#taxPicked').hidden = true; $('#taxPopular').hidden = false;
+      $('#taxPopular').innerHTML = `<span class="muted" style="font-size:12px;width:100%">${esc(t('popular'))}</span>` +
+        (bird ? BIRDS.slice(0, 12) : OTHERS.slice(0, 8)).map(([p, e]) => `<button class="chip" data-q="${esc(LANG === 'en' ? e : p)}">${esc(LANG === 'en' ? e : p)}</button>`).join('');
+      $$('#taxPopular [data-q]').forEach(c => c.onclick = () => { $('#fTaxon').value = c.dataset.q; taxonLookup(c.dataset.q, bird, true); });
+      $('#fTaxon').oninput = () => { F.tx = null; $('#taxPicked').hidden = true; $('#spEdu').innerHTML = '';
+        clearTimeout(F.tm); const q = $('#fTaxon').value.trim(); $('#taxPopular').hidden = q.length > 0; if(q.length < 2){ $('#taxSugg').innerHTML = ''; return; }
+        F.tm = setTimeout(() => taxonLookup(q, bird, false), 320); };
       $('#fTaxon').focus();
+    } else if(LATIN[sp?.name_pl]){
+      eduLoading(edu);
+      inatByLatin(LATIN[sp.name_pl]).then(tx => renderEdu(edu, tx)).catch(() => { edu.innerHTML = ''; edu.className = 'edu'; });
     }
     xpPreview();
   });
@@ -1315,6 +1431,29 @@ function openForm(){
   $('#fSubmit').onclick = submitForm;
   xpPreview();
   openSheet('form');
+}
+async function taxonLookup(q, bird, autoPick){
+  const box = $('#taxSugg'); if(!box) return;
+  box.innerHTML = `<div class="msg">${esc(t('searching'))}</div>`;
+  let list;
+  try{ list = await inatSearch(q, bird); F.offline = false; }
+  catch(e){ F.offline = true; box.innerHTML = `<div class="msg">${esc(t('species_db_off'))}</div>`; return; }
+  if($('#fTaxon')?.value.trim() !== q) return;          // użytkownik pisze dalej
+  if(!list.length){ box.innerHTML = `<div class="msg">${esc(t('no_match'))}</div>`; return; }
+  if(autoPick){ pickTaxon(list[0]); return; }
+  box.innerHTML = list.map((x, i) => { const ph = freePhoto(x), nm = x.preferred_common_name || x.name;
+    return `<button type="button" role="option" data-i="${i}">${ph ? `<img class="th" src="${esc(ph.sq)}" alt="" loading="lazy">` : `<span class="th">${bird ? '🐦' : '🐾'}</span>`}
+      <span><b>${esc(nm.charAt(0).toUpperCase() + nm.slice(1))}</b><i>${esc(x.name)}</i></span><small>${(x.observations_count || 0).toLocaleString(LOCALE())} ${esc(t('obs_world'))}</small></button>`; }).join('');
+  $$('#taxSugg [data-i]').forEach(b => b.onclick = () => pickTaxon(list[+b.dataset.i]));
+}
+function pickTaxon(x){
+  const nm = x.preferred_common_name || x.name;
+  F.tx = { name:nm.charAt(0).toUpperCase() + nm.slice(1), sci:x.name, id:x.id };
+  $('#fTaxon').value = F.tx.name;
+  $('#taxSugg').innerHTML = ''; $('#taxPopular').hidden = true;
+  $('#taxPicked').hidden = false; $('#taxPicked').innerHTML = `${ICON.check}${esc(t('recognized'))}: ${esc(F.tx.name)} · <i>${esc(F.tx.sci)}</i>`;
+  const edu = $('#spEdu'); eduLoading(edu);
+  inatDetail(x.id).then(d => renderEdu(edu, d)).catch(() => renderEdu(edu, x));
 }
 function xpPreview(){
   const st = myStats(), parts = [`${t('x_sighting')} +${XP.sighting}`];
@@ -1339,8 +1478,10 @@ function compress(file, max, q){
 }
 async function submitForm(){
   if(!F.species){ toast(t('e_species')); return; }
-  const spSel = S.spById[F.species], taxon = needsTaxon(spSel) ? $('#fTaxon').value.trim() : '';
-  if(needsTaxon(spSel) && taxon.length < 2){ toast(t(spSel.name_pl === 'Ptak' ? 'e_taxon_bird' : 'e_taxon_other')); $('#fTaxon').focus(); return; }
+  const spSel = S.spById[F.species], typed = needsTaxon(spSel) ? $('#fTaxon').value.trim() : '';
+  if(needsTaxon(spSel) && typed.length < 2){ toast(t(spSel.name_pl === 'Ptak' ? 'e_taxon_bird' : 'e_taxon_other')); $('#fTaxon').focus(); return; }
+  if(needsTaxon(spSel) && !F.tx && !F.offline){ toast(t('pick_from_list')); taxonLookup(typed, spSel.name_pl === 'Ptak', false); return; }
+  const taxon = F.tx ? F.tx.name : typed, taxon_sci = F.tx?.sci || (LATIN[spSel?.name_pl] || null), taxon_inat = F.tx?.id || null;
   const when = new Date($('#fWhen').value);
   if(isNaN(when)){ toast(t('e_when')); return; }
   if(when > new Date(Date.now() + 60000)){ toast(t('e_future')); return; }
@@ -1349,7 +1490,7 @@ async function submitForm(){
   const behavior = [[...F.behaviors].join(', '), note].filter(Boolean).join(' — ') || null;
   const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = t('saving');
   const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.species.has(F.species);
-  try{ await API.add({ species_id:F.species, taxon:taxon || null, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
+  try{ await API.add({ species_id:F.species, taxon:taxon || null, taxon_sci, taxon_inat, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
   catch(e){ toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
   closeSheets();
   if(S.spFilter.size && !S.spFilter.has(F.species)) S.spFilter.clear();
