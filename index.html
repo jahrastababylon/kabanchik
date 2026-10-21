@@ -302,6 +302,39 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .consent input{width:22px;height:22px;flex:none;accent-color:var(--moss);margin:0}
 
 .stylelist{display:flex;flex-wrap:wrap;gap:6px}
+.pin.gold{border-color:#D9A520;box-shadow:0 0 0 3px rgba(217,165,32,.35),0 4px 10px rgba(0,0,0,.28)}
+.tapghost{transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:auto}
+.tapghost button{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border:0;border-radius:13px;background:var(--fox);color:var(--fox-ink);font:800 14px var(--f-body);box-shadow:0 8px 18px rgba(0,0,0,.25);white-space:nowrap;cursor:pointer}
+.tapghost button svg{width:18px;height:18px}
+.tapghost i{width:14px;height:14px;border-radius:50%;background:var(--fox);border:3px solid var(--surface);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.rw{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.rw-ring{position:relative;width:148px;height:148px}
+.rw-ring svg{position:absolute;inset:0}
+.rw-ring div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.rw-ring b{font:800 46px var(--f-display);color:var(--fox);letter-spacing:-.03em}
+.rw-ring span{font:700 13px var(--f-mono);color:var(--ink-2);margin-top:4px}
+.rw-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.rw-chips span{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:12px;background:var(--surface-2);font:700 13px var(--f-mono)}
+.rw-chips span .e{font-size:18px;font-family:var(--f-body)}
+.rw-lv{font-weight:700;font-size:14px;color:var(--ink-2)}
+.rw-lv b{color:var(--ink)}
+.rw-up{width:100%;padding:14px;border-radius:16px;background:var(--moss);color:var(--moss-ink);display:flex;flex-direction:column;gap:4px}
+.rw-up b{font:800 26px var(--f-display)}
+.rw-up small{font-size:13px;opacity:.9}
+.perks{display:flex;flex-direction:column;gap:6px}
+.perk{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--surface-2);font-size:13.5px}
+.perk .pi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--surface);color:var(--ink-2)}
+.perk .pi svg{width:18px;height:18px}
+.perk.on .pi{background:var(--fox);color:var(--fox-ink)}
+.perk .lvn{font:700 11px var(--f-mono);color:var(--ink-2);text-align:right;white-space:nowrap}
+.perk b{display:block;font-size:13.5px}
+.perk small{color:var(--ink-2);font-size:12px}
+.birdlist{display:flex;flex-wrap:wrap;gap:6px}
+.birdlist span{padding:5px 10px;border-radius:999px;background:var(--moss-soft);font-size:12.5px;font-weight:600}
+.req{color:var(--danger)}
+.sheet-body>*{flex-shrink:0}
+.btns.col{flex-direction:column;align-items:stretch}
+.btns.col .btn{flex:none;width:100%}
 .chip[disabled]{opacity:.45;cursor:default}
 .chip small{font-weight:500;font-size:11px}
 .settings .field{gap:8px}
@@ -461,14 +494,19 @@ const STR = {
     onb1_e:'', onb1_t:'Miasto dzielimy z dzikimi zwierzętami',
     onb1_p:'Dziki, lisy i sarny korzystają z tych samych parków i ulic co my — w każdym mieście. Zaznaczaj, gdzie je widzisz, a razem stworzymy mapę dzikich korytarzy.',
     onb2_e:'Zgłoszenie w 20 sekund', onb2_t:'Zobaczyłeś zwierzę? Postaw pinezkę',
-    onb2_p:'Stuknij pomarańczowy przycisk, ustaw pinezkę i wybierz gatunek. Zdjęcie jest mile widziane, ale nieobowiązkowe. Inni mogą potwierdzić Twoją obserwację.',
+    onb2_p:'Stuknij w mapę tam, gdzie było zwierzę, albo użyj pomarańczowego przycisku. Wybierz gatunek — ssaka albo ptaka. Zdjęcie jest mile widziane.',
     onb3_e:'Gra w tropiciela', onb3_t:'Zbieraj XP, odznaki i kwadraty mapy',
-    onb3_p:'Awansuj od Świeżaka do Legendy. Uzupełniaj atlas gatunków, odkrywaj kolejne kwadraty 1 km, utrzymuj serię dni i rywalizuj z okolicą albo z całym światem.',
+    onb3_p:'Każde zgłoszenie to XP. XP podnosi poziom, a każdy poziom coś odblokowuje: kartę tropiciela, złotą pinezkę, imienny certyfikat i miejsce w raporcie dla miasta.',
     onb4_e:'Ostatni krok', onb4_t:'Jak mamy Cię nazywać?',
     onb4_p:'Pseudonim zobaczą inni w rankingu. Możesz go zmienić później. Za chwilę zapytamy o lokalizację, żeby pokazać mapę wokół Ciebie.',
     onb_nick_ph:'np. LisiTrop',
     consent:'Zgadzam się na zapisywanie lokalizacji i czasu moich zgłoszeń, ich publikację na mapie pod pseudonimem oraz udostępnianie zanonimizowanych danych miastom i naukowcom (RODO/GDPR). Zgodę możesz wycofać, pisząc do administratora projektu.',
     emergency:'W sytuacji zagrożenia dzwoń na', back:'Wstecz', onb_go:'Pokaż mapę wokół mnie', step:'Krok',
+    f_taxon_bird:'Jaki to ptak?', f_taxon_other:'Co to za zwierzę?', f_taxon_ph_bird:'np. sroka, dzięcioł, czapla', f_taxon_ph_other:'np. jeż, wiewiórka, kuna',
+    e_taxon_bird:'Wpisz, jakiego ptaka widziałeś', e_taxon_other:'Wpisz, jakie zwierzę widziałeś',
+    report_tap:'Zgłoś tutaj', birds_h:'Ptaki', birds_none:'Zgłoś ptaka, a pojawi się tutaj. 5 gatunków = odznaka Ornitolog.',
+    perks_h:'Co daje XP', perk_now:'masz', card_btn:'Pobierz kartę tropiciela', cert_btn:'Pobierz certyfikat', share_fail:'Nie udało się przygotować obrazka',
+    unlocks:'Odblokowuje', next_unlock:'Następna nagroda',
     ago_now:'przed chwilą', ago_min:'min temu', ago_h:'godz. temu', ago_y:'wczoraj', ago_d:'dni temu',
   },
   en: {
@@ -524,14 +562,19 @@ const STR = {
     onb1_e:'', onb1_t:'We share our cities with wild animals',
     onb1_p:'Wild boars, foxes and deer use the same parks and streets as we do — in every city. Mark where you see them and together we will map the wild corridors.',
     onb2_e:'Report in 20 seconds', onb2_t:'Saw an animal? Drop a pin',
-    onb2_p:'Tap the orange button, place the pin and choose the species. A photo is welcome but optional. Others can confirm your sighting.',
+    onb2_p:'Tap the map where the animal was, or use the orange button. Choose the species — a mammal or a bird. A photo is welcome.',
     onb3_e:'The tracker game', onb3_t:'Collect XP, badges and map squares',
-    onb3_p:'Level up from Rookie to Legend. Fill your species atlas, discover 1 km squares, keep a daily streak and compete with your area or the whole world.',
+    onb3_p:'Every report earns XP. XP raises your level and each level unlocks something: a tracker card, a gold pin, a named certificate and a place in the report for the city.',
     onb4_e:'Last step', onb4_t:'What should we call you?',
     onb4_p:'Others will see your nickname in the ranking. You can change it later. Next we will ask for your location to show the map around you.',
     onb_nick_ph:'e.g. FoxTracker',
     consent:'I agree that the location and time of my reports are stored, published on the map under my nickname, and shared as anonymised data with cities and researchers (GDPR). You can withdraw consent by writing to the project administrator.',
     emergency:'In an emergency call', back:'Back', onb_go:'Show the map around me', step:'Step',
+    f_taxon_bird:'Which bird?', f_taxon_other:'Which animal?', f_taxon_ph_bird:'e.g. magpie, woodpecker, heron', f_taxon_ph_other:'e.g. hedgehog, squirrel, marten',
+    e_taxon_bird:'Write which bird you saw', e_taxon_other:'Write which animal you saw',
+    report_tap:'Report here', birds_h:'Birds', birds_none:'Report a bird and it will appear here. 5 species = Birder badge.',
+    perks_h:'What XP gives you', perk_now:'yours', card_btn:'Download tracker card', cert_btn:'Download certificate', share_fail:'Could not prepare the image',
+    unlocks:'Unlocks', next_unlock:'Next reward',
     ago_now:'just now', ago_min:'min ago', ago_h:'h ago', ago_y:'yesterday', ago_d:'days ago',
   },
 };
@@ -550,7 +593,31 @@ const P = {
 const pw = (n, k) => plural(n, P[k][0], P[k][1]);
 
 /* Nazwy gatunków i zachowań: w bazie po polsku, wyświetlane w wybranym języku */
-const SP_EN = { 'Dzik':'Wild boar', 'Lis':'Red fox', 'Sarna':'Roe deer', 'Wilk':'Wolf', 'Borsuk':'Badger', 'Inne':'Other' };
+const SP_EN = { 'Dzik':'Wild boar', 'Lis':'Red fox', 'Sarna':'Roe deer', 'Wilk':'Wolf', 'Borsuk':'Badger', 'Ptak':'Bird', 'Inne':'Other animal' };
+const SP_ICON = { 'Inne':'🐾', 'Ptak':'🐦' };                 // ikona z bazy może być stara — tu ją nadpisujemy
+const spIcon = sp => sp ? (SP_ICON[sp.name_pl] || sp.icon || '🐾') : '🐾';
+const needsTaxon = sp => !!sp && (sp.name_pl === 'Ptak' || sp.name_pl === 'Inne');
+/* Podpowiedzi gatunków ptaków (wpisać można dowolny) */
+const BIRDS = [
+  ['Wróbel','House sparrow'],['Sroka','Magpie'],['Gawron','Rook'],['Wrona siwa','Hooded crow'],['Kawka','Jackdaw'],['Kruk','Raven'],
+  ['Sójka','Jay'],['Kos','Blackbird'],['Szpak','Starling'],['Sikora bogatka','Great tit'],['Modraszka','Blue tit'],['Rudzik','Robin'],
+  ['Gołąb miejski','Feral pigeon'],['Grzywacz','Wood pigeon'],['Sierpówka','Collared dove'],['Jerzyk','Swift'],['Jaskółka dymówka','Barn swallow'],
+  ['Dzięcioł duży','Great spotted woodpecker'],['Dzięcioł zielony','Green woodpecker'],['Kowalik','Nuthatch'],['Gil','Bullfinch'],['Szczygieł','Goldfinch'],
+  ['Kaczka krzyżówka','Mallard'],['Łabędź niemy','Mute swan'],['Czapla siwa','Grey heron'],['Kormoran','Cormorant'],['Mewa śmieszka','Black-headed gull'],
+  ['Zimorodek','Kingfisher'],['Bocian biały','White stork'],['Bażant','Pheasant'],['Pustułka','Kestrel'],['Sokół wędrowny','Peregrine falcon'],
+  ['Krogulec','Sparrowhawk'],['Jastrząb','Goshawk'],['Myszołów','Buzzard'],['Bielik','White-tailed eagle'],['Puszczyk','Tawny owl'],['Uszatka','Long-eared owl'],
+  ['Dudek','Hoopoe'],['Żołna','Bee-eater'],['Flaming','Flamingo'],['Papuga (zbiegła)','Parakeet'],
+  ['Kardynał szkarłatny','Northern cardinal'],['Drozd wędrowny','American robin'],['Modrosójka błękitna','Blue jay'],['Myszołów rdzawosterny','Red-tailed hawk'],['Bielik amerykański','Bald eagle'],
+];
+const OTHERS = [
+  ['Jeż','Hedgehog'],['Wiewiórka','Squirrel'],['Zając','Hare'],['Kuna','Marten'],['Bóbr','Beaver'],['Wydra','Otter'],['Nietoperz','Bat'],
+  ['Łoś','Elk / Moose'],['Jeleń','Red deer'],['Szop pracz','Raccoon'],['Kojot','Coyote'],['Wąż','Snake'],['Żółw','Turtle'],['Żaba','Frog'],
+];
+function taxonTitle(s){
+  const sp = S.spById[s.species_id];
+  if(!s.taxon) return spName(sp);
+  return sp?.name_pl === 'Inne' ? s.taxon : `${spName(sp)} · ${s.taxon}`;
+}
 const spName = sp => !sp ? t('unknown') : (LANG === 'en' ? (SP_EN[sp.name_pl] || sp.name_pl) : sp.name_pl);
 const BEHAVIORS = ['Przechodził','Żerował','Z młodymi','W grupie','Agresywny','Ranny lub martwy'];
 const BEH_EN = { 'Przechodził':'Passing by', 'Żerował':'Feeding', 'Z młodymi':'With young', 'W grupie':'In a group', 'Agresywny':'Aggressive', 'Ranny lub martwy':'Injured or dead' };
@@ -568,7 +635,8 @@ const SP_TIPS = {
     'Sarna': 'Uważaj na drogach o zmierzchu. Nie dotykaj młodych — matka zwykle jest w pobliżu.',
     'Wilk':  `Wilk unika ludzi. Nie zbliżaj się, trzymaj psa na smyczy. Wilk w zabudowie: ${EMERG.pl}.`,
     'Borsuk':'Płochliwy i aktywny nocą. Obserwuj z daleka.',
-    'Inne':  'Jeśli znasz gatunek, wpisz go w notatce.',
+    'Ptak':  'Nie płosz ptaków, zwłaszcza wiosną. Podlot na ziemi zwykle jest pod opieką rodziców — nie zabieraj go do domu.',
+    'Inne':  'Nie dotykaj dzikich zwierząt. Ranne zwierzę zgłoś służbom miejskim albo do najbliższego ośrodka rehabilitacji.',
   },
   en: {
     'Dzik':  `Keep your distance and do not feed it. A sow with piglets can be aggressive — back away slowly. Report an aggressive or injured boar to the city services or call ${EMERG.en}.`,
@@ -576,7 +644,8 @@ const SP_TIPS = {
     'Sarna': 'Take care on roads at dusk. Do not touch fawns — the mother is usually nearby.',
     'Wilk':  `Wolves avoid people. Do not approach, keep your dog on a lead. A wolf in a built-up area: call ${EMERG.en}.`,
     'Borsuk':'Shy and active at night. Watch from a distance.',
-    'Inne':  'If you know the species, write it in the note.',
+    'Ptak':  'Do not disturb birds, especially in spring. A fledgling on the ground is usually looked after by its parents — do not take it home.',
+    'Inne':  'Do not touch wild animals. Report an injured animal to the city services or the nearest wildlife rescue centre.',
   },
 };
 
@@ -589,8 +658,15 @@ const LEVELS = [
   { pl:'Ekspert',   en:'Expert',  xp:700 },
   { pl:'Legenda',   en:'Legend',  xp:1500 },
 ];
+const PERKS = [
+  { lvl:1, icon:'star',   pl:['Karta tropiciela','Obrazek z Twoimi wynikami do udostępnienia'],          en:['Tracker card','An image with your stats to share'] },
+  { lvl:2, icon:'pin',    pl:['Złota pinezka','Twoje zgłoszenia na mapie dostają złotą ramkę'],          en:['Gold pin','Your sightings get a gold frame on the map'] },
+  { lvl:3, icon:'book',   pl:['Imienny certyfikat','Do szkoły, CV albo wolontariatu'],                   en:['Named certificate','For school, your CV or volunteering'] },
+  { lvl:4, icon:'users',  pl:['Miejsce w raporcie','Twój pseudonim w podziękowaniach raportu dla miasta'], en:['Credit in the report','Your nickname in the credits of the report for the city'] },
+];
+const perkFor = lvl => PERKS.find(p => p.lvl === lvl);
 const CELL = 0.009;
-const SP_ORDER = ['Dzik','Lis','Sarna','Wilk','Borsuk','Inne'];
+const SP_ORDER = ['Dzik','Lis','Sarna','Ptak','Wilk','Borsuk','Inne'];
 
 const TZ = {
   'Europe/Warsaw':[52.2297,21.0122],'Europe/Minsk':[53.9045,27.5615],'Europe/Ljubljana':[46.0569,14.5058],
@@ -680,6 +756,7 @@ function ring(pct, size = 36, stroke = 4){
 /* =====================================================================
    WARSTWA DANYCH — Supabase albo demo (localStorage)
    ===================================================================== */
+let V6 = null;
 function supaApi(){
   const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
   let uid = null;
@@ -692,9 +769,16 @@ function supaApi(){
       uid = session.user.id; return uid;
     },
     async species(){ return ok(await sb.from('species').select('id,name_pl,icon,danger_level')); },
-    async area(b){ return ok(await sb.rpc('dk_sightings_in_bbox', { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 })).map(num); },
+    // v6 (z polem taxon) albo starsze funkcje, jeśli migracja v6 nie była uruchomiona
+    async area(b){
+      const args = { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 };
+      if(V6 !== false){ const r = await sb.rpc('dk_sightings_in_bbox_v2', args); if(!r.error){ V6 = true; return r.data.map(num); } V6 = false; }
+      return ok(await sb.rpc('dk_sightings_in_bbox', args)).map(num);
+    },
     async mine(){
-      const [list, conf] = await Promise.all([sb.rpc('dk_my_sightings'), sb.rpc('dk_my_confirmations')]);
+      let list = V6 !== false ? await sb.rpc('dk_my_sightings_v2') : { error:true };
+      if(list.error){ V6 = false; list = await sb.rpc('dk_my_sightings'); }
+      const conf = await sb.rpc('dk_my_confirmations');
       return { list:ok(list).map(num), conf:ok(conf).map(r => new Date(r.created_at).getTime()) };
     },
     async photo(id){ return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url; },
@@ -710,7 +794,16 @@ function supaApi(){
           photo = sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
         }catch(e){ console.warn('Storage unavailable, photo saved in DB:', e.message || e); }
       }
-      return ok(await sb.rpc('dk_add_sighting', { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_behavior:o.behavior, p_photo:photo, p_seen_at:o.seen_at }));
+      const base = { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_photo:photo, p_seen_at:o.seen_at };
+      if(V6 !== false){
+        const r = await sb.rpc('dk_add_sighting_v2', { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null });
+        if(!r.error) return r.data;
+        if(!/dk_add_sighting_v2|PGRST202|function/i.test(r.error.message + r.error.code)) throw r.error;
+        V6 = false;
+      }
+      // bez migracji v6: nazwę gatunku zapisujemy na początku opisu
+      const beh = [o.taxon, o.behavior].filter(Boolean).join(' — ') || null;
+      return ok(await sb.rpc('dk_add_sighting', { ...base, p_behavior:beh }));
     },
     async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
     async leaderboard(since, near){ return ok(await sb.rpc('dk_leaderboard', { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null })); },
@@ -720,17 +813,18 @@ function supaApi(){
 }
 
 function demoApi(){
-  const KEY = 'dk_demo_v4';
+  const KEY = 'dk_demo_v6';
   const SPECIES = [
     { id:'dzik', name_pl:'Dzik', icon:'🐗', danger_level:2 },
     { id:'lis', name_pl:'Lis', icon:'🦊', danger_level:0 },
     { id:'sarna', name_pl:'Sarna', icon:'🦌', danger_level:0 },
     { id:'wilk', name_pl:'Wilk', icon:'🐺', danger_level:3 },
     { id:'borsuk', name_pl:'Borsuk', icon:'🦡', danger_level:0 },
-    { id:'inne', name_pl:'Inne', icon:'❓', danger_level:1 },
+    { id:'ptak', name_pl:'Ptak', icon:'🐦', danger_level:0 },
+    { id:'inne', name_pl:'Inne', icon:'🐾', danger_level:0 },
   ];
   const USERS = ['Ania_W','LisiTrop','Marek.N','DzikaKasia','SowaNocna','Petra_LJ','Andreas.CY','Jess_NYC','Olek_MSQ','Rowerzysta'];
-  const POOL = ['dzik','dzik','lis','lis','lis','sarna','sarna','borsuk','inne','wilk'];
+  const POOL = ['dzik','dzik','lis','lis','lis','sarna','sarna','borsuk','inne','wilk','ptak','ptak','ptak'];
   const BEH = ['Przechodził','Żerował','Z młodymi','W grupie','Przechodził',null];
   let db = LS.get(KEY, null) || { s:[], clusters:[], gives:{}, nickname:'', conf:[] };
   const save = () => LS.set(KEY, db);
@@ -742,7 +836,8 @@ function demoApi(){
       const main = POOL[Math.floor(r() * POOL.length)], n = 2 + Math.floor(r() * 5);
       for(let i = 0; i < n; i++){
         const sp = r() < .7 ? main : POOL[Math.floor(r() * POOL.length)];
-        db.s.push({ id:'d' + db.s.length + '_' + Math.floor(r() * 1e6), species_id:sp,
+        const taxon = sp === 'ptak' ? BIRDS[Math.floor(r() * 30)][0] : sp === 'inne' ? OTHERS[Math.floor(r() * 7)][0] : null;
+        db.s.push({ id:'d' + db.s.length + '_' + Math.floor(r() * 1e6), species_id:sp, taxon,
           lat:hl + (r() - .5) * .004, lng:hg + (r() - .5) * .004 / k, behavior:BEH[Math.floor(r() * BEH.length)],
           photo_url:null, seen_at:new Date(Date.now() - Math.pow(r(), 1.7) * 28 * 864e5).toISOString(),
           author:USERS[Math.floor(r() * USERS.length)], cc:Math.floor(r() * r() * 5) });
@@ -751,7 +846,7 @@ function demoApi(){
     USERS.forEach(u => db.gives[u] = (db.gives[u] || 0) + Math.floor(r() * 6));
     db.clusters.push([lat, lng]); save();
   }
-  const view = s => ({ id:s.id, species_id:s.species_id, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
+  const view = s => ({ id:s.id, species_id:s.species_id, taxon:s.taxon || null, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
     seen_at:s.seen_at, confirmed_count:s.cc, confirmed_by_me:!!s.byMe, is_mine:s.author === 'me',
     nickname: s.author === 'me' ? (db.nickname || t('you')) : s.author });
   const inBox = (s, b) => s.lat >= b.s && s.lat <= b.n && (b.w <= b.e ? s.lng >= b.w && s.lng <= b.e : s.lng >= b.w || s.lng <= b.e);
@@ -812,7 +907,9 @@ function myStats(){
   const cells = new Set(my.map(s => cellOf(s.lat, s.lng).id));
   let far = 0;
   outer: for(let i = 1; i < my.length; i++) for(let j = 0; j < i; j++) if(dist(my[i].lat, my[i].lng, my[j].lat, my[j].lng) > 50000){ far = 1; break outer; }
-  return { my, species, photos, given, received, xp, cells, far, streak:streakOf(my) };
+  const birdId = spIdByName('Ptak');
+  const birds = new Set(my.filter(s => s.species_id === birdId && s.taxon).map(s => s.taxon.trim().toLowerCase()));
+  return { my, species, photos, given, received, xp, cells, far, birds, streak:streakOf(my) };
 }
 function streakOf(my){
   const days = new Set(my.map(s => dayKey(s.seen_at)));
@@ -833,6 +930,7 @@ const BADGES = [
   { id:'ten',      icon:'book',   pl:['Notes terenowy','10 obserwacji'],                         en:['Field notebook','10 sightings'],                      prog: st => [st.my.length, 10] },
   { id:'photo5',   icon:'camera', pl:['Fotopułapka','5 obserwacji ze zdjęciem'],                 en:['Camera trap','5 sightings with a photo'],             prog: st => [st.photos, 5] },
   { id:'collector',icon:'star',   pl:['Kolekcjoner','Wszystkie gatunki z atlasu'],               en:['Collector','Every species in the atlas'],             prog: st => { const need = S.species.filter(s => s.name_pl !== 'Inne'); return [need.filter(s => st.species.has(s.id)).length, need.length || 5]; } },
+  { id:'birder',   icon:'eye',    pl:['Ornitolog','5 różnych gatunków ptaków'],                  en:['Birder','5 different bird species'],                  prog: st => [st.birds.size, 5] },
   { id:'wolf',     icon:'eye',    pl:['Wilczy zew','Zgłoś wilka'],                               en:['Call of the wild','Report a wolf'],                   prog: st => [st.species.has(spIdByName('Wilk')) ? 1 : 0, 1] },
   { id:'night',    icon:'moon',   pl:['Nocny marek','Obserwacja między 22:00 a 4:00'],           en:['Night owl','A sighting between 22:00 and 4:00'],      prog: st => [st.my.some(s => hourOf(s) >= 22 || hourOf(s) < 4) ? 1 : 0, 1] },
   { id:'dawn',     icon:'sun',    pl:['Ranny ptaszek','Obserwacja między 5:00 a 7:00'],          en:['Early bird','A sighting between 5:00 and 7:00'],      prog: st => [st.my.some(s => hourOf(s) >= 5 && hourOf(s) < 7) ? 1 : 0, 1] },
@@ -857,7 +955,7 @@ function questCtx(st){
 }
 function weeklyQuests(){
   const r = rng('q' + weekKey());
-  const cands = S.species.filter(s => ['Dzik','Lis','Sarna','Borsuk'].includes(s.name_pl));
+  const cands = S.species.filter(s => ['Dzik','Lis','Sarna','Borsuk','Ptak'].includes(s.name_pl));
   const sp = cands[Math.floor(r() * cands.length)];
   const T = [
     { id:'add3',    icon:'paw',    pl:'Zgłoś 3 obserwacje',             en:'Report 3 sightings',               target:3, p: c => c.wk.length },
@@ -865,6 +963,7 @@ function weeklyQuests(){
     { id:'conf2',   icon:'check',  pl:'Potwierdź 2 cudze zgłoszenia',   en:'Confirm 2 sightings by others',    target:2, p: c => c.conf },
     sp && { id:'sp-'+sp.id, icon:'eye', pl:`Wypatrz gatunek: ${sp.name_pl}`, en:`Spot a species: ${SP_EN[sp.name_pl] || sp.name_pl}`, target:1, p: c => c.wk.filter(s => s.species_id === sp.id).length },
     { id:'cells2',  icon:'grid',   pl:'Odkryj 2 nowe kwadraty mapy',    en:'Discover 2 new map squares',       target:2, p: c => c.newCells },
+    { id:'bird1',   icon:'eye',    pl:'Zgłoś ptaka',                    en:'Report a bird',                    target:1, p: c => c.wk.filter(s => S.spById[s.species_id]?.name_pl === 'Ptak').length },
     { id:'dusk',    icon:'moon',   pl:'Obserwacja po 20:00',            en:'A sighting after 20:00',           target:1, p: c => c.wk.filter(s => hourOf(s) >= 20).length },
     { id:'variety', icon:'star',   pl:'2 różne gatunki w tym tygodniu', en:'2 different species this week',    target:2, p: c => new Set(c.wk.map(s => s.species_id)).size },
   ].filter(Boolean);
@@ -962,12 +1061,28 @@ function initMap(){
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { setBase(); renderMap(); });
   markers = L.layerGroup().addTo(map);
   cellsLayer = L.layerGroup();
-  map.on('click', e => { if(S.adding) map.panTo(e.latlng); });
+  map.on('click', e => {
+    if(S.adding){ map.panTo(e.latlng); return; }
+    if(S.tab !== 'map'){ setTab('map'); return; }
+    showGhost(e.latlng);
+  });
+  map.on('dragstart zoomstart', removeGhost);
   map.on('move', () => { if(S.adding) updatePickHint(); });
   let tm; map.on('moveend', () => {
     const c = map.getCenter(); LS.set('dk_view', { lat:c.lat, lng:c.lng, z:map.getZoom() });
     clearTimeout(tm); tm = setTimeout(() => loadArea().then(renderMap).catch(err => console.error(err)), 350);
   });
+}
+/* Stuknięcie w mapę: przycisk „Zgłoś tutaj” w tym miejscu */
+let ghost = null;
+function removeGhost(){ if(ghost){ map.removeLayer(ghost); ghost = null; } }
+function showGhost(ll){
+  removeGhost();
+  ghost = L.marker(ll, { zIndexOffset:2000, keyboard:false,
+    icon:L.divIcon({ className:'', iconSize:[0,0], html:`<div class="tapghost"><button type="button">${small(ICON.plus, 18)}${esc(t('report_tap'))}</button><i></i></div>` }) })
+    .on('click', () => { S.pick = { lat:ll.lat, lng:wrap(ll.lng) }; removeGhost(); openForm(); })
+    .addTo(map);
+  clearTimeout(showGhost.tm); showGhost.tm = setTimeout(removeGhost, 6000);
 }
 let areaSeq = 0;
 const wrap = x => ((x + 180) % 360 + 360) % 360 - 180;
@@ -983,11 +1098,12 @@ function visible(){
   const cutoff = S.time === 'all' ? 0 : Date.now() - (+S.time) * 864e5;
   return S.area.filter(s => (S.spFilter.size === 0 || S.spFilter.has(s.species_id)) && new Date(s.seen_at).getTime() >= cutoff);
 }
+let MY_LEVEL = 0;
 function pinIcon(s){
   const sp = S.spById[s.species_id] || {};
   const fresh = Date.now() - new Date(s.seen_at) < 6 * 3600e3;
   return L.divIcon({ className:'', iconSize:[40,40], iconAnchor:[20,20],
-    html:`<div class="pin d${sp.danger_level || 0}${fresh ? ' fresh' : ''}${s.is_mine ? ' mine' : ''}">${esc(sp.icon || '?')}</div>` });
+    html:`<div class="pin d${sp.danger_level || 0}${fresh ? ' fresh' : ''}${s.is_mine ? ' mine' : ''}${s.is_mine && MY_LEVEL >= 2 ? ' gold' : ''}">${esc(spIcon(sp))}</div>` });
 }
 function renderMap(){
   if(!map) return;
@@ -996,7 +1112,7 @@ function renderMap(){
   const list = visible(), z = map.getZoom();
   let note = '';
   if(S.mode === 'pins'){
-    list.forEach(s => L.marker([s.lat, s.lng], { icon:pinIcon(s), keyboard:false, title:spName(S.spById[s.species_id]) })
+    list.forEach(s => L.marker([s.lat, s.lng], { icon:pinIcon(s), keyboard:false, title:taxonTitle(s) })
       .on('click', () => openCard(s.id)).addTo(markers));
     if(!list.length) note = z < 9 ? t('note_zoom_city') : t('note_empty');
   } else if(S.mode === 'heat'){
@@ -1048,7 +1164,7 @@ function renderChips(){
   $('#chips').innerHTML = `<label class="chip">${small(ICON.clock)}
       <select id="timeSel" aria-label="${esc(t('period'))}">${Object.entries(opts).map(([v, l]) => `<option value="${v}"${S.time === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
     <button class="chip${S.spFilter.size ? '' : ' on'}" data-sp="">${esc(t('all'))}</button>
-    ${S.species.map(s => `<button class="chip${S.spFilter.has(s.id) ? ' on' : ''}" data-sp="${esc(s.id)}">${esc(s.icon)} ${esc(spName(s))}</button>`).join('')}`;
+    ${S.species.map(s => `<button class="chip${S.spFilter.has(s.id) ? ' on' : ''}" data-sp="${esc(s.id)}">${esc(spIcon(s))} ${esc(spName(s))}</button>`).join('')}`;
   $('#timeSel').onchange = e => { S.time = e.target.value; renderMap(); };
   $$('#chips [data-sp]').forEach(b => b.onclick = () => {
     const id = b.dataset.sp;
@@ -1056,7 +1172,7 @@ function renderChips(){
     renderChips(); renderMap();
   });
 }
-function renderAll(){ renderHud(); renderMap(); if(S.tab !== 'map') renderPanel(S.tab); }
+function renderAll(){ MY_LEVEL = levelOf(myStats().xp).idx; renderHud(); renderMap(); if(S.tab !== 'map') renderPanel(S.tab); }
 function setTab(tb){
   S.tab = tb;
   $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tb));
@@ -1096,8 +1212,8 @@ async function openCard(id){
   else action = `<button class="btn primary block" id="confirmBtn">${ICON.check} ${esc(t('confirm_btn'))} · +${XP.confirmGiven} XP</button>`;
   const tip = SP_TIPS[LANG][sp.name_pl];
   $('#cardBody').innerHTML = `
-    <div class="sc-head"><div class="sc-ico d${sp.danger_level}">${esc(sp.icon)}</div>
-      <div><h2>${esc(spName(sp))}</h2><div class="meta"><span>${ICON.clock}${ago(s.seen_at)} · ${when.toLocaleString(LOCALE(), { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span><span id="placeLbl">${ICON.pin}…</span></div></div></div>
+    <div class="sc-head"><div class="sc-ico d${sp.danger_level}">${esc(spIcon(sp))}</div>
+      <div><h2>${esc(taxonTitle(s))}</h2><div class="meta"><span>${ICON.clock}${ago(s.seen_at)} · ${when.toLocaleString(LOCALE(), { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span><span id="placeLbl">${ICON.pin}…</span></div></div></div>
     ${s.has_photo ? `<div class="photo" id="photoBox">${esc(t('loading_photo'))}</div>` : ''}
     <dl class="kv">
       ${s.behavior ? `<dt>${esc(t('behavior'))}</dt><dd>${esc(behText(s.behavior))}</dd>` : ''}
@@ -1118,7 +1234,7 @@ async function openCard(id){
   };
   if(s.has_photo){
     try{ const url = await API.photo(s.id); const box = $('#photoBox');
-      if(box && url){ const img = new Image(); img.className = 'photo'; img.alt = t('photo_of') + ': ' + spName(sp); img.src = url; box.replaceWith(img); }
+      if(box && url){ const img = new Image(); img.className = 'photo'; img.alt = t('photo_of') + ': ' + taxonTitle(s); img.src = url; box.replaceWith(img); }
       else if(box) box.textContent = t('photo_na');
     }catch(e){ const box = $('#photoBox'); if(box) box.textContent = t('photo_err'); }
   }
@@ -1133,7 +1249,7 @@ function openCell(c){
   $('#cardBody').innerHTML = `
     <div><div class="eyebrow">${esc(mine ? t('cell_found') : t('cell_new'))} · 1 km</div><h2 style="font-size:24px;margin-top:4px" id="cellName">${esc(t('cell'))} ${esc(c.id)}</h2></div>
     <dl class="kv"><dt>${esc(t('sightings'))}</dt><dd class="mono">${inC.length}</dd>${last ? `<dt>${esc(t('last'))}</dt><dd>${ago(last.seen_at)}</dd>` : ''}</dl>
-    ${inC.length ? `<div class="xprev">${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<span>${esc(S.spById[id]?.icon || '?')} ${esc(spName(S.spById[id]))} × ${n}</span>`).join('')}</div>` : ''}
+    ${inC.length ? `<div class="xprev">${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<span>${esc(spIcon(S.spById[id]))} ${esc(spName(S.spById[id]))} × ${n}</span>`).join('')}</div>` : ''}
     <div class="tip">${ICON.grid}<div>${esc(mine ? t('cell_tip_found') : t('cell_tip_new'))}</div></div>
     <button class="btn primary block" id="cellAdd">${ICON.plus} ${esc(t('report_here'))}</button>`;
   openSheet('card');
@@ -1143,7 +1259,7 @@ function openCell(c){
 
 /* ---------- dodawanie ---------- */
 function startAdd(center){
-  closeSheets(); setTab('map');
+  closeSheets(); setTab('map'); removeGhost();
   S.adding = true; document.body.classList.add('adding');
   if(center) map.setView(center, Math.max(map.getZoom(), 16));
   else if(map.getZoom() < 15) map.setZoom(15);
@@ -1164,8 +1280,10 @@ function openForm(){
   const opt = `<span class="muted" style="font-weight:500">${esc(t('optional'))}</span>`;
   $('#formBody').innerHTML = `
     <div class="field"><label>${esc(t('f_species'))}</label><div class="spgrid" id="spGrid">
-      ${S.species.map(s => `<button class="spbtn" data-id="${esc(s.id)}"><span class="e">${esc(s.icon)}</span>${esc(spName(s))}${st.species.has(s.id) ? '' : `<span class="new">+${XP.newSpecies}</span>`}</button>`).join('')}
+      ${S.species.map(s => `<button class="spbtn" data-id="${esc(s.id)}"><span class="e">${esc(spIcon(s))}</span>${esc(spName(s))}${st.species.has(s.id) ? '' : `<span class="new">+${XP.newSpecies}</span>`}</button>`).join('')}
     </div></div>
+    <div class="field" id="taxonField" hidden><label for="fTaxon" id="fTaxonL"></label>
+      <input class="input" id="fTaxon" maxlength="60" list="taxonList" autocomplete="off"><datalist id="taxonList"></datalist></div>
     <div class="field"><label for="fWhen">${esc(t('f_when'))}</label><input class="input mono" type="datetime-local" id="fWhen" value="${toLocalInput(now)}" min="${toLocalInput(min)}" max="${toLocalInput(now)}"></div>
     <div class="field"><label>${esc(t('f_behavior'))} ${opt}</label><div class="bchips" id="bChips">
       ${BEHAVIORS.map(b => `<button class="chip" data-b="${esc(b)}">${esc(behName(b))}</button>`).join('')}</div></div>
@@ -1174,7 +1292,18 @@ function openForm(){
       <div class="photo-pick"><img id="fPrev" alt="" hidden><label for="fPhoto">${ICON.camera}<span id="fPhotoTxt">${esc(t('add_photo'))}</span></label><input type="file" id="fPhoto" accept="image/*"></div></div>
     <div class="field"><label>${esc(t('f_reward'))}</label><div class="xprev" id="xPrev"></div></div>
     <button class="btn primary block" id="fSubmit">${esc(t('submit'))}</button>`;
-  $$('#spGrid .spbtn').forEach(b => b.onclick = () => { F.species = b.dataset.id; $$('#spGrid .spbtn').forEach(x => x.classList.toggle('on', x === b)); xpPreview(); });
+  $$('#spGrid .spbtn').forEach(b => b.onclick = () => {
+    F.species = b.dataset.id; $$('#spGrid .spbtn').forEach(x => x.classList.toggle('on', x === b));
+    const sp = S.spById[F.species], need = needsTaxon(sp), bird = sp?.name_pl === 'Ptak';
+    $('#taxonField').hidden = !need;
+    if(need){
+      $('#fTaxonL').innerHTML = `${esc(t(bird ? 'f_taxon_bird' : 'f_taxon_other'))} <span class="req">*</span>`;
+      $('#fTaxon').placeholder = t(bird ? 'f_taxon_ph_bird' : 'f_taxon_ph_other');
+      $('#taxonList').innerHTML = (bird ? BIRDS : OTHERS).map(([p, e]) => `<option value="${esc(LANG === 'en' ? e : p)}">`).join('');
+      $('#fTaxon').focus();
+    }
+    xpPreview();
+  });
   $$('#bChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.b; F.behaviors.has(v) ? F.behaviors.delete(v) : F.behaviors.add(v); b.classList.toggle('on'); });
   $('#fPhoto').onchange = async e => {
     const file = e.target.files[0]; if(!file) return;
@@ -1210,6 +1339,8 @@ function compress(file, max, q){
 }
 async function submitForm(){
   if(!F.species){ toast(t('e_species')); return; }
+  const spSel = S.spById[F.species], taxon = needsTaxon(spSel) ? $('#fTaxon').value.trim() : '';
+  if(needsTaxon(spSel) && taxon.length < 2){ toast(t(spSel.name_pl === 'Ptak' ? 'e_taxon_bird' : 'e_taxon_other')); $('#fTaxon').focus(); return; }
   const when = new Date($('#fWhen').value);
   if(isNaN(when)){ toast(t('e_when')); return; }
   if(when > new Date(Date.now() + 60000)){ toast(t('e_future')); return; }
@@ -1218,14 +1349,14 @@ async function submitForm(){
   const behavior = [[...F.behaviors].join(', '), note].filter(Boolean).join(' — ') || null;
   const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = t('saving');
   const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.species.has(F.species);
-  try{ await API.add({ species_id:F.species, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
+  try{ await API.add({ species_id:F.species, taxon:taxon || null, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
   catch(e){ toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
   closeSheets();
   if(S.spFilter.size && !S.spFilter.has(F.species)) S.spFilter.clear();
   if(S.time !== 'all' && Date.now() - when > (+S.time) * 864e5) S.time = '30';
   renderChips(); setMode('pins');
   await reload();
-  reward(before, 'add', { photo:hadPhoto, newSpecies:newSp ? F.species : null });
+  reward(before, 'add', { species:F.species, photo:hadPhoto, newSpecies:newSp ? F.species : null });
 }
 
 /* ---------- nagroda ---------- */
@@ -1240,31 +1371,35 @@ function reward(before, kind, extra = {}){
   renderAll();
   if(kind === 'confirm' && !newBadges.length && !lvUp && !qs.length){ toast(`+${gained} XP`, 'xp'); return; }
 
-  const lines = [];
+  const chips = [];
   if(kind === 'add'){
-    lines.push([t('x_sighting'), `+${XP.sighting}`]);
-    if(extra.photo) lines.push([t('x_photo'), `+${XP.photo}`]);
-    if(extra.newSpecies){ const sp = S.spById[extra.newSpecies]; lines.push([`${t('r_new_species')}: ${sp?.icon || ''} ${spName(sp)}`, `+${XP.newSpecies}`]); }
-  } else lines.push([t('r_confirm'), `+${XP.confirmGiven}`]);
-  if(newCells) lines.push([t('r_new_cell'), `${t('r_total')} ${after.cells.size}`]);
-  qs.forEach(q => lines.push([`${t('r_quest')}: ${q[LANG]}`, t('r_done')]));
+    chips.push([spIcon(S.spById[extra.species]), `+${XP.sighting}`]);
+    if(extra.photo) chips.push(['📷', `+${XP.photo}`]);
+    if(extra.newSpecies) chips.push(['🆕', `+${XP.newSpecies}`]);
+  } else chips.push(['🤝', `+${XP.confirmGiven}`]);
+  if(newCells) chips.push(['🗺️', `${after.cells.size}`]);
+  qs.forEach(() => chips.push(['🏁', '✓']));
 
   const lb = levelOf(before.xp), la = levelOf(after.xp);
-  const startPct = lvUp ? 0 : lb.pct;
-  $('#mcard').innerHTML = `
-    <div class="gain"><span>${esc(kind === 'add' ? t('r_saved') : t('r_thanks'))}</span><b id="gainNum">+0</b><span>XP</span></div>
-    ${lvUp ? `<div class="lvup"><div class="eyebrow" style="color:inherit;opacity:.8">${esc(t('r_new_level'))}</div><b>${esc(la.name)}</b></div>` : ''}
-    <div class="lines">${lines.map(([a, b]) => `<div><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div>
-    <div class="mprog"><div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(la.name)}</span><span class="mono">${la.next ? `${la.toNext} XP ${esc(t('r_to'))}: ${esc(la.next.name)}` : esc(t('r_max'))}</span></div><div class="bar"><i id="mBar" style="width:${startPct*100}%"></i></div></div>
-    ${newBadges.length ? `<div class="sec"><div class="eyebrow" style="text-align:center">${esc(newBadges.length === 1 ? t('r_badge') : t('r_badges'))}</div>
-      <div class="newbadges">${newBadges.map(b => `<div class="badge"><div class="medal">${ICON[b.icon]}</div><b>${esc(bName(b))}</b><small>${esc(bDesc(b))}</small></div>`).join('')}</div></div>` : ''}
-    <button class="btn moss block" id="mOk">${esc(t('next'))}</button>`;
+  const from = lvUp ? 0 : lb.pct, R = 66, C = 2 * Math.PI * R;
+  const perkNow = lvUp ? perkFor(la.idx) : null, perkNext = perkFor(la.idx + 1);
+  $('#mcard').innerHTML = `<div class="rw">
+    <div class="rw-ring"><svg viewBox="0 0 148 148" aria-hidden="true">
+        <circle cx="74" cy="74" r="${R}" fill="none" stroke="var(--line)" stroke-width="10"/>
+        <circle id="rwArc" cx="74" cy="74" r="${R}" fill="none" stroke="var(--fox)" stroke-width="10" stroke-linecap="round"
+          stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - from)).toFixed(1)}" transform="rotate(-90 74 74)" style="transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1) .2s"/></svg>
+      <div><b id="gainNum">+0</b><span>XP</span></div></div>
+    <div class="rw-chips">${chips.map(([e, v]) => `<span><span class="e">${esc(e)}</span>${esc(v)}</span>`).join('')}</div>
+    ${lvUp ? `<div class="rw-up"><b>${esc(la.name)}!</b>${perkNow ? `<small>${esc(t('unlocks'))}: ${esc(perkNow[LANG][0])}</small>` : ''}</div>`
+           : `<div class="rw-lv"><b>${esc(la.name)}</b>${la.next ? ` · ${la.toNext} XP → ${esc(perkNext ? '🎁 ' + perkNext[LANG][0] : la.next.name)}` : ''}</div>`}
+    ${newBadges.length ? `<div class="newbadges">${newBadges.map(b => `<div class="badge"><div class="medal">${ICON[b.icon]}</div><b>${esc(bName(b))}</b></div>`).join('')}</div>` : ''}
+    <button class="btn moss block" id="mOk">${esc(t('next'))}</button></div>`;
   $('#modal').hidden = false;
   $('#mOk').focus();
   $('#mOk').onclick = () => { $('#modal').hidden = true; };
-  requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('#mBar'); if(b) b.style.width = (la.pct * 100) + '%'; }));
+  requestAnimationFrame(() => requestAnimationFrame(() => { const a = $('#rwArc'); if(a) a.style.strokeDashoffset = (C * (1 - la.pct)).toFixed(1); }));
   const t0 = performance.now(), el = $('#gainNum');
-  const step = ts => { const k = Math.min(1, (ts - t0) / 700); el.textContent = '+' + Math.round(gained * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
+  const step = ts => { const k = Math.min(1, (ts - t0) / 800); el.textContent = '+' + Math.round(gained * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
 
@@ -1300,8 +1435,19 @@ function renderAtlas(){
         <div><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || t('your_level'))}</div><h3>${esc(lv.name)}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} ${esc(t('r_to'))}: ${esc(lv.next.name)}` : ''}</div></div></div>
       <div class="ladder">${LEVELS.map((l, i) => `<div class="${i <= lv.idx ? 'on' : ''}"><i></i><span>${esc(l[LANG])}</span><span>${l.xp}</span></div>`).join('')}</div>
     </div>
+    <div class="sec"><h3>${esc(t('perks_h'))}</h3><div class="perks">
+      ${PERKS.map(pk => { const on = lv.idx >= pk.lvl; return `<div class="perk${on ? ' on' : ''}"><div class="pi">${ICON[pk.icon]}</div>
+        <div><b>${esc(pk[LANG][0])}</b><small>${esc(pk[LANG][1])}</small></div>
+        <span class="lvn">${on ? '✓ ' + esc(t('perk_now')) : esc(LEVELS[pk.lvl][LANG]) + '<br>' + LEVELS[pk.lvl].xp + ' XP'}</span></div>`; }).join('')}
+      </div>
+      <div class="btns col">
+        <button class="btn ghost" id="cardBtn"${lv.idx >= 1 ? '' : ' disabled'}>${small(ICON.star, 18)} ${esc(t('card_btn'))}</button>
+        <button class="btn ghost" id="certBtn"${lv.idx >= 3 ? '' : ' disabled'}>${small(ICON.book, 18)} ${esc(t('cert_btn'))}</button>
+      </div></div>
     <div class="sec"><div class="sec-h"><h3>${esc(t('species_h'))}</h3><span class="mono">${atlasSp.filter(s => st.species.has(s.id)).length}/${atlasSp.length}</span></div>
-      <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(s.icon)}</span><b>${n ? esc(spName(s)) : '???'}</b><span class="mono">${n ? n + ' × ' : `+${XP.newSpecies} XP`}</span></div>`; }).join('')}</div></div>
+      <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(spIcon(s))}</span><b>${n ? esc(spName(s)) : '???'}</b><span class="mono">${n ? n + ' × ' : `+${XP.newSpecies} XP`}</span></div>`; }).join('')}</div></div>
+    <div class="sec"><div class="sec-h"><h3>🐦 ${esc(t('birds_h'))}</h3><span class="mono">${st.birds.size}</span></div>
+      ${st.birds.size ? `<div class="birdlist">${[...st.birds].map(b => `<span>${esc(b.charAt(0).toUpperCase() + b.slice(1))}</span>`).join('')}</div>` : `<p class="muted" style="margin:0;font-size:13px">${esc(t('birds_none'))}</p>`}</div>
     <div class="sec"><div class="sec-h"><h3>${esc(t('cells_h'))}</h3><span class="mono">${st.cells.size} × 1 km²</span></div>
       <button class="btn ghost" id="showCells">${ICON.grid} ${esc(t('show_on_map'))}</button></div>
     <div class="sec"><div class="sec-h"><h3>${esc(t('badges_h'))}</h3><span class="mono">${ul.size}/${BADGES.length}</span></div>
@@ -1319,6 +1465,8 @@ function renderAtlas(){
         ${STYLES.map(s => { const av = styleAvailable(s); return `<button class="chip${styleId === s.id ? ' on' : ''}" data-style="${s.id}"${av ? '' : ' disabled'}>${esc(s.name)}${av ? '' : ` <small>· ${esc(t('needs_key'))}</small>`}</button>`; }).join('')}</div>
         <p class="muted" style="margin:0;font-size:12.5px">${esc(t('style_note'))}</p></div>
     </div>`;
+  $('#cardBtn').onclick = () => shareImage('card');
+  $('#certBtn').onclick = () => shareImage('cert');
   $('#showCells').onclick = () => {
     setTab('map'); setMode('zones');
     if(st.my.length){ const b = L.latLngBounds(st.my.map(s => [s.lat, s.lng])); map.fitBounds(b.pad(.3), { maxZoom:14 }); }
@@ -1370,6 +1518,59 @@ function renderNickRow(){
       catch(err){ toast(t('nick_fail') + ': ' + (err.message || err)); }
     };
   };
+}
+
+/* ---------- karta tropiciela i certyfikat (obrazek PNG) ---------- */
+async function shareImage(kind){
+  try{
+    await document.fonts?.ready;
+    const st = myStats(), lv = levelOf(st.xp), name = S.nickname || t('anon');
+    const card = kind === 'card', W = card ? 1080 : 1754, H = card ? 1350 : 1240;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d'), F = (w, s) => `${w} ${s}px 'Bricolage Grotesque', system-ui, sans-serif`;
+    const url = location.origin + location.pathname.replace(/index\.html$/, '');
+    const spIcons = S.species.filter(s => st.species.has(s.id)).map(spIcon).join(' ');
+    const stats = [[st.my.length, pw(st.my.length, 'sighting')], [st.species.size, pw(st.species.size, 'species')], [st.cells.size, 'km²'], [unlocked(st).length, t('badges_h').toLowerCase()]];
+    if(card){
+      g.fillStyle = '#2D5843'; g.fillRect(0, 0, W, H);
+      g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 3;
+      for(let i = 0; i < 9; i++){ g.beginPath(); g.ellipse(820, 300, 90 + i * 70, 70 + i * 55, -.3, 0, Math.PI * 2); g.stroke(); }
+      g.fillStyle = '#fff'; g.font = F(700, 38); g.fillText(CONFIG.APP_NAME.toUpperCase(), 80, 120);
+      let fs = 120; g.font = F(800, fs); while(g.measureText(name).width > W - 160 && fs > 48){ fs -= 4; g.font = F(800, fs); }
+      g.fillText(name, 80, 400);
+      g.fillStyle = '#E2832B'; g.font = F(800, 86); g.fillText(lv.name, 80, 520);
+      g.fillStyle = '#fff'; g.font = F(600, 44); g.fillText(`${st.xp} XP`, 80, 600);
+      stats.forEach(([n, l], i) => { const x = 80 + (i % 2) * 470, y = 760 + Math.floor(i / 2) * 200;
+        g.fillStyle = '#fff'; g.font = F(800, 96); g.fillText(String(n), x, y); g.font = F(500, 40); g.globalAlpha = .8; g.fillText(l, x, y + 56); g.globalAlpha = 1; });
+      g.font = '72px sans-serif'; g.fillText(spIcons, 80, 1170);
+      g.font = F(500, 32); g.globalAlpha = .75; g.fillText(url, 80, 1270); g.globalAlpha = 1;
+    } else {
+      g.fillStyle = '#F7F4EC'; g.fillRect(0, 0, W, H);
+      g.strokeStyle = '#2D5843'; g.lineWidth = 14; g.strokeRect(50, 50, W - 100, H - 100);
+      g.lineWidth = 3; g.strokeRect(80, 80, W - 160, H - 160);
+      g.textAlign = 'center'; g.fillStyle = '#2D5843';
+      g.font = F(700, 40); g.fillText(CONFIG.APP_NAME.toUpperCase(), W / 2, 210);
+      g.fillStyle = '#14221A'; g.font = F(800, 92);
+      g.fillText(LANG === 'pl' ? 'Certyfikat obserwatora przyrody' : 'Wildlife Observer Certificate', W / 2, 360);
+      g.font = F(500, 40); g.fillStyle = '#55665B'; g.fillText(LANG === 'pl' ? 'przyznany dla' : 'awarded to', W / 2, 460);
+      g.fillStyle = '#E2832B'; let fs = 110; g.font = F(800, fs); while(g.measureText(name).width > W - 260 && fs > 48){ fs -= 4; g.font = F(800, fs); }
+      g.fillText(name, W / 2, 600);
+      g.fillStyle = '#14221A'; g.font = F(500, 42);
+      const line = LANG === 'pl'
+        ? `za ${st.my.length} ${pw(st.my.length, 'sighting')} dzikich zwierząt, ${st.species.size} ${pw(st.species.size, 'species')} i ${st.cells.size} km² zbadanego terenu`
+        : `for ${st.my.length} ${pw(st.my.length, 'sighting')} of wild animals, ${st.species.size} species and ${st.cells.size} km² of surveyed area`;
+      g.fillText(line, W / 2, 720);
+      g.fillText((LANG === 'pl' ? 'Poziom: ' : 'Level: ') + lv.name + ` · ${st.xp} XP`, W / 2, 790);
+      g.font = '80px sans-serif'; g.fillText(spIcons, W / 2, 940);
+      g.font = F(500, 34); g.fillStyle = '#55665B';
+      g.fillText(new Date().toLocaleDateString(LOCALE(), { day:'numeric', month:'long', year:'numeric' }) + '  ·  ' + url, W / 2, 1090);
+    }
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    const file = new File([blob], (card ? 'tracker-card' : 'certificate') + '.png', { type:'image/png' });
+    if(navigator.canShare?.({ files:[file] })){ try{ await navigator.share({ files:[file], title:CONFIG.APP_NAME }); return; }catch(e){ if(e.name === 'AbortError') return; } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }catch(e){ console.error(e); toast(t('share_fail')); }
 }
 
 /* ---------- wyszukiwanie + lokalizacja ---------- */
