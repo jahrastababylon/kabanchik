@@ -354,6 +354,9 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .edu .eyebrow{color:var(--moss)}
 .edu p{margin:0;font-size:13.5px;line-height:1.5}
 .edu .src{font-size:11px;color:var(--ink-2)}
+.edu .facts{display:grid;gap:8px;margin:2px 0 0}
+.edu .facts dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--moss)}
+.edu .facts dd{margin:0 0 2px;font-size:13.5px;line-height:1.45}
 .edu .src a{color:inherit}
 .edu.loading{min-height:60px;align-items:center;justify-content:center;font-size:13px;color:var(--ink-2)}
 .picked{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--moss)}
@@ -533,7 +536,7 @@ const STR = {
     report_tap:'Zgłoś tutaj', popular:'Często widywane', pick_from_list:'Wybierz gatunek z listy podpowiedzi — tak dane będą dokładne',
     no_match:'Nic nie znaleziono. Spróbuj innej nazwy albo nazwy łacińskiej.', species_db_off:'Baza gatunków nie odpowiada — wpisz nazwę ręcznie.',
     searching:'Szukam…', did_you_know:'Czy wiesz, że…', more_wiki:'Więcej w Wikipedii', photo_by:'Zdjęcie', recognized:'Rozpoznano', obs_world:'obs. na świecie', obs_near:'obs. w okolicy',
-    edu_src:'Dane: iNaturalist, Wikipedia', birds_h:'Ptaki', birds_none:'Zgłoś ptaka, a pojawi się tutaj. 5 gatunków = odznaka Ornitolog.',
+    edu_src:'Dane: iNaturalist, Wikipedia', fact_look:'Jak rozpoznać', fact_where:'Gdzie żyje', fact_food:'Co je', fact_life:'Tryb życia', birds_h:'Ptaki', birds_none:'Zgłoś ptaka, a pojawi się tutaj. 5 gatunków = odznaka Ornitolog.',
     perks_h:'Co daje XP', perk_now:'masz', card_btn:'Pobierz kartę tropiciela', cert_btn:'Pobierz certyfikat', share_fail:'Nie udało się przygotować obrazka',
     unlocks:'Odblokowuje', next_unlock:'Następna nagroda',
     ago_now:'przed chwilą', ago_min:'min temu', ago_h:'godz. temu', ago_y:'wczoraj', ago_d:'dni temu',
@@ -604,7 +607,7 @@ const STR = {
     report_tap:'Report here', popular:'Often seen', pick_from_list:'Pick the species from the suggestions — that keeps the data accurate',
     no_match:'Nothing found. Try another name or the Latin name.', species_db_off:'The species database is not responding — type the name yourself.',
     searching:'Searching…', did_you_know:'Did you know…', more_wiki:'More on Wikipedia', photo_by:'Photo', recognized:'Selected', obs_world:'obs. worldwide', obs_near:'obs. nearby',
-    edu_src:'Data: iNaturalist, Wikipedia', birds_h:'Birds', birds_none:'Report a bird and it will appear here. 5 species = Birder badge.',
+    edu_src:'Data: iNaturalist, Wikipedia', fact_look:'How to recognise it', fact_where:'Where it lives', fact_food:'What it eats', fact_life:'How it lives', birds_h:'Birds', birds_none:'Report a bird and it will appear here. 5 species = Birder badge.',
     perks_h:'What XP gives you', perk_now:'yours', card_btn:'Download tracker card', cert_btn:'Download certificate', share_fail:'Could not prepare the image',
     unlocks:'Unlocks', next_unlock:'Next reward',
     ago_now:'just now', ago_min:'min ago', ago_h:'h ago', ago_y:'yesterday', ago_d:'days ago',
@@ -686,13 +689,33 @@ async function inatByLatin(latin){
   const hit = list.find(x => x.name === latin) || list[0];
   return hit ? inatDetail(hit.id) : null;
 }
-function wikiExtract(url){
+// Z artykułu w Wikipedii bierzemy wstęp i krótkie fragmenty: wygląd, gdzie żyje, co je, tryb życia
+const WIKI_SECTIONS = {
+  look:  /^(wygląd|morfologia|charakterystyka|opis|budowa|upierzenie|description|appearance|characteristics|identification|build|morphology|physical|plumage)/i,
+  where: /^(występowanie|zasięg|środowisko|siedlisko|rozmieszczenie|distribution|habitat|range)/i,
+  food:  /^(pożywienie|pokarm|odżywianie|dieta|diet|feeding|food)/i,
+  life:  /^(tryb życia|biologia|ekologia|zachowanie|behaviou?r|ecology|biology|life)/i,
+};
+const sentences = (txt, max) => { const out = []; let len = 0;
+  for(const s of txt.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ0-9„(])/)){ if(len && len + s.length > max) break; out.push(s); len += s.length; if(len > max * .6) break; }
+  return out.join(' '); };
+function wikiFacts(url){
   const m = url && url.match(/^https?:\/\/([a-z-]+)\.wikipedia\.org\/wiki\/(.+)$/);
-  if(!m) return Promise.resolve('');
+  if(!m) return Promise.resolve(null);
   return cached('w:' + url, async () => {
-    const r = await fetch(`https://${m[1]}.wikipedia.org/api/rest_v1/page/summary/${m[2]}`);
-    return r.ok ? ((await r.json()).extract || '') : '';
-  }).catch(() => '');
+    const title = decodeURIComponent(m[2]).replace(/_/g, ' ');
+    const r = await fetch(`https://${m[1]}.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&exsectionformat=wiki&redirects=1&format=json&origin=*&titles=${encodeURIComponent(title)}`);
+    if(!r.ok) return null;
+    const page = Object.values((await r.json()).query?.pages || {})[0];
+    const raw = page?.extract || ''; if(!raw) return null;
+    const parts = raw.split(/\n={2,}\s*(.+?)\s*={2,}\n/);   // [wstęp, nagłówek, treść, nagłówek, treść…]
+    const facts = {};
+    for(let i = 1; i < parts.length; i += 2){
+      const head = parts[i].trim(), body = (parts[i + 1] || '').trim();
+      for(const [k, re] of Object.entries(WIKI_SECTIONS)) if(!facts[k] && re.test(head) && body.length > 40) facts[k] = sentences(body, 230);
+    }
+    return { intro:sentences(parts[0] || '', 260), facts };
+  }).catch(() => null);
 }
 // Tylko zdjęcia na wolnej licencji (Creative Commons), z podpisem autora
 function freePhoto(tx){
@@ -704,15 +727,18 @@ const stripTags = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, '
 const cut = (s, n) => s.length > n ? s.slice(0, s.lastIndexOf(' ', n) > n * .6 ? s.lastIndexOf(' ', n) : n) + '…' : s;
 async function renderEdu(box, tx, eyebrow){
   if(!box || !tx) return;
-  let text = stripTags(tx.wikipedia_summary);
-  if(text.length < 220 && tx.wikipedia_url){ const ext = await wikiExtract(tx.wikipedia_url); if(ext.length > text.length) text = ext; }
+  const wiki = tx.wikipedia_url ? await wikiFacts(tx.wikipedia_url) : null;
+  let intro = stripTags(tx.wikipedia_summary);
+  if(wiki?.intro && wiki.intro.length > intro.length) intro = wiki.intro;
+  const facts = Object.entries(wiki?.facts || {}).slice(0, 3);
   if(!box.isConnected) return;
   const ph = freePhoto(tx), name = tx.preferred_common_name || tx.name;
   box.className = 'edu';
   box.innerHTML = `${ph ? `<img src="${esc(ph.md)}" alt="${esc(name)}" loading="lazy">` : ''}
     <div class="eb"><div class="eyebrow">${esc(eyebrow || t('did_you_know'))}</div>
       <div class="eh"><b>${esc(name.charAt(0).toUpperCase() + name.slice(1))}</b><i>${esc(tx.name)}</i></div>
-      ${text ? `<p>${esc(cut(text, 420))}</p>` : ''}
+      ${intro ? `<p>${esc(cut(intro, 300))}</p>` : ''}
+      ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<dt>${esc(t('fact_' + k))}</dt><dd>${esc(cut(v, 260))}</dd>`).join('')}</dl>` : ''}
       <div class="src">${ph ? `${esc(t('photo_by'))}: ${esc(ph.attr)} · ` : ''}${tx.wikipedia_url ? `<a href="${esc(tx.wikipedia_url)}" target="_blank" rel="noopener">${esc(t('more_wiki'))}</a> · ` : ''}<a href="https://www.inaturalist.org/taxa/${tx.id}" target="_blank" rel="noopener">iNaturalist</a></div></div>`;
 }
 function eduLoading(box){ if(box){ box.className = 'edu loading'; box.textContent = t('searching'); } }
