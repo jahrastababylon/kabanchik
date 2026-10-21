@@ -532,7 +532,7 @@ const STR = {
     e_taxon_bird:'Wpisz, jakiego ptaka widziałeś', e_taxon_other:'Wpisz, jakie zwierzę widziałeś',
     report_tap:'Zgłoś tutaj', popular:'Często widywane', pick_from_list:'Wybierz gatunek z listy podpowiedzi — tak dane będą dokładne',
     no_match:'Nic nie znaleziono. Spróbuj innej nazwy albo nazwy łacińskiej.', species_db_off:'Baza gatunków nie odpowiada — wpisz nazwę ręcznie.',
-    searching:'Szukam…', did_you_know:'Czy wiesz, że…', more_wiki:'Więcej w Wikipedii', photo_by:'Zdjęcie', recognized:'Rozpoznano', obs_world:'obs.',
+    searching:'Szukam…', did_you_know:'Czy wiesz, że…', more_wiki:'Więcej w Wikipedii', photo_by:'Zdjęcie', recognized:'Rozpoznano', obs_world:'obs. na świecie', obs_near:'obs. w okolicy',
     edu_src:'Dane: iNaturalist, Wikipedia', birds_h:'Ptaki', birds_none:'Zgłoś ptaka, a pojawi się tutaj. 5 gatunków = odznaka Ornitolog.',
     perks_h:'Co daje XP', perk_now:'masz', card_btn:'Pobierz kartę tropiciela', cert_btn:'Pobierz certyfikat', share_fail:'Nie udało się przygotować obrazka',
     unlocks:'Odblokowuje', next_unlock:'Następna nagroda',
@@ -603,7 +603,7 @@ const STR = {
     e_taxon_bird:'Write which bird you saw', e_taxon_other:'Write which animal you saw',
     report_tap:'Report here', popular:'Often seen', pick_from_list:'Pick the species from the suggestions — that keeps the data accurate',
     no_match:'Nothing found. Try another name or the Latin name.', species_db_off:'The species database is not responding — type the name yourself.',
-    searching:'Searching…', did_you_know:'Did you know…', more_wiki:'More on Wikipedia', photo_by:'Photo', recognized:'Selected', obs_world:'obs.',
+    searching:'Searching…', did_you_know:'Did you know…', more_wiki:'More on Wikipedia', photo_by:'Photo', recognized:'Selected', obs_world:'obs. worldwide', obs_near:'obs. nearby',
     edu_src:'Data: iNaturalist, Wikipedia', birds_h:'Birds', birds_none:'Report a bird and it will appear here. 5 species = Birder badge.',
     perks_h:'What XP gives you', perk_now:'yours', card_btn:'Download tracker card', cert_btn:'Download certificate', share_fail:'Could not prepare the image',
     unlocks:'Unlocks', next_unlock:'Next reward',
@@ -650,13 +650,24 @@ const INAT = 'https://api.inaturalist.org/v1';
 const LATIN = { 'Dzik':'Sus scrofa', 'Lis':'Vulpes vulpes', 'Sarna':'Capreolus capreolus', 'Wilk':'Canis lupus', 'Borsuk':'Meles meles' };
 const iCache = new Map();
 const cached = (k, fn) => { if(!iCache.has(k)) iCache.set(k, fn().catch(e => { iCache.delete(k); throw e; })); return iCache.get(k); };
-function inatSearch(q, birds){
-  return cached(`s:${birds ? 1 : 0}:${LANG}:${q.toLowerCase()}`, async () => {
-    const r = await fetch(`${INAT}/taxa/autocomplete?q=${encodeURIComponent(q)}&locale=${LANG}&per_page=15&is_active=true&taxon_id=${birds ? 3 : 1}`);
+// Ptaki = Aves; „inne” = ssaki, gady i płazy (bez ryb, ślimaków, owadów)
+const GROUPS = { bird:'3', other:'40151,26036,20978' };
+function inatSearch(q, birds, near){
+  const where = near ? `${near.lat.toFixed(1)},${near.lng.toFixed(1)}` : '';
+  return cached(`s:${birds ? 1 : 0}:${LANG}:${where}:${q.toLowerCase()}`, async () => {
+    const r = await fetch(`${INAT}/taxa/autocomplete?q=${encodeURIComponent(q)}&locale=${LANG}&per_page=15&is_active=true&taxon_id=${birds ? GROUPS.bird : GROUPS.other}`);
     if(!r.ok) throw new Error('iNaturalist ' + r.status);
-    return (await r.json()).results
-      .filter(x => x.rank_level <= 20 && (birds ? x.iconic_taxon_name === 'Aves' : x.iconic_taxon_name !== 'Aves'))
-      .slice(0, 6);
+    let list = (await r.json()).results.filter(x => x.rank_level <= 20);
+    // najpierw gatunki widywane w promieniu 150 km od pinezki
+    if(near && list.length){
+      try{
+        const c = await fetch(`${INAT}/observations/species_counts?taxon_id=${list.map(x => x.id).join(',')}&lat=${near.lat}&lng=${near.lng}&radius=150&verifiable=true&per_page=50`);
+        if(c.ok){ const m = new Map((await c.json()).results.map(x => [x.taxon.id, x.count]));
+          list.forEach((x, i) => { x._near = m.get(x.id) || 0; x._i = i; });
+          list.sort((a, b) => (b._near > 0) - (a._near > 0) || b._near - a._near || a._i - b._i); }
+      }catch(e){}
+    }
+    return list.slice(0, 6);
   });
 }
 function inatDetail(id){
@@ -1436,14 +1447,14 @@ async function taxonLookup(q, bird, autoPick){
   const box = $('#taxSugg'); if(!box) return;
   box.innerHTML = `<div class="msg">${esc(t('searching'))}</div>`;
   let list;
-  try{ list = await inatSearch(q, bird); F.offline = false; }
+  try{ list = await inatSearch(q, bird, S.pick); F.offline = false; }
   catch(e){ F.offline = true; box.innerHTML = `<div class="msg">${esc(t('species_db_off'))}</div>`; return; }
   if($('#fTaxon')?.value.trim() !== q) return;          // użytkownik pisze dalej
   if(!list.length){ box.innerHTML = `<div class="msg">${esc(t('no_match'))}</div>`; return; }
   if(autoPick){ pickTaxon(list[0]); return; }
   box.innerHTML = list.map((x, i) => { const ph = freePhoto(x), nm = x.preferred_common_name || x.name;
     return `<button type="button" role="option" data-i="${i}">${ph ? `<img class="th" src="${esc(ph.sq)}" alt="" loading="lazy">` : `<span class="th">${bird ? '🐦' : '🐾'}</span>`}
-      <span><b>${esc(nm.charAt(0).toUpperCase() + nm.slice(1))}</b><i>${esc(x.name)}</i></span><small>${(x.observations_count || 0).toLocaleString(LOCALE())} ${esc(t('obs_world'))}</small></button>`; }).join('');
+      <span><b>${esc(nm.charAt(0).toUpperCase() + nm.slice(1))}</b><i>${esc(x.name)}</i></span><small>${x._near ? `${x._near.toLocaleString(LOCALE())} ${esc(t('obs_near'))}` : `${(x.observations_count || 0).toLocaleString(LOCALE())} ${esc(t('obs_world'))}`}</small></button>`; }).join('');
   $$('#taxSugg [data-i]').forEach(b => b.onclick = () => pickTaxon(list[+b.dataset.i]));
 }
 function pickTaxon(x){
