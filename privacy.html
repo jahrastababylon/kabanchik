@@ -55,7 +55,7 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <ul>
   <li><b>Anonimowy identyfikator</b> — tworzony automatycznie przy pierwszym uruchomieniu. Z aplikacji można korzystać bez konta.</li>
   <li><b>Pseudonim i zdjęcie profilowe</b> — jeśli je podasz. Widzą je inni w rankingu i przy Twoich obserwacjach.</li>
-  <li><b>Adres e-mail</b> — tylko jeśli założysz konto. Służy do logowania jednorazowym kodem i przeniesienia postępów na inne urządzenie. Nie pokazujemy go innym.</li>
+  <li><b>Konto (opcjonalnie)</b> — jeśli zalogujesz się przez Google, Apple albo e-mail: adres e-mail i identyfikator konta u tego dostawcy. Służą do logowania i przeniesienia postępów na inne urządzenie. Nie pokazujemy ich innym.</li>
   <li><b>Numer telefonu</b> — opcjonalnie, tylko do kontaktu w sprawie nagród. Nie pokazujemy go innym.</li>
   <li><b>Obserwacje</b> — gatunek, miejsce na mapie, data i godzina, opcjonalnie opis zachowania, notatka i zdjęcie. Obserwacje są publiczne i widoczne na mapie.</li>
   <li><b>Potwierdzenia</b> cudzych obserwacji.</li>
@@ -80,6 +80,7 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <div class="tbl"><table>
   <tr><th>Usługa</th><th>Do czego</th><th>Gdzie</th></tr>
   <tr><td>Supabase</td><td>baza danych, logowanie, zdjęcia, statystyki</td><td>UE (Frankfurt)</td></tr>
+  <tr><td>Google, Apple</td><td>logowanie (tylko jeśli je wybierzesz)</td><td>USA</td></tr>
   <tr><td>Dostawca poczty (SMTP)</td><td>wysyłka kodów logowania</td><td>UE</td></tr>
   <tr><td>GitHub Actions</td><td>wysyłka przypomnień push</td><td>USA</td></tr>
   <tr><td>Google Firebase, Mozilla, Apple, Microsoft</td><td>dostarczanie powiadomień push na Twoje urządzenie (usługa powiadomień Twojej przeglądarki lub telefonu)</td><td>USA / globalnie</td></tr>
@@ -115,7 +116,7 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <ul>
   <li><b>An anonymous identifier</b> — created automatically on first launch. You can use the app without an account.</li>
   <li><b>Nickname and profile photo</b> — if you set them. Others see them in the ranking and on your sightings.</li>
-  <li><b>Email address</b> — only if you create an account. Used to sign in with a one-time code and to move your progress to another device. Never shown to others.</li>
+  <li><b>Account (optional)</b> — if you sign in with Google, Apple or email: your email address and the account identifier at that provider. Used to sign you in and to move your progress to another device. Never shown to others.</li>
   <li><b>Phone number</b> — optional, only to contact you about prizes. Never shown to others.</li>
   <li><b>Sightings</b> — species, place on the map, date and time, and optionally behaviour, a note and a photo. Sightings are public and visible on the map.</li>
   <li><b>Confirmations</b> of other people’s sightings.</li>
@@ -140,6 +141,7 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <div class="tbl"><table>
   <tr><th>Service</th><th>Purpose</th><th>Where</th></tr>
   <tr><td>Supabase</td><td>database, sign-in, photos, statistics</td><td>EU (Frankfurt)</td></tr>
+  <tr><td>Google, Apple</td><td>sign-in (only if you choose it)</td><td>USA</td></tr>
   <tr><td>Email provider (SMTP)</td><td>sending sign-in codes</td><td>EU</td></tr>
   <tr><td>GitHub Actions</td><td>sending push reminders</td><td>USA</td></tr>
   <tr><td>Google Firebase, Mozilla, Apple, Microsoft</td><td>delivering push notifications to your device (your browser's or phone's notification service)</td><td>USA / global</td></tr>

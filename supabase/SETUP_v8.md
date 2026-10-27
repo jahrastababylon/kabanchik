@@ -1,7 +1,7 @@
 # Настройка v8: аккаунты, аналитика, push
 
-Все шаги делаются один раз в панели Supabase (https://supabase.com/dashboard → проект `jxvjurltvjgcqxvhbfhx`).
-Пока шаги не выполнены, приложение работает как раньше: без аккаунтов, ник и XP хранятся анонимно на устройстве.
+Все шаги делаются один раз (Supabase: https://supabase.com/dashboard → проект `jxvjurltvjgcqxvhbfhx`).
+Пока шаги не выполнены, приложение работает как раньше: без входа, ник и XP хранятся на устройстве.
 
 ## 1. SQL (2 минуты)
 
@@ -9,39 +9,52 @@ SQL Editor → New query → вставить `supabase_v8_accounts.sql` → Run
 Внизу должно появиться 3 строки `avatars / analytics / push — true`.
 Предупреждение «destructive operations» — нормально (там `create or replace` и `revoke`), данные не удаляются.
 
-## 2. Вход по e-mail (5 минут)
+## 2. Вход (по желанию пользователя): Google, Apple, e-mail
 
-**Authentication → Sign In / Providers**
-- **Email** — включено, «Confirm email» — включено.
-- **Allow anonymous sign-ins** — включено (уже было).
-- **Allow manual linking** — включить. Нужно, чтобы анонимный пользователь мог «привязать» e-mail и сохранить свой прогресс.
+Без входа всё работает: ник (придумывается сам, если человек его не ввёл), фото, XP и отметки хранятся на устройстве.
+Вход нужен только чтобы не потерять прогресс при смене телефона. При входе прогресс с устройства присоединяется к аккаунту.
+Кнопки входа появляются в приложении сами — когда соответствующий способ включён в Supabase.
 
-**Authentication → Emails → Templates** — в двух шаблонах нужен 6-значный код (`{{ .Token }}`), потому что в приложении Android ссылка из письма открылась бы в браузере, а не в приложении.
+### 2.1 Адреса возврата (1 минута, нужно для Google и Apple)
+Supabase → **Authentication → URL Configuration**
+- **Site URL:** `https://jahrastababylon.github.io/kabanchik/app/`
+- **Redirect URLs** → Add URL, по одному:
+  - `https://jahrastababylon.github.io/kabanchik/app/**`
+  - `eu.tropami.app://auth`  ← возврат в Android-приложение
+  (после покупки домена добавить `https://tropami.eu/app/**`)
 
-*Magic Link* — тема: `Twój kod Tropami / Your Tropami code`
-```html
-<h2 style="color:#2D5843">Tropami</h2>
-<p>Twój kod logowania / Your sign-in code:</p>
-<p style="font-size:32px;font-weight:800;letter-spacing:6px;color:#14221A">{{ .Token }}</p>
-<p style="color:#55665B">Kod jest ważny przez godzinę. Jeśli to nie Ty — zignoruj tę wiadomość.<br>
-The code is valid for one hour. If this wasn't you, just ignore this email.</p>
-```
+### 2.2 Google (10–15 минут, бесплатно)
+1. https://console.cloud.google.com → вверху выбор проекта → **New project** → «Tropami» → Create.
+2. Меню → **APIs & Services → OAuth consent screen** (может называться **Google Auth Platform**) → Get started:
+   App name `Tropami`, support email — свой, Audience — **External**, contact email — свой → Create.
+   В **Branding → Authorized domains** добавить `supabase.co`.
+   В **Audience** нажать **Publish app** (иначе войти смогут только тестовые аккаунты). Для входа нужны только e-mail и имя — проверка Google не требуется.
+3. **Clients → Create client** → Application type **Web application**, имя `Tropami web`:
+   - Authorized JavaScript origins: `https://jahrastababylon.github.io`
+   - Authorized redirect URIs: `https://jxvjurltvjgcqxvhbfhx.supabase.co/auth/v1/callback`
+   → Create → откроется окно с **Client ID** и **Client secret**.
+4. Supabase → **Authentication → Sign In / Providers → Google** → Enable →
+   вставить Client ID и Client secret → Save.
 
-*Change Email Address* — тема: `Potwierdź e-mail w Tropami / Confirm your email`
-```html
-<h2 style="color:#2D5843">Tropami</h2>
-<p>Kod potwierdzający / Confirmation code:</p>
-<p style="font-size:32px;font-weight:800;letter-spacing:6px;color:#14221A">{{ .Token }}</p>
-<p style="color:#55665B">Wpisz go w aplikacji, żeby zapisać postępy na koncie {{ .NewEmail }}.<br>
-Enter it in the app to save your progress to {{ .NewEmail }}.</p>
-```
+### 2.3 Apple (позже)
+Нужен платный Apple Developer Program (99 $/год): Services ID + ключ «Sign in with Apple».
+Потом Supabase → Providers → Apple → Enable. Кнопка в приложении появится сама.
 
-**Отправка писем (SMTP).** Встроенная почта Supabase шлёт письма только участникам команды проекта и максимум 2 в час.
-- **Чтобы проверить прямо сейчас:** Organization → Team → пригласить свой второй e-mail (или использовать свой). На эти адреса коды придут без настройки SMTP.
-- **Для всех пользователей:** подключить свой SMTP — Authentication → Emails → SMTP Settings → Enable custom SMTP.
-  Подходит Brevo (бесплатный тариф): host `smtp-relay.brevo.com`, port `587`, user — логин Brevo, password — SMTP-ключ из Brevo → Settings → SMTP & API.
-  Отправитель лучше на своём домене (например `hello@tropami.eu`) с записями SPF/DKIM — поэтому удобно сделать после покупки домена. С адреса gmail письма часто уходят в спам.
-- После SMTP: Authentication → Rate Limits → «emails per hour» = 30 (по умолчанию) — для старта хватит.
+### 2.4 E-mail с кодом (по желанию, нужен свой почтовый сервер)
+1. **SMTP** (без него Supabase не даёт менять шаблоны писем): Brevo (бесплатно ~300 писем в день) →
+   Senders/Domains (лучше свой домен `tropami.eu` с DNS-записями) → SMTP & API → Generate SMTP key.
+   Supabase → **Authentication → Emails → SMTP Settings → Enable custom SMTP**:
+   Sender email = подтверждённый в Brevo адрес, Sender name `Tropami`, Host `smtp-relay.brevo.com`, Port `587`,
+   Username = **Login** со страницы SMTP в Brevo, Password = SMTP-ключ.
+2. **Шаблоны** (Authentication → Emails → Templates) — в **Magic Link** и **Confirm signup**:
+   Subject: `Your Tropami code`
+   ```html
+   <h2 style="color:#2D5843">Tropami</h2>
+   <p>Your sign-in code:</p>
+   <p style="font-size:32px;font-weight:800;letter-spacing:6px;color:#14221A">{{ .Token }}</p>
+   <p style="color:#55665B">The code is valid for one hour. If this wasn't you, just ignore this email.</p>
+   ```
+3. Написать Claude «почта готова» — в приложении включится кнопка «Продолжить с e-mail» (`CONFIG.AUTH_EMAIL = true`).
 
 ## 3. Push-уведомления (10 минут)
 

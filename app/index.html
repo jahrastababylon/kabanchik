@@ -402,6 +402,8 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .sw:disabled{opacity:.5}
 .linkbtn{border:0;background:none;padding:0;color:var(--moss);font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .danger-link{color:var(--danger)}
+.authbtn{background:var(--surface)!important;justify-content:center}
+.iconbtn.dice{width:46px;height:46px;flex:none;font-size:22px;border-radius:13px}
 .btn.danger{background:var(--danger);color:#fff}
 .pushcard{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--surface-2)}
 .pushcard svg{flex:none;color:var(--fox)}
@@ -497,6 +499,10 @@ const CONFIG = {
   NEAR_RADIUS_KM: 25,
   // Klucz publiczny Web Push (VAPID). Prywatny jest tylko w sekretach GitHub (VAPID_PRIVATE_KEY).
   VAPID_PUBLIC_KEY: 'BCSmeA1KF8DKec-2GhIHJvFH1Hpn4GZvOK9BV43XSn5u8B4uIeZNJkFWQJNXqmtNBr7sJE72xjou7vtnH6li7iM',
+  // Logowanie (opcjonalne). Google i Apple włączają się same, gdy są włączone w Supabase → Authentication → Providers.
+  // E-mail z kodem: ustaw true dopiero po skonfigurowaniu SMTP w Supabase (supabase/SETUP_v8.md).
+  AUTH_EMAIL: false,
+  AUTH_REDIRECT_APP: 'eu.tropami.app://auth',
 };
 const APP_VERSION = '1.4.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
@@ -574,7 +580,7 @@ const STR = {
     onb3_e:'Gra w tropiciela', onb3_t:'Zbieraj XP, odznaki i kwadraty mapy',
     onb3_p:'Każde zgłoszenie to XP. XP podnosi poziom, a każdy poziom coś odblokowuje: kartę tropiciela, złotą pinezkę, imienny certyfikat i miejsce w raporcie dla miasta.',
     onb4_e:'Ostatni krok', onb4_t:'Jak mamy Cię nazywać?',
-    onb4_p:'Pseudonim zobaczą inni w rankingu. Możesz go zmienić później. Za chwilę zapytamy o lokalizację, żeby pokazać mapę wokół Ciebie.',
+    onb4_p:'Wymyśliliśmy Ci pseudonim — zostaw go albo wpisz swój. Zmienisz go w każdej chwili w profilu. Za chwilę zapytamy o lokalizację, żeby pokazać mapę wokół Ciebie.',
     onb_nick_ph:'np. LisiTrop',
     consent:'Zgadzam się na zapisywanie lokalizacji i czasu moich zgłoszeń, ich publikację na mapie pod pseudonimem oraz udostępnianie zanonimizowanych danych miastom i naukowcom (RODO/GDPR). Zgodę możesz wycofać, pisząc do administratora projektu.',
     privacy_link:'Polityka prywatności', emergency:'W sytuacji zagrożenia dzwoń na', back:'Wstecz', onb_go:'Pokaż mapę wokół mnie', step:'Krok',
@@ -645,7 +651,7 @@ const STR = {
     onb3_e:'The tracker game', onb3_t:'Collect XP, badges and map squares',
     onb3_p:'Every report earns XP. XP raises your level and each level unlocks something: a tracker card, a gold pin, a named certificate and a place in the report for the city.',
     onb4_e:'Last step', onb4_t:'What should we call you?',
-    onb4_p:'Others will see your nickname in the ranking. You can change it later. Next we will ask for your location to show the map around you.',
+    onb4_p:'We picked a nickname for you — keep it or type your own. You can change it any time in your profile. Next we will ask for your location to show the map around you.',
     onb_nick_ph:'e.g. FoxTracker',
     consent:'I agree that the location and time of my reports are stored, published on the map under my nickname, and shared as anonymised data with cities and researchers (GDPR). You can withdraw consent by writing to the project administrator.',
     privacy_link:'Privacy policy', emergency:'In an emergency call', back:'Back', onb_go:'Show the map around me', step:'Step',
@@ -682,6 +688,10 @@ Object.assign(STR.pl, {
   delete_yes:'Tak, usuń wszystko', deleted:'Konto i dane usunięte', demo_acct:'W trybie demo konta nie działają.',
   save_progress:'Zapisz postępy', save_progress_p:'Dodaj e-mail, żeby nie stracić XP i odznak przy zmianie telefonu.',
   onb_login:'Masz już konto? Zaloguj się', onb_need_consent:'Najpierw zaznacz zgodę',
+  acct_opt_t:'Zapisz postępy (opcjonalnie)', acct_opt_p:'Zaloguj się, żeby nie stracić XP i odznak przy zmianie telefonu. Bez logowania wszystko działa — postępy są na tym urządzeniu.',
+  login_soon:'Bez logowania wszystko działa — postępy są zapisane na tym urządzeniu. Logowanie przez Google i Apple pojawi się wkrótce.',
+  cont_google:'Kontynuuj z Google', cont_apple:'Kontynuuj z Apple', cont_email:'Kontynuuj z e-mailem', signed_via:'Zalogowano przez {p}',
+  oauth_fail:'Nie udało się zalogować', nick_random:'Wylosuj inny pseudonim', nick_auto:'Wymyśliliśmy Ci pseudonim: {n}. Zmienisz go w profilu.',
   notif_h:'Powiadomienia', notif_l:'Przypomnienia', notif_p:'Seria dni, potwierdzenia Twoich obserwacji, nowe zwierzęta w okolicy. Najwyżej raz dziennie, 10:00–20:00.',
   notif_on:'Powiadomienia włączone', notif_off:'Powiadomienia wyłączone', notif_blocked:'Powiadomienia są zablokowane w ustawieniach przeglądarki lub telefonu. Odblokuj je tam i wróć.',
   notif_unsupported:'Ta przeglądarka nie obsługuje powiadomień.',
@@ -713,6 +723,10 @@ Object.assign(STR.en, {
   delete_yes:'Yes, delete everything', deleted:'Account and data deleted', demo_acct:'Accounts do not work in demo mode.',
   save_progress:'Save your progress', save_progress_p:'Add your email so you keep your XP and badges when you change phones.',
   onb_login:'Already have an account? Sign in', onb_need_consent:'Tick the consent box first',
+  acct_opt_t:'Save your progress (optional)', acct_opt_p:'Sign in so you keep your XP and badges when you change phones. Everything works without signing in — your progress is on this device.',
+  login_soon:'Everything works without signing in — your progress is saved on this device. Sign-in with Google and Apple is coming soon.',
+  cont_google:'Continue with Google', cont_apple:'Continue with Apple', cont_email:'Continue with email', signed_via:'Signed in with {p}',
+  oauth_fail:'Could not sign in', nick_random:'Pick another nickname', nick_auto:'We picked a nickname for you: {n}. You can change it in your profile.',
   notif_h:'Notifications', notif_l:'Reminders', notif_p:'Day streak, confirmations of your sightings, new animals nearby. At most once a day, 10:00–20:00.',
   notif_on:'Notifications on', notif_off:'Notifications off', notif_blocked:'Notifications are blocked in your browser or phone settings. Unblock them there and come back.',
   notif_unsupported:'This browser does not support notifications.',
@@ -1023,7 +1037,7 @@ function supaApi(){
       if(!session) session = ok(await sb.auth.signInAnonymously()).session;
       setSession(session); return uid;
     },
-    account(){ return { id:uid, email:user?.email || null, anon:!user?.email }; },
+    account(){ return { id:uid, email:user?.email || null, anon:user ? !!user.is_anonymous : true, provider:user?.app_metadata?.provider || null }; },
     async species(){ return ok(await sb.from('species').select('id,name_pl,icon,danger_level')); },
     async area(b){
       const args = { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 };
@@ -1077,21 +1091,50 @@ function supaApi(){
       ok(await sb.storage.from('avatars').upload(path, blob, { contentType:'image/jpeg', upsert:false }));
       return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
     },
-    // --- konto e-mail: kod jednorazowy zamiast hasła ---
-    async startCreate(email){ ok(await sb.auth.updateUser({ email })); },
-    async verifyCreate(email, code){ const d = ok(await sb.auth.verifyOtp({ email, token:code, type:'email_change' })); setSession(d.session || { user:d.user, access_token:token }); },
-    async startLogin(email){
+    // --- logowanie (opcjonalne): Google, Apple, e-mail z kodem ---
+    // Zawsze: bilet przeniesienia postępów z anonimowego urządzenia → logowanie → dk_merge_finish
+    async providers(){
+      try{
+        const r = await fetch(`${CONFIG.SUPABASE_URL}/auth/v1/settings`, { headers:{ apikey:CONFIG.SUPABASE_ANON_KEY } });
+        const ex = (await r.json()).external || {};
+        return { google:!!ex.google, apple:!!ex.apple, email:!!(CONFIG.AUTH_EMAIL && ex.email) };
+      }catch(e){ return { google:false, apple:false, email:false }; }
+    },
+    async mergeTicket(via){
       let ticket = null;
       if(this.account().anon){ try{ ticket = ok(await sb.rpc('dk_merge_start')); }catch(e){ console.warn('merge ticket', e); } }
-      LS.set('dk_merge', { ticket, ts:Date.now() });
-      ok(await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false } }));
+      LS.set('dk_merge', { ticket, ts:Date.now(), via });
     },
-    async verifyLogin(email, code){
-      const d = ok(await sb.auth.verifyOtp({ email, token:code, type:'email' })); setSession(d.session);
-      const m = LS.get('dk_merge', null); LS.set('dk_merge', null);
-      if(!m?.ticket) return 0;
-      try{ return ok(await sb.rpc('dk_merge_finish', { p_ticket:m.ticket })) || 0; }catch(e){ console.warn('merge', e); return 0; }
+    async finishMerge(){
+      const m = LS.get('dk_merge', null);
+      if(!m || this.account().anon) return null;
+      LS.set('dk_merge', null);
+      if(Date.now() - (m.ts || 0) > 2 * 3600e3 || !m.ticket) return { moved:0, via:m.via };
+      try{ return { moved:ok(await sb.rpc('dk_merge_finish', { p_ticket:m.ticket })) || 0, via:m.via }; }
+      catch(e){ console.warn('merge', e); return { moved:0, via:m.via }; }
     },
+    async oauth(provider){
+      await this.mergeTicket(provider);
+      const native = inNativeApp() && !!window.Capacitor?.Plugins?.Browser;
+      const redirectTo = native ? CONFIG.AUTH_REDIRECT_APP : location.origin + location.pathname;
+      const d = ok(await sb.auth.signInWithOAuth({ provider, options:{ redirectTo, skipBrowserRedirect:native } }));
+      if(native) await window.Capacitor.Plugins.Browser.open({ url:d.url, presentationStyle:'popover' });
+    },
+    // aplikacja Android: powrót z przeglądarki przez eu.tropami.app://auth#access_token=…
+    async handleAuthUrl(url){
+      const q = new URLSearchParams((url.split('#')[1] || url.split('?')[1] || ''));
+      if(q.get('error')) throw new Error(q.get('error_description') || q.get('error'));
+      const access_token = q.get('access_token'), refresh_token = q.get('refresh_token');
+      if(!access_token || !refresh_token) return false;
+      setSession(ok(await sb.auth.setSession({ access_token, refresh_token })).session);
+      try{ await window.Capacitor?.Plugins?.Browser?.close(); }catch(e){}
+      return true;
+    },
+    async startEmail(email){
+      await this.mergeTicket('email');
+      ok(await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:true } }));
+    },
+    async verifyEmail(email, code){ setSession(ok(await sb.auth.verifyOtp({ email, token:code, type:'email' })).session); },
     async signOut(){ await sb.auth.signOut(); await anonSession(); },
     async deleteMe(){ ok(await sb.rpc('dk_delete_me')); await sb.auth.signOut().catch(() => {}); await anonSession(); },
     // --- analityka ---
@@ -1194,8 +1237,8 @@ function demoApi(){
       save();
     },
     async uploadAvatar(blob, dataUrl){ return dataUrl; },
-    async startCreate(){ throw new Error(t('demo_acct')); },
-    async startLogin(){ throw new Error(t('demo_acct')); },
+    async providers(){ return { google:false, apple:false, email:false }; },
+    async finishMerge(){ return null; },
     async track(){ return 0; }, trackBeacon(){},
     async pushSubscribe(){}, async pushUnsubscribe(){},
   };
@@ -1839,11 +1882,11 @@ function renderAtlas(){
   $('#atlasBody').innerHTML = `
     <div class="levelcard">
       <div class="top-l"><div style="position:relative;width:64px;height:64px">${ring(lv.pct, 64, 6)}<b class="mono" style="position:absolute;inset:0;display:grid;place-items:center;font-size:22px">${lv.idx + 1}</b></div>
-        <div style="min-width:0"><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || t('your_level'))}</div><h3>${esc(lv.name)}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} ${esc(t('r_to'))}: ${esc(lv.next.name)}` : ''}</div></div></div>
+        <div style="min-width:0;cursor:pointer" id="lvName"><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || t('your_level'))} ✎</div><h3>${esc(lv.name)}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} ${esc(t('r_to'))}: ${esc(lv.next.name)}` : ''}</div></div></div>
       <div class="ladder">${LEVELS.map((l, i) => `<div class="${i <= lv.idx ? 'on' : ''}"><i></i><span>${esc(l[LANG])}</span><span>${l.xp}</span></div>`).join('')}</div>
     </div>
     <button class="btn ghost block" id="profBtn">${avatarHtml(S.profile?.avatar_url, S.nickname, 'sm')} ${esc(t('profile_btn'))}</button>
-    ${API.account().anon && !API.account().demo && st.my.length ? `<button class="nudge" id="saveNudge"><span style="font-size:26px">💾</span><span><b>${esc(t('save_progress'))}</b><small>${esc(t('save_progress_p'))}</small></span></button>` : ''}
+    ${API.account().anon && !API.account().demo && st.my.length && (PROVIDERS?.google || PROVIDERS?.apple || PROVIDERS?.email) ? `<button class="nudge" id="saveNudge"><span style="font-size:26px">💾</span><span><b>${esc(t('save_progress'))}</b><small>${esc(t('save_progress_p'))}</small></span></button>` : ''}
     <div class="sec"><h3>${esc(t('perks_h'))}</h3><div class="perks">
       ${PERKS.map(pk => { const on = lv.idx >= pk.lvl; return `<div class="perk${on ? ' on' : ''}"><div class="pi">${ICON[pk.icon]}</div>
         <div><b>${esc(pk[LANG][0])}</b><small>${esc(pk[LANG][1])}</small></div>
@@ -1875,7 +1918,8 @@ function renderAtlas(){
         <p class="muted" style="margin:0;font-size:12.5px">${esc(t('style_note'))}</p></div>
     </div>`;
   $('#profBtn').onclick = () => openProfile('atlas');
-  if($('#saveNudge')) $('#saveNudge').onclick = () => openProfile('atlas_nudge', 'create');
+  $('#lvName').onclick = () => openProfile('atlas_name');
+  if($('#saveNudge')) $('#saveNudge').onclick = () => openProfile('atlas_nudge');
   $('#cardBtn').onclick = () => shareImage('card');
   $('#certBtn').onclick = () => shareImage('cert');
   $('#showCells').onclick = () => {
@@ -2191,6 +2235,31 @@ const PUSH = {
   },
 };
 
+/* Pseudonim wymyślony za użytkownika: „Szybki Lis 27” / „Swift Fox 27” */
+const NICK = {
+  pl:{ adj:[['Cichy','Cicha'],['Szybki','Szybka'],['Nocny','Nocna'],['Sprytny','Sprytna'],['Dziki','Dzika'],['Leśny','Leśna'],['Rudy','Ruda'],['Zwinny','Zwinna'],['Czujny','Czujna'],['Wesoły','Wesoła'],['Bystry','Bystra'],['Miejski','Miejska'],['Odważny','Odważna'],['Śmiały','Śmiała']],
+       m:['Lis','Borsuk','Jeż','Dzik','Bóbr','Kruk','Dzięcioł','Zając','Wilk','Kos','Puszczyk','Jeleń'], f:['Sowa','Sarna','Kuna','Wiewiórka','Sroka','Czapla','Wydra','Łasica','Kaczka','Jaskółka'] },
+  en:{ adj:['Quiet','Swift','Night','Clever','Wild','Forest','Red','Nimble','Watchful','Happy','Sharp','Urban','Brave','Bold'],
+       n:['Fox','Badger','Hedgehog','Boar','Beaver','Raven','Woodpecker','Hare','Wolf','Owl','Deer','Marten','Squirrel','Magpie','Heron','Otter'] },
+};
+function genNick(){
+  const r = a => a[Math.floor(Math.random() * a.length)], num = 10 + Math.floor(Math.random() * 90);
+  if(LANG === 'pl'){ const fem = Math.random() < .45, a = r(NICK.pl.adj); return `${fem ? a[1] : a[0]} ${r(fem ? NICK.pl.f : NICK.pl.m)} ${num}`; }
+  return `${r(NICK.en.adj)} ${r(NICK.en.n)} ${num}`;
+}
+async function ensureNickname(silent){
+  if(S.profile?.nickname) return;
+  const n = genNick();
+  try{
+    await API.saveProfile({ nickname:n });
+    S.profile.nickname = n; S.nickname = n;
+    LS.set('dk_profile', { uid:API.account().id, nickname:n, avatar_url:S.profile.avatar_url || '' });
+    AN.track('nickname_auto');
+    if(!silent) toast(t('nick_auto').replace('{n}', n));
+    renderHud(); renderPanelIfOpen('atlas'); renderPanelIfOpen('rank');
+  }catch(e){ console.warn('auto nickname', e); }
+}
+
 /* =====================================================================
    PROFIL I KONTO
    Bez konta: anonimowa sesja na urządzeniu (jak dotąd), pseudonim i zdjęcie zapisane w bazie.
@@ -2228,9 +2297,9 @@ function authErr(e){
   if(/not authorized|smtp|sending|manual.?linking|email_provider_disabled|provider.*disabled|confirmation email/i.test(s)) return 'mail_off';
   return 'acct_err';
 }
-const PF = { step:'idle', mode:'create', email:'', busy:false, arm:null };
+const PF = { step:'idle', email:'', busy:false, arm:null };
 function openProfile(from, mode){
-  PF.step = 'idle'; PF.arm = null; PF.mode = mode || 'create';
+  PF.step = 'idle'; PF.arm = null;
   renderProfile(); openSheet('profile');
   AN.track('profile_open', { from:from || 'atlas' });
 }
@@ -2246,7 +2315,7 @@ function renderProfile(){
       </div>
     </div>
     <form class="sec" id="pfForm" novalidate>
-      <div class="field"><label for="pfNick">${esc(t('nick_l'))}</label><input class="input" id="pfNick" maxlength="24" autocomplete="nickname" value="${esc(p.nickname || '')}" placeholder="${esc(t('nick_ph'))}"></div>
+      <div class="field"><label for="pfNick">${esc(t('nick_l'))}</label><div class="nickform"><input class="input" id="pfNick" maxlength="24" autocomplete="nickname" value="${esc(p.nickname || '')}" placeholder="${esc(t('nick_ph'))}"><button type="button" class="iconbtn dice" id="pfDice" aria-label="${esc(t('nick_random'))}" title="${esc(t('nick_random'))}">🎲</button></div></div>
       <div class="field"><label for="pfPhone">${esc(t('phone_l'))} <span class="muted" style="font-weight:500">${esc(t('optional'))}</span></label>
         <input class="input" id="pfPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="${esc(p.phone || '')}" placeholder="+48 600 000 000">
         <small class="muted" style="font-size:12.5px">${esc(t('phone_hint'))}</small></div>
@@ -2260,6 +2329,7 @@ function renderProfile(){
       <a class="muted" style="font-size:13px" href="../privacy.html" target="_blank" rel="noopener">${esc(t('privacy_link'))}</a></div>
     ${demo ? '' : `<div class="sec" id="pfDanger"></div>`}`;
   $('#pfForm').onsubmit = e => { e.preventDefault(); saveProfileForm(); };
+  $('#pfDice').onclick = () => { $('#pfNick').value = genNick(); AN.track('nickname_reroll', { where:'profile' }); };
   $('#pfAvatar').onchange = e => uploadAvatar(e.target.files[0]);
   if($('#pfAvDel')) $('#pfAvDel').onclick = async () => {
     try{ await API.saveProfile({ avatar_url:'-' }); S.profile.avatar_url = ''; afterProfileChange(); AN.track('avatar_removed'); }
@@ -2304,13 +2374,20 @@ async function uploadAvatar(file){
     AN.track('avatar_upload', { kb:Math.round(blob.size / 1024) });
   }catch(e){ console.warn(e); toast(t('avatar_fail') + ': ' + (e.message || e)); }
 }
-function renderAcct(){
+const BRAND = {
+  google:`<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>`,
+  apple:`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8a4.6 4.6 0 0 0-3.6-1.9c-1.5-.2-3 .9-3.7.9s-2-.9-3.2-.9a4.8 4.8 0 0 0-4 2.4c-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.2.8 2.1-1.2 2.9-2.4a10 10 0 0 0 1.3-2.7 4.2 4.2 0 0 1-2.3-3.8zM14 5.3a4.2 4.2 0 0 0 1-3.1 4.4 4.4 0 0 0-2.9 1.5 4.1 4.1 0 0 0-1 3 3.7 3.7 0 0 0 2.9-1.4z"/></svg>`,
+};
+const PROV_NAME = { google:'Google', apple:'Apple', email:'e-mail' };
+let PROVIDERS = null;
+async function renderAcct(){
   const box = $('#pfAcct'); if(!box) return;
   const acc = API.account();
   if(acc.demo){ box.className = 'acct'; box.innerHTML = `<p class="muted" style="margin:0">${esc(t('demo_acct'))}</p>`; return; }
   if(!acc.anon){
     box.className = 'acct';
-    box.innerHTML = `<div class="row" style="gap:10px">${small(ICON.mail, 20)}<b style="overflow:hidden;text-overflow:ellipsis">${esc(acc.email)}</b></div>
+    const via = acc.provider && acc.provider !== 'email' ? t('signed_via').replace('{p}', PROV_NAME[acc.provider] || acc.provider) : t('signed_via').replace('{p}', 'e-mail');
+    box.innerHTML = `<div class="row" style="gap:10px">${BRAND[acc.provider] || small(ICON.mail, 20)}<span style="min-width:0"><b style="display:block;overflow:hidden;text-overflow:ellipsis">${esc(acc.email || '')}</b><small class="muted">${esc(via)}</small></span></div>
       <p class="muted" style="margin:0;font-size:13.5px">${esc(t('acct_ok_p'))}</p>
       ${PF.arm === 'out' ? `<p style="margin:0;font-size:13.5px">${esc(t('sign_out_q'))}</p><div class="btns"><button class="btn ghost" id="pfOutNo">${esc(t('cancel'))}</button><button class="btn moss" id="pfOutYes">${esc(t('sign_out_yes'))}</button></div>`
                          : `<button class="btn ghost" id="pfOut">${esc(t('sign_out'))}</button>`}`;
@@ -2319,8 +2396,11 @@ function renderAcct(){
     if($('#pfOutYes')) $('#pfOutYes').onclick = signOut;
     return;
   }
-  box.className = 'acct' + (PF.mode === 'create' ? ' warn' : '');
-  const create = PF.mode === 'create';
+  box.className = 'acct';
+  if(!PROVIDERS){ box.innerHTML = `<p class="muted" style="margin:0">${esc(t('searching'))}</p>`; PROVIDERS = await API.providers(); return renderAcct(); }
+  // stara wersja APK (bez wtyczki Browser) nie otworzy logowania Google/Apple — Google blokuje je w oknie aplikacji
+  const oauthOk = !inNativeApp() || !!window.Capacitor?.Plugins?.Browser;
+  const pv = { google:PROVIDERS.google && oauthOk, apple:PROVIDERS.apple && oauthOk, email:PROVIDERS.email }, any = pv.google || pv.apple || pv.email;
   if(PF.step === 'code'){
     box.innerHTML = `<p style="margin:0;font-size:14px">${esc(t('code_sent').replace('{email}', PF.email))}</p>
       <div class="field"><label for="pfCode">${esc(t('code_l'))}</label><input class="input code" id="pfCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••"></div>
@@ -2330,32 +2410,44 @@ function renderAcct(){
     $('#pfCode').onkeydown = e => { if(e.key === 'Enter') acctVerify(); };
     $('#pfCode').oninput = e => { if(e.target.value.replace(/\D/g, '').length === 6 && !PF.busy) acctVerify(); };
     $('#pfResend').onclick = acctSend;
-    $('#pfOther').onclick = () => { PF.step = 'idle'; renderAcct(); };
+    $('#pfOther').onclick = () => { PF.step = 'email'; renderAcct(); };
     return;
   }
-  box.innerHTML = `<div><b>${esc(create ? t('acct_anon_t') : t('login_t'))}</b><p class="muted" style="margin:4px 0 0;font-size:13.5px">${esc(create ? t('acct_anon_p') : t('login_p'))}</p></div>
-    <div class="field"><label for="pfEmail">${esc(t('email_l'))}</label><input class="input" id="pfEmail" type="email" inputmode="email" autocomplete="email" value="${esc(PF.email)}" placeholder="${esc(t('email_ph'))}"></div>
-    <button class="btn ${create ? 'primary' : 'moss'} block" id="pfSend">${esc(t('send_code'))}</button>
-    <button class="linkbtn" id="pfMode" style="align-self:flex-start">${esc(create ? t('have_account') : t('create_instead'))}</button>`;
-  $('#pfSend').onclick = acctSend;
-  $('#pfEmail').onkeydown = e => { if(e.key === 'Enter') acctSend(); };
-  $('#pfMode').onclick = () => { PF.mode = create ? 'login' : 'create'; renderAcct(); };
+  if(PF.step === 'email'){
+    box.innerHTML = `<div class="field"><label for="pfEmail">${esc(t('email_l'))}</label><input class="input" id="pfEmail" type="email" inputmode="email" autocomplete="email" value="${esc(PF.email)}" placeholder="${esc(t('email_ph'))}"></div>
+      <button class="btn moss block" id="pfSend">${esc(t('send_code'))}</button>
+      <button class="linkbtn" id="pfBack" style="align-self:flex-start">${esc(t('back'))}</button>`;
+    $('#pfSend').onclick = acctSend;
+    $('#pfEmail').onkeydown = e => { if(e.key === 'Enter') acctSend(); };
+    $('#pfBack').onclick = () => { PF.step = 'idle'; renderAcct(); };
+    $('#pfEmail').focus();
+    return;
+  }
+  box.innerHTML = `<div><b>${esc(t('acct_opt_t'))}</b><p class="muted" style="margin:4px 0 0;font-size:13.5px">${esc(any ? t('acct_opt_p') : t('login_soon'))}</p></div>
+    ${pv.google ? `<button class="btn ghost block authbtn" data-oauth="google">${BRAND.google} ${esc(t('cont_google'))}</button>` : ''}
+    ${pv.apple ? `<button class="btn ghost block authbtn" data-oauth="apple">${BRAND.apple} ${esc(t('cont_apple'))}</button>` : ''}
+    ${pv.email ? `<button class="btn ghost block authbtn" id="pfEmailBtn">${small(ICON.mail, 20)} ${esc(t('cont_email'))}</button>` : ''}`;
+  $$('#pfAcct [data-oauth]').forEach(b => b.onclick = async () => {
+    const p = b.dataset.oauth; b.disabled = true;
+    AN.track('account_start', { mode:p }); await AN.flush();
+    try{ await API.oauth(p); }
+    catch(e){ console.warn('oauth', e); AN.track('account_error', { step:'oauth', mode:p, code:authErr(e) }); toast(t('oauth_fail') + ': ' + (e.message || e)); b.disabled = false; }
+  });
+  if($('#pfEmailBtn')) $('#pfEmailBtn').onclick = () => { PF.step = 'email'; renderAcct(); };
 }
 async function acctSend(){
   const inp = $('#pfEmail'); if(inp) PF.email = inp.value.trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(PF.email)){ toast(t('email_bad')); inp?.focus(); return; }
   if(PF.busy) return; PF.busy = true;
-  const mode = PF.mode, btn = $('#pfSend') || $('#pfResend'); if(btn) btn.disabled = true;
-  AN.track('account_start', { mode });
+  const btn = $('#pfSend') || $('#pfResend'); if(btn) btn.disabled = true;
+  AN.track('account_start', { mode:'email' });
   try{
-    if(mode === 'create') await API.startCreate(PF.email); else await API.startLogin(PF.email);
-    PF.step = 'code'; AN.track('account_code_sent', { mode });
+    await API.startEmail(PF.email);
+    PF.step = 'code'; AN.track('account_code_sent', { mode:'email' });
     renderAcct(); $('#pfCode')?.focus();
   }catch(e){
     const k = authErr(e); console.warn('auth', e);
-    AN.track('account_error', { step:'send', mode, code:k });
-    if(k === 'email_exists'){ PF.mode = 'login'; renderAcct(); }
-    else if(k === 'no_account'){ PF.mode = 'create'; renderAcct(); }
+    AN.track('account_error', { step:'send', mode:'email', code:k });
     toast(t(k));
   }finally{ PF.busy = false; const b = $('#pfSend') || $('#pfResend'); if(b) b.disabled = false; }
 }
@@ -2363,25 +2455,39 @@ async function acctVerify(){
   const code = ($('#pfCode')?.value || '').replace(/\D/g, '');
   if(code.length < 6){ toast(t('code_bad')); return; }
   if(PF.busy) return; PF.busy = true;
-  const mode = PF.mode, btn = $('#pfVerify'); if(btn){ btn.disabled = true; btn.textContent = t('saving'); }
+  const btn = $('#pfVerify'); if(btn){ btn.disabled = true; btn.textContent = t('saving'); }
   try{
-    if(mode === 'create'){
-      await API.verifyCreate(PF.email, code);
-      AN.track('account_verified', { mode });
-      toast(t('account_created'));
-    } else {
-      const moved = await API.verifyLogin(PF.email, code);
-      AN.track('account_verified', { mode, merged:moved || 0 });
-      await afterIdentityChange();
-      toast(moved ? t('logged_in_merged').replace('{n}', moved) : t('logged_in'));
-    }
-    PF.step = 'idle'; renderProfile();
+    await API.verifyEmail(PF.email, code);
+    PF.step = 'idle';
+    await afterLogin();
   }catch(e){
     const k = authErr(e); console.warn('verify', e);
-    AN.track('account_error', { step:'verify', mode, code:k });
+    AN.track('account_error', { step:'verify', mode:'email', code:k });
     toast(t(k === 'acct_err' ? 'code_bad' : k));
     if(btn){ btn.disabled = false; btn.textContent = t('verify'); }
   }finally{ PF.busy = false; }
+}
+// Po zalogowaniu (e-mail, powrót z Google/Apple): dołącz postępy z urządzenia, odśwież wszystko
+async function afterLogin(){
+  const r = await API.finishMerge();
+  if(!r) return false;
+  AN.track('account_verified', { mode:r.via || 'email', merged:r.moved || 0 });
+  await afterIdentityChange();
+  if(!S.profile.nickname) await ensureNickname();
+  toast(r.moved ? t('logged_in_merged').replace('{n}', r.moved) : t('logged_in'));
+  if($('#profile').classList.contains('open')) renderProfile();
+  return true;
+}
+// Błąd z powrotu z Google/Apple (w adresie strony)
+function oauthErrorFromUrl(){
+  const h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams(location.search);
+  const err = h.get('error_description') || q.get('error_description') || h.get('error') || q.get('error');
+  if(!err) return;
+  AN.track('account_error', { step:'oauth_return', code:String(err).slice(0, 80) });
+  toast(t('oauth_fail') + ': ' + err);
+  ['error', 'error_code', 'error_description'].forEach(k => q.delete(k));
+  history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
+  LS.set('dk_merge', null);
 }
 async function afterIdentityChange(){
   await loadProfile();
@@ -2440,7 +2546,7 @@ async function afterReward(){
   const n = S.mine.length, acc = API.account();
   if(n >= 1 && await PUSH.ask('after_report')) return;
   const nudge = LS.get('dk_acct_nudge', 0);
-  if(acc.anon && !acc.demo && [2, 5, 10, 20].includes(n) && Date.now() - nudge > 3 * 864e5){
+  if(acc.anon && !acc.demo && (PROVIDERS?.google || PROVIDERS?.apple || PROVIDERS?.email) && [2, 5, 10, 20].includes(n) && Date.now() - nudge > 3 * 864e5){
     LS.set('dk_acct_nudge', Date.now());
     AN.track('account_nudge_shown', { sightings:n });
     $('#mcard').innerHTML = `<div class="rw">
@@ -2450,7 +2556,7 @@ async function afterReward(){
       <button class="btn primary block" id="nYes">${esc(t('save_progress'))}</button><button class="btn ghost block" id="nNo">${esc(t('push_no'))}</button></div>`;
     $('#modal').hidden = false;
     $('#nNo').onclick = () => { $('#modal').hidden = true; };
-    $('#nYes').onclick = () => { $('#modal').hidden = true; openProfile('nudge', 'create'); };
+    $('#nYes').onclick = () => { $('#modal').hidden = true; openProfile('nudge'); };
   }
 }
 
@@ -2491,10 +2597,10 @@ function renderOnb(){
     <div class="dots" aria-label="${esc(t('step'))} ${onbStep + 1} / ${SLIDES.length}">${SLIDES.map((_, i) => `<i class="${i === onbStep ? 'on' : ''}"></i>`).join('')}</div>
     <div style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(t(s.k + '_t'))}</h1><p>${esc(t(s.k + '_p'))}</p></div>
     ${s.last ? `
-      <div class="field"><label for="onbNick">${esc(t('nick_l'))}</label><input class="input" id="onbNick" maxlength="24" placeholder="${esc(t('onb_nick_ph'))}" value="${esc(S.nickname)}"></div>
+      <div class="field"><label for="onbNick">${esc(t('nick_l'))}</label><div class="nickform"><input class="input" id="onbNick" maxlength="24" placeholder="${esc(t('onb_nick_ph'))}" value="${esc(S.nickname || (S.nickSuggest ||= genNick()))}"><button type="button" class="iconbtn dice" id="onbDice" aria-label="${esc(t('nick_random'))}" title="${esc(t('nick_random'))}">🎲</button></div></div>
       <label class="consent"><input type="checkbox" id="onbOk"><span>${esc(t('consent'))} <a href="../privacy.html" target="_blank" rel="noopener">${esc(t('privacy_link'))}</a></span></label>
       <p style="font-size:13px">${esc(t('emergency'))} ${esc(EMERG[LANG])}.</p>
-      ${DEMO ? '' : `<button class="linkbtn" id="onbLogin" style="align-self:flex-start">${esc(t('onb_login'))}</button>`}` : ''}
+      ${DEMO || !(PROVIDERS?.google || PROVIDERS?.apple || PROVIDERS?.email) ? '' : `<button class="linkbtn" id="onbLogin" style="align-self:flex-start">${esc(t('onb_login'))}</button>`}` : ''}
     <div class="btns" style="margin-top:auto">
       ${onbStep ? `<button class="btn ghost" id="onbBack">${esc(t('back'))}</button>` : ''}
       <button class="btn ${s.last ? 'primary' : 'moss'}" id="onbNext"${s.last ? ' disabled' : ''}>${esc(s.last ? t('onb_go') : t('next'))}</button></div>`;
@@ -2502,11 +2608,12 @@ function renderOnb(){
   $('#onbBack') && ($('#onbBack').onclick = () => { onbStep--; renderOnb(); });
   if(s.last){
     $('#onbOk').onchange = e => { $('#onbNext').disabled = !e.target.checked; };
+    $('#onbDice').onclick = () => { S.nickSuggest = genNick(); $('#onbNick').value = S.nickSuggest; AN.track('nickname_reroll', { where:'onboarding' }); };
     $('#onbNext').onclick = async () => {
-      const n = $('#onbNick').value.trim();
+      const n = $('#onbNick').value.trim() || S.nickSuggest || genNick();
       if(n && n.length < 2){ toast(t('nick_short')); return; }
       if(n && n !== S.nickname){ try{ await API.saveProfile({ nickname:n }); S.nickname = n; S.profile.nickname = n; LS.set('dk_profile', { uid:API.account().id, nickname:n, avatar_url:S.profile.avatar_url || '' }); }catch(e){ toast(t('nick_fail') + ': ' + (e.message || e)); } }
-      AN.track('onboarding_complete', { nickname:!!(n || S.nickname), login:false });
+      AN.track('onboarding_complete', { nickname_typed:n !== S.nickSuggest, login:false });
       LS.set('dk_onb_v4', true); $('#onb').hidden = true; renderHud();
       locate(false, 'onboarding');
     };
@@ -2514,7 +2621,7 @@ function renderOnb(){
       if(!$('#onbOk').checked){ toast(t('onb_need_consent')); return; }
       AN.track('onboarding_complete', { nickname:false, login:true });
       LS.set('dk_onb_v4', true); $('#onb').hidden = true; renderHud();
-      locate(false, 'onboarding'); openProfile('onboarding', 'login');
+      ensureNickname(true); locate(false, 'onboarding'); openProfile('onboarding');
     };
   } else $('#onbNext').onclick = () => { onbStep++; renderOnb(); };
 }
@@ -2584,6 +2691,18 @@ async function boot(){
   setTimeout(() => AN.track('app_open', { ...userProps(), first:firstOpen, standalone:isStandalone(),
     days_away:lastOpen ? Math.floor((Date.now() - lastOpen) / 864e5) : null, ref:document.referrer ? new URL(document.referrer).hostname.slice(0, 40) : '' }), 2500);
   PUSH.listen(); PUSH.sync();
+  // logowanie: dostępni dostawcy, powrót z Google/Apple (strona) i z przeglądarki (aplikacja Android)
+  oauthErrorFromUrl();
+  const pendingMerge = LS.get('dk_merge', null), merging = pendingMerge && Date.now() - (pendingMerge.ts || 0) < 15 * 60e3;
+  if(pendingMerge && !merging && API.account().anon) LS.set('dk_merge', null);   // przerwane logowanie
+  API.providers().then(p => { PROVIDERS = p; if(!$('#onb').hidden) renderOnb(); if(S.tab === 'atlas') renderAtlas(); });
+  afterLogin().catch(e => console.warn('after login', e));
+  window.Capacitor?.Plugins?.App?.addListener?.('appUrlOpen', async ({ url }) => {
+    if(!url?.startsWith(CONFIG.AUTH_REDIRECT_APP)) return;
+    try{ if(await API.handleAuthUrl(url)) await afterLogin(); }
+    catch(e){ AN.track('account_error', { step:'oauth_return', code:String(e.message || e).slice(0, 80) }); toast(t('oauth_fail') + ': ' + (e.message || e)); }
+  });
+  if(!firstOpen && !S.profile.nickname && !DEMO && !merging) ensureNickname(false);
   if('serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.)/.test(location.hostname)))
     navigator.serviceWorker.register('sw.js').catch(() => {});
 }
