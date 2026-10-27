@@ -1,0 +1,17 @@
+{
+  "appId": "eu.tropami.app",
+  "appName": "Tropami",
+  "webDir": "www",
+  "server": {
+    "url": "https://jahrastababylon.github.io/kabanchik/app/",
+    "androidScheme": "https",
+    "errorPath": "offline.html"
+  },
+  "android": {
+    "backgroundColor": "#2D5843"
+  },
+  "ios": {
+    "backgroundColor": "#2D5843",
+    "contentInset": "never"
+  }
+}

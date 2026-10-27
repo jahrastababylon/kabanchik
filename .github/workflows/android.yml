@@ -1,0 +1,87 @@
+# Buduje aplikację Android (APK do instalacji ze strony + AAB do Google Play)
+# i publikuje je jako wydanie GitHub. Link do najnowszego APK:
+# https://github.com/jahrastababylon/kabanchik/releases/latest/download/tropami.apk
+name: Android build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TROPAMI_VERSION_CODE: ${{ github.run_number }}
+      TROPAMI_VERSION_NAME: 0.1.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Capacitor
+        working-directory: mobile
+        run: |
+          npm ci
+          npx cap sync android
+
+      - name: Signing key
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "TROPAMI_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "SIGNED=1" >> "$GITHUB_ENV"
+          else
+            echo "SIGNED=0" >> "$GITHUB_ENV"
+            echo "::warning::Brak sekretów z kluczem podpisu — buduję wersję testową (klucz tymczasowy). Zobacz mobile/README.md"
+          fi
+
+      - name: Build APK and AAB
+        working-directory: mobile/android
+        env:
+          TROPAMI_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          TROPAMI_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          TROPAMI_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease bundleRelease
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/tropami.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/dist/tropami.aab"
+          ls -la "$GITHUB_WORKSPACE/dist"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="0.1.${{ github.run_number }}"
+          if [ "$SIGNED" = "1" ]; then
+            TITLE="Tropami Android $V"
+            NOTES="Tropami dla Androida / for Android. Pobierz tropami.apk na telefonie i otwórz plik. Download tropami.apk on your phone and open it. Google Play: tropami.aab."
+          else
+            TITLE="Tropami Android $V (test)"
+            NOTES="Wersja testowa z kluczem tymczasowym — aktualizacja wymaga odinstalowania poprzedniej wersji. Test build with a temporary key — updating requires uninstalling the previous version."
+          fi
+          gh release create "android-v$V" dist/tropami.apk dist/tropami.aab \
+            --title "$TITLE" --notes "$NOTES" --latest

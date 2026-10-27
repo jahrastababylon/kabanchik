@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pl" data-lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tropami — polityka prywatności</title>
+<meta name="theme-color" content="#2D5843">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap">
+<style>
+:root{--bg:#F3F5EF;--surface:#FFFFFF;--ink:#14221A;--ink-2:#55665B;--line:#D6DDD1;--moss:#2D5843;--fox:#E2832B;--warn:#FBE7D3;color-scheme:light}
+@media (prefers-color-scheme: dark){:root{--bg:#0E1611;--surface:#17211B;--ink:#E6EEE8;--ink-2:#9EAEA4;--line:#2B3930;--moss:#82C7A0;--fox:#F29C4B;--warn:#3A2614;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.6 'Bricolage Grotesque',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif}
+html[data-lang="pl"] [lang="en"]:not(html), html[data-lang="en"] [lang="pl"]:not(html){display:none!important}
+.wrap{max-width:760px;margin:0 auto;padding:28px max(20px,env(safe-area-inset-right,0px)) 64px max(20px,env(safe-area-inset-left,0px))}
+header{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:28px}
+header a{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;font-weight:800;font-size:20px}
+header img{width:30px;height:30px;border-radius:8px}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.lang button{border:0;background:none;padding:6px 10px;font:700 12px ui-monospace,monospace;color:var(--ink-2);cursor:pointer}
+.lang button.on{background:var(--ink);color:var(--bg)}
+h1{font-size:clamp(30px,5vw,42px);line-height:1.1;margin:0 0 6px;letter-spacing:-.02em}
+h2{font-size:21px;margin:32px 0 8px}
+p,li{color:var(--ink)}
+.muted{color:var(--ink-2);font-size:14px}
+.draft{background:var(--warn);border-radius:14px;padding:12px 14px;font-size:14px;margin:18px 0}
+ul{padding-left:20px}
+li{margin:4px 0}
+a{color:var(--moss)}
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:8px}
+td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a href="./"><img src="assets/icon-192.png" alt="">Tropami</a>
+  <div class="lang"><button data-setlang="pl">PL</button><button data-setlang="en">EN</button></div>
+</header>
+
+<!-- ===================== PL ===================== -->
+<article lang="pl">
+<h1>Polityka prywatności</h1>
+<p class="muted">Obowiązuje od: 27 października 2026</p>
+<div class="draft">Wersja robocza. Przed publikacją w sklepach z aplikacjami należy uzupełnić dane administratora i skonsultować tekst z prawnikiem.</div>
+
+<h2>1. Administrator danych</h2>
+<p>Administratorem danych jest: <b>[imię i nazwisko lub nazwa fundacji, adres]</b>. Kontakt: <b>hello@tropami.eu</b>.</p>
+
+<h2>2. Jakie dane zbieramy</h2>
+<ul>
+  <li><b>Anonimowy identyfikator</b> — tworzony automatycznie przy pierwszym uruchomieniu. Nie prosimy o e-mail ani numer telefonu.</li>
+  <li><b>Pseudonim</b> — jeśli go podasz. Widzą go inni w rankingu i przy Twoich obserwacjach.</li>
+  <li><b>Obserwacje</b> — gatunek, miejsce na mapie, data i godzina, opcjonalnie opis zachowania, notatka i zdjęcie. Obserwacje są publiczne i widoczne na mapie.</li>
+  <li><b>Potwierdzenia</b> cudzych obserwacji.</li>
+  <li><b>Twoja bieżąca lokalizacja</b> — tylko wtedy, gdy na to pozwolisz, i tylko po to, by pokazać mapę wokół Ciebie. Nie zapisujemy jej, dopóki sam nie zgłosisz obserwacji w danym miejscu.</li>
+  <li><b>Ustawienia w przeglądarce</b> (język, styl mapy, postęp w samouczku) — zapisywane lokalnie na Twoim urządzeniu.</li>
+</ul>
+<p>Nie używamy reklam ani narzędzi śledzących, nie sprzedajemy danych osobowych.</p>
+
+<h2>3. Cel i podstawa prawna</h2>
+<ul>
+  <li>Prowadzenie wspólnej mapy obserwacji i gry (zgoda — art. 6 ust. 1 lit. a RODO, wyrażana w aplikacji).</li>
+  <li>Udostępnianie <b>zanonimizowanych</b> danych o obserwacjach miastom, szkołom i naukowcom (zgoda — j.w.).</li>
+  <li>Bezpieczeństwo i ochrona przed nadużyciami, np. limit zgłoszeń (prawnie uzasadniony interes — art. 6 ust. 1 lit. f RODO).</li>
+</ul>
+
+<h2>4. Komu przekazujemy dane</h2>
+<div class="tbl"><table>
+  <tr><th>Usługa</th><th>Do czego</th><th>Gdzie</th></tr>
+  <tr><td>Supabase</td><td>baza danych i zdjęcia</td><td>UE (Frankfurt)</td></tr>
+  <tr><td>GitHub Pages</td><td>hosting strony i aplikacji</td><td>globalnie</td></tr>
+  <tr><td>VersaTiles, OpenFreeMap, OpenStreetMap</td><td>kafelki mapy (otrzymują adres IP)</td><td>UE</td></tr>
+  <tr><td>Nominatim (OpenStreetMap)</td><td>wyszukiwanie adresów, nazwy miejsc</td><td>UE</td></tr>
+  <tr><td>iNaturalist, Wikipedia</td><td>podpowiedzi gatunków i opisy (wysyłamy wpisany tekst i przybliżoną lokalizację pinezki)</td><td>USA</td></tr>
+</table></div>
+
+<h2>5. Jak długo przechowujemy dane</h2>
+<p>Obserwacje przechowujemy, dopóki projekt działa, bo są wartością naukową. Na Twoją prośbę usuniemy Twoje obserwacje i pseudonim lub trwale je zanonimizujemy.</p>
+
+<h2>6. Twoje prawa</h2>
+<p>Masz prawo do dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przeniesienia oraz do wycofania zgody w dowolnym momencie (bez wpływu na wcześniejsze przetwarzanie). Napisz na <b>hello@tropami.eu</b>. Możesz też złożyć skargę do Prezesa Urzędu Ochrony Danych Osobowych.</p>
+
+<h2>7. Dzieci</h2>
+<p>Osoby poniżej 16 lat mogą korzystać z aplikacji za zgodą rodzica lub opiekuna. Nie zbieramy świadomie danych dzieci bez takiej zgody.</p>
+
+<h2>8. Zmiany</h2>
+<p>O istotnych zmianach poinformujemy w aplikacji i na tej stronie.</p>
+</article>
+
+<!-- ===================== EN ===================== -->
+<article lang="en">
+<h1>Privacy policy</h1>
+<p class="muted">Effective: 27 October 2026</p>
+<div class="draft">Draft. Before publishing in app stores, fill in the controller details and have the text reviewed by a lawyer.</div>
+
+<h2>1. Data controller</h2>
+<p>The data controller is: <b>[full name or foundation name, address]</b>. Contact: <b>hello@tropami.eu</b>.</p>
+
+<h2>2. What data we collect</h2>
+<ul>
+  <li><b>An anonymous identifier</b> — created automatically on first launch. We do not ask for your email or phone number.</li>
+  <li><b>Nickname</b> — if you set one. Others see it in the ranking and on your sightings.</li>
+  <li><b>Sightings</b> — species, place on the map, date and time, and optionally behaviour, a note and a photo. Sightings are public and visible on the map.</li>
+  <li><b>Confirmations</b> of other people’s sightings.</li>
+  <li><b>Your current location</b> — only if you allow it, and only to show the map around you. We do not store it unless you report a sighting at that place.</li>
+  <li><b>Browser settings</b> (language, map style, tutorial progress) — stored locally on your device.</li>
+</ul>
+<p>We use no advertising or tracking tools and we do not sell personal data.</p>
+
+<h2>3. Purpose and legal basis</h2>
+<ul>
+  <li>Running the shared sightings map and the game (consent — Art. 6(1)(a) GDPR, given in the app).</li>
+  <li>Sharing <b>anonymised</b> sighting data with cities, schools and researchers (consent — as above).</li>
+  <li>Security and abuse prevention, e.g. report limits (legitimate interest — Art. 6(1)(f) GDPR).</li>
+</ul>
+
+<h2>4. Who receives data</h2>
+<div class="tbl"><table>
+  <tr><th>Service</th><th>Purpose</th><th>Where</th></tr>
+  <tr><td>Supabase</td><td>database and photos</td><td>EU (Frankfurt)</td></tr>
+  <tr><td>GitHub Pages</td><td>hosting of the site and app</td><td>global</td></tr>
+  <tr><td>VersaTiles, OpenFreeMap, OpenStreetMap</td><td>map tiles (receive your IP address)</td><td>EU</td></tr>
+  <tr><td>Nominatim (OpenStreetMap)</td><td>address search, place names</td><td>EU</td></tr>
+  <tr><td>iNaturalist, Wikipedia</td><td>species suggestions and descriptions (we send the typed text and the approximate pin location)</td><td>USA</td></tr>
+</table></div>
+
+<h2>5. How long we keep data</h2>
+<p>We keep sightings for as long as the project runs, because they have scientific value. On request we delete your sightings and nickname or anonymise them permanently.</p>
+
+<h2>6. Your rights</h2>
+<p>You have the right to access, rectify and erase your data, to restrict processing, to data portability, and to withdraw consent at any time (without affecting earlier processing). Write to <b>hello@tropami.eu</b>. You can also lodge a complaint with your data protection authority (in Poland: the President of the Personal Data Protection Office, UODO).</p>
+
+<h2>7. Children</h2>
+<p>People under 16 may use the app with the consent of a parent or guardian. We do not knowingly collect children’s data without such consent.</p>
+
+<h2>8. Changes</h2>
+<p>We will announce significant changes in the app and on this page.</p>
+</article>
+</div>
+<script>
+(function(){
+  var r = document.documentElement;
+  function set(l){ r.dataset.lang = l; r.lang = l; document.querySelectorAll('[data-setlang]').forEach(function(b){ b.classList.toggle('on', b.dataset.setlang === l); }); }
+  var s = null; try{ s = localStorage.getItem('tr_lang'); }catch(e){}
+  set(s === 'pl' || s === 'en' ? s : ((navigator.languages || [navigator.language || 'en']).some(function(x){ return /^pl\b/i.test(x); }) ? 'pl' : 'en'));
+  document.querySelectorAll('[data-setlang]').forEach(function(b){ b.onclick = function(){ set(b.dataset.setlang); try{ localStorage.setItem('tr_lang', b.dataset.setlang); }catch(e){} }; });
+})();
+</script>
+</body>
+</html>

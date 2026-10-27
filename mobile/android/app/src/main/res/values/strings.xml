@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tropami</string>
+    <string name="title_activity_main">Tropami</string>
+    <string name="package_name">eu.tropami.app</string>
+    <string name="custom_url_scheme">eu.tropami.app</string>
+</resources>

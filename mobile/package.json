@@ -1,0 +1,17 @@
+{
+  "name": "tropami-mobile",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Tropami — native wrappers (Android/iOS) for the Tropami web app",
+  "scripts": {
+    "sync": "cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}
