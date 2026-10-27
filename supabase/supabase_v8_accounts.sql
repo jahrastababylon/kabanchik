@@ -264,6 +264,7 @@ create table if not exists analytics.events (
   lang         text,
   tz           text
 );
+alter table analytics.events enable row level security;   -- dostęp tylko przez funkcje; z API niewidoczna
 create index if not exists events_created_idx on analytics.events (created_at);
 create index if not exists events_name_idx    on analytics.events (name, created_at);
 create index if not exists events_user_idx    on analytics.events (user_id, created_at);
@@ -391,6 +392,7 @@ create table if not exists push.subscriptions (
   disabled_at  timestamptz,
   fail_count   int not null default 0
 );
+alter table push.subscriptions enable row level security;
 create index if not exists push_subs_user_idx on push.subscriptions (user_id);
 
 create table if not exists push.log (
@@ -402,6 +404,7 @@ create table if not exists push.log (
   ok       boolean,
   error    text
 );
+alter table push.log enable row level security;
 create index if not exists push_log_user_idx on push.log (user_id, sent_at desc);
 
 -- Zapis/odświeżenie subskrypcji (wołane przy każdym otwarciu aplikacji, jeśli push jest włączony)
