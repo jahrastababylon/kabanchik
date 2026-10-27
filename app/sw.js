@@ -1,6 +1,6 @@
 // Service worker: aplikacja otwiera się szybko i działa przy słabym zasięgu.
 // Kafelki mapy i dane z bazy zawsze idą z sieci.
-const CACHE = 'dk-shell-v8';
+const CACHE = 'dk-shell-v9';
 const SHELL = ['./', './index.html', './manifest-pl.webmanifest', './manifest-en.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', e => {

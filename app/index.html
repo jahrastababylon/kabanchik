@@ -22,7 +22,7 @@
 <title>Tropami</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400..900&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <style>
 /* Layout: pełnoekranowa mapa, HUD u góry, pasek zakładek z przyciskiem „Zgłoś”, panele jako arkusze od dołu */
@@ -32,9 +32,9 @@
   --fox:#E2832B; --fox-ink:#211204; --fox-soft:#FBE7D3;
   --danger:#BE3F2C; --danger-soft:#F8DED8; --ok:#3B8A5A;
   --scrim:rgba(10,20,14,.38); --shadow:0 10px 30px rgba(20,34,26,.16);
-  --f-display:'Bricolage Grotesque',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
-  --f-body:'Bricolage Grotesque',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
-  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --f-display:'Nunito',ui-rounded,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-body:'Nunito',ui-rounded,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'Nunito',ui-rounded,ui-sans-serif,system-ui,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -1745,7 +1745,7 @@ async function shareImage(kind){
     const st = myStats(), lv = levelOf(st.xp), name = S.nickname || t('anon');
     const card = kind === 'card', W = card ? 1080 : 1754, H = card ? 1350 : 1240;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
-    const g = c.getContext('2d'), F = (w, s) => `${w} ${s}px 'Bricolage Grotesque', system-ui, sans-serif`;
+    const g = c.getContext('2d'), F = (w, s) => `${w} ${s}px 'Nunito', system-ui, sans-serif`;
     const url = location.origin + location.pathname.replace(/index\.html$/, '');
     const spIcons = S.species.filter(s => st.species.has(s.id)).map(spIcon).join(' ');
     const stats = [[st.my.length, pw(st.my.length, 'sighting')], [st.species.size, pw(st.species.size, 'species')], [st.cells.size, 'km²'], [unlocked(st).length, t('badges_h').toLowerCase()]];
