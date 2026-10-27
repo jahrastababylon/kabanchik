@@ -667,7 +667,7 @@ const GROUPS = { bird:'3', other:'40151,26036,20978' };
 function inatSearch(q, birds, near){
   const where = near ? `${near.lat.toFixed(1)},${near.lng.toFixed(1)}` : '';
   return cached(`s:${birds ? 1 : 0}:${LANG}:${where}:${q.toLowerCase()}`, async () => {
-    const r = await fetch(`${INAT}/taxa/autocomplete?q=${encodeURIComponent(q)}&locale=${LANG}&per_page=15&is_active=true&taxon_id=${birds ? GROUPS.bird : GROUPS.other}`);
+    const r = await fetch(`${INAT}/taxa/autocomplete?q=${encodeURIComponent(q)}&locale=${LANG}&per_page=30&is_active=true&taxon_id=${birds ? GROUPS.bird : GROUPS.other}`);
     if(!r.ok) throw new Error('iNaturalist ' + r.status);
     let list = (await r.json()).results.filter(x => x.rank_level <= 20);
     // najpierw gatunki widywane w promieniu 150 km od pinezki
