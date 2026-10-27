@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "32014994419",
+    "project_id": "tropami-ca826",
+    "storage_bucket": "tropami-ca826.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:32014994419:android:5db033e4daf6b60d4e2086",
+        "android_client_info": {
+          "package_name": "com.tropami.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO_6rIXdFR5XbejV29AIVfLRqITvNqiEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

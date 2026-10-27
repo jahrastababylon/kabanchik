@@ -38,22 +38,22 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      # Firebase (powiadomienia w aplikacji Android): sekret GOOGLE_SERVICES_JSON = zawartość pliku google-services.json.
-      # Bez niego aplikacja działa normalnie, tylko bez powiadomień (strona wie to ze znacznika w User-Agent).
+      # Firebase (powiadomienia w aplikacji Android): plik mobile/android/app/google-services.json jest w repozytorium
+      # (nie jest tajny — i tak trafia do każdego APK). Sekret GOOGLE_SERVICES_JSON, jeśli jest poprawny, ma pierwszeństwo.
       - name: Firebase config
         env:
           GS: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
-          if [ -n "$GS" ] && GS="$GS" node scripts/ci/fix-json.mjs GS mobile/android/app/google-services.json; then
+          F=mobile/android/app/google-services.json
+          if [ -n "$GS" ]; then
+            GS="$GS" node scripts/ci/fix-json.mjs GS "$F.secret" && mv "$F.secret" "$F" || echo "::notice::Sekret GOOGLE_SERVICES_JSON pominięty — używam pliku z repozytorium."
+          fi
+          if [ -f "$F" ]; then
             node -e "const f='mobile/capacitor.config.json',c=require('./'+f);c.appendUserAgent='TropamiApp TropamiPush';require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
             echo "PUSH=1" >> "$GITHUB_ENV"
-          elif [ -n "$GS" ]; then
-            echo "PUSH=0" >> "$GITHUB_ENV"
-            rm -f mobile/android/app/google-services.json
-            echo "::warning::GOOGLE_SERVICES_JSON jest uszkodzony — buduję APK bez powiadomień push."
           else
             echo "PUSH=0" >> "$GITHUB_ENV"
-            echo "::notice::Brak GOOGLE_SERVICES_JSON — APK bez powiadomień push. Zobacz scripts/push/README.md"
+            echo "::notice::Brak google-services.json — APK bez powiadomień push."
           fi
 
       - name: Install Capacitor
