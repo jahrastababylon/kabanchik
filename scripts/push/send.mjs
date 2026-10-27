@@ -147,4 +147,18 @@ async function main(){
   }
 }
 
-if(import.meta.url === `file://${process.argv[1]}`) main().catch(e => { console.error(e); process.exit(1); });
+function explain(e){
+  const m = String(e?.message || e);
+  if(/dk_push_test.*(404|PGRST202|Could not find)/i.test(m)) return 'W bazie brakuje funkcji testowej — uruchom supabase/supabase_v9_push_test.sql w Supabase → SQL Editor.';
+  if(/dk_push_(due|mark).*(404|PGRST202|Could not find)/i.test(m)) return 'W bazie brakuje funkcji push — uruchom supabase/supabase_v8_accounts.sql.';
+  if(/401|403|Invalid API key|JWT/i.test(m)) return 'Supabase odrzucił klucz — sprawdź sekret SUPABASE_SERVICE_ROLE_KEY (Legacy API keys → service_role, zaczyna się od eyJ).';
+  if(/JSON|Unexpected token/i.test(m)) return 'Sekret FCM_SERVICE_ACCOUNT nie jest poprawnym JSON — wklej plik jeszcze raz (najlepiej jako base64).';
+  return m.slice(0, 300);
+}
+if(import.meta.url === `file://${process.argv[1]}`) main().catch(async e => {
+  const why = explain(e);
+  console.error(e);
+  console.log(`::error title=Push nie wysłany::${why}`);
+  if(env.GITHUB_STEP_SUMMARY){ const { appendFileSync } = await import('node:fs'); appendFileSync(env.GITHUB_STEP_SUMMARY, `### ❌ Push nie wysłany\n\n${why}\n`); }
+  process.exit(1);
+});
