@@ -502,7 +502,7 @@ const CONFIG = {
   // Logowanie (opcjonalne). Google i Apple włączają się same, gdy są włączone w Supabase → Authentication → Providers.
   // E-mail z kodem: ustaw true dopiero po skonfigurowaniu SMTP w Supabase (supabase/SETUP_v8.md).
   AUTH_EMAIL: false,
-  AUTH_REDIRECT_APP: 'eu.tropami.app://auth',
+  AUTH_REDIRECT_APP: 'com.tropami.app://auth',
 };
 const APP_VERSION = '1.4.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
@@ -1120,7 +1120,7 @@ function supaApi(){
       const d = ok(await sb.auth.signInWithOAuth({ provider, options:{ redirectTo, skipBrowserRedirect:native } }));
       if(native) await window.Capacitor.Plugins.Browser.open({ url:d.url, presentationStyle:'popover' });
     },
-    // aplikacja Android: powrót z przeglądarki przez eu.tropami.app://auth#access_token=…
+    // aplikacja Android: powrót z przeglądarki przez com.tropami.app://auth#access_token=…
     async handleAuthUrl(url){
       const q = new URLSearchParams((url.split('#')[1] || url.split('?')[1] || ''));
       if(q.get('error')) throw new Error(q.get('error_description') || q.get('error'));

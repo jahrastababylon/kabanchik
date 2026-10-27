@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "eu.tropami.app"
+    namespace = "com.tropami.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "eu.tropami.app"
+        applicationId "com.tropami.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Numer wersji nadaje GitHub Actions (numer uruchomienia); lokalnie 1

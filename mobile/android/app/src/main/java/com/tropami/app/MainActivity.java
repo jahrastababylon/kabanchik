@@ -1,4 +1,4 @@
-package eu.tropami.app;
+package com.tropami.app;
 
 import com.getcapacitor.BridgeActivity;
 

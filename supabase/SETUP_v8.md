@@ -20,7 +20,7 @@ Supabase → **Authentication → URL Configuration**
 - **Site URL:** `https://jahrastababylon.github.io/kabanchik/app/`
 - **Redirect URLs** → Add URL, по одному:
   - `https://jahrastababylon.github.io/kabanchik/app/**`
-  - `eu.tropami.app://auth`  ← возврат в Android-приложение
+  - `com.tropami.app://auth`  ← возврат в Android-приложение
   (после покупки домена добавить `https://tropami.eu/app/**`)
 
 ### 2.2 Google (10–15 минут, бесплатно)
@@ -72,7 +72,7 @@ Supabase → **Authentication → URL Configuration**
 
 **Android-приложение (Firebase), по желанию:**
 1. https://console.firebase.google.com → Add project «Tropami» (Analytics можно выключить).
-2. Add app → Android → package name `eu.tropami.app` → скачать `google-services.json`.
+2. Add app → Android → package name `com.tropami.app` → скачать `google-services.json`.
    Содержимое файла целиком → секрет `GOOGLE_SERVICES_JSON`.
 3. Project settings → Service accounts → Generate new private key → JSON.
    Содержимое целиком → секрет `FCM_SERVICE_ACCOUNT`.

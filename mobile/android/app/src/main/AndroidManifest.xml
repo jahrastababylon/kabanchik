@@ -22,12 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Powrót z logowania Google/Apple (eu.tropami.app://auth#…) -->
+            <!-- Powrót z logowania Google/Apple (com.tropami.app://auth#…) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="eu.tropami.app" android:host="auth" />
+                <data android:scheme="com.tropami.app" android:host="auth" />
             </intent-filter>
 
         </activity>

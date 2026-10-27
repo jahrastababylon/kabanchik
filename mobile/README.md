@@ -3,8 +3,8 @@
 Natywne „opakowania” (Capacitor 8) dla aplikacji webowej z katalogu `app/`.
 Aplikacja ładuje stronę `https://jahrastababylon.github.io/kabanchik/app/`, więc każda zmiana w `app/` trafia do użytkowników od razu, bez nowej wersji APK.
 
-- Android: identyfikator `eu.tropami.app` (stały — nie zmieniać po publikacji w Google Play)
-- iOS: bundle id `eu.tropami.app`
+- Android: identyfikator `com.tropami.app` (stały — nie zmieniać po publikacji w Google Play)
+- iOS: bundle id `com.tropami.app`
 
 ## Android — budowanie
 
