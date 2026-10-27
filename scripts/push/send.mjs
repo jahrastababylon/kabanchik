@@ -8,6 +8,7 @@
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT  — Web Push
 //   FCM_SERVICE_ACCOUNT                                  — JSON konta usługi Firebase (Android), opcjonalnie
 //   DRY_RUN=1                                            — tylko pokaż, nic nie wysyłaj
+//   TEST=1                                               — próbne powiadomienie na wszystkie aktywne urządzenia (bez reguł i limitów)
 
 import webpush from 'web-push';
 import { GoogleAuth } from 'google-auth-library';
@@ -15,6 +16,7 @@ import { GoogleAuth } from 'google-auth-library';
 const env = process.env;
 const APP_URL = env.APP_URL || 'https://jahrastababylon.github.io/kabanchik/app/';
 const DRY = env.DRY_RUN === '1' || env.DRY_RUN === 'true';
+const TEST = env.TEST === '1' || env.TEST === 'true';
 
 // ---------- teksty ----------
 const pl3 = (n, a, b, c) => { const x = Math.abs(n) % 100, y = x % 10; return n === 1 ? a : (y >= 2 && y <= 4 && (x < 12 || x > 14)) ? b : c; };
@@ -38,6 +40,10 @@ export const TEXT = {
     en: n => n > 0
       ? { title: `🦊 ${n} new ${n === 1 ? 'sighting' : 'sightings'} near you`, body: 'See who showed up this week.' }
       : { title: '🐾 Wildlife is waiting', body: 'Go for a walk and mark your first encounter this week.' },
+  },
+  test: {
+    pl: () => ({ title: '🦊 Powiadomienia Tropami działają', body: 'To próbne powiadomienie. Do zobaczenia na szlaku!' }),
+    en: () => ({ title: '🦊 Tropami notifications work', body: 'This is a test notification. See you on the trail!' }),
   },
   weekly: {
     pl: () => ({ title: '🏁 Nowe wyzwania tygodnia', body: 'Trzy zadania i odznaka Zadaniowiec — sprawdź, co na Ciebie czeka.' }),
@@ -114,8 +120,8 @@ async function main(){
   const hasFcm = !!env.FCM_SERVICE_ACCOUNT;
   if(hasWeb) webpush.setVapidDetails(env.VAPID_SUBJECT || 'mailto:hello@tropami.eu', env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
 
-  const due = await rpc('dk_push_due');
-  console.log(`Do wysłania: ${due.length} (web push: ${hasWeb ? 'tak' : 'brak kluczy'}, Firebase: ${hasFcm ? 'tak' : 'brak klucza'})`);
+  const due = await rpc(TEST ? 'dk_push_test' : 'dk_push_due');
+  console.log(`${TEST ? 'Test — urządzeń' : 'Do wysłania'}: ${due.length} (web push: ${hasWeb ? 'tak' : 'brak kluczy'}, Firebase: ${hasFcm ? 'tak' : 'brak klucza'})`);
   const results = [], stats = {};
   for(const row of due){
     const msg = message(row.kind, row.lang, row.n);
@@ -128,11 +134,13 @@ async function main(){
     if(DRY) console.log(`[dry] ${row.channel} ${row.lang} ${msg.title} — ${msg.body}`);
     results.push({ sub_id: row.sub_id, kind: row.kind, ok: res.ok, gone: !!res.gone, error: res.error || null });
   }
-  if(results.length && !DRY) await rpc('dk_push_mark', { p_results: results });
+  // test nie liczy się do limitów — zapisujemy tylko martwe subskrypcje, żeby je wyłączyć
+  const toMark = TEST ? results.filter(r => r.gone) : results;
+  if(toMark.length && !DRY) await rpc('dk_push_mark', { p_results: toMark });
   console.log('Wynik:', JSON.stringify(stats));
   if(env.GITHUB_STEP_SUMMARY){
     const { appendFileSync } = await import('node:fs');
-    appendFileSync(env.GITHUB_STEP_SUMMARY, `### Push ${DRY ? '(próba)' : ''}\n\nDo wysłania: ${due.length}\n\n\`\`\`\n${JSON.stringify(stats, null, 2)}\n\`\`\`\n`);
+    appendFileSync(env.GITHUB_STEP_SUMMARY, `### Push ${TEST ? '(test)' : DRY ? '(próba)' : ''}\n\n${TEST ? 'Urządzeń z włączonymi powiadomieniami' : 'Do wysłania'}: ${due.length}\n\n\`\`\`\n${JSON.stringify(stats, null, 2)}\n\`\`\`\n`);
   }
 }
 

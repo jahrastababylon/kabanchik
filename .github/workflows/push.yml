@@ -8,10 +8,11 @@ on:
     - cron: '23 * * * *'
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: 'Tylko pokaż, nic nie wysyłaj'
-        type: boolean
-        default: true
+      mode:
+        description: 'próba = tylko pokaż · wyślij = według reguł · test = próbne powiadomienie na wszystkie urządzenia'
+        type: choice
+        options: [próba, wyślij, test]
+        default: test
 
 concurrency:
   group: push-reminders
@@ -40,5 +41,6 @@ jobs:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           VAPID_SUBJECT: mailto:hello@tropami.eu
           FCM_SERVICE_ACCOUNT: ${{ secrets.FCM_SERVICE_ACCOUNT }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'próba' && '1' || '0' }}
+          TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'test' && '1' || '0' }}
         run: node send.mjs

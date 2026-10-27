@@ -68,7 +68,10 @@ Supabase → **Authentication → URL Configuration**
 | `FCM_SERVICE_ACCOUNT` | только для приложения Android, см. ниже |
 | `GOOGLE_SERVICES_JSON` | только для приложения Android, см. ниже |
 
-После добавления: Actions → «Push reminders» → Run workflow (галочка «Tylko pokaż» = пробный запуск, ничего не шлёт).
+После добавления: Actions → «Push reminders» → Run workflow → режим:
+- **test** — пробное уведомление на все устройства, где включены уведомления (нужен `supabase_v9_push_test.sql`);
+- **próba** — показать, кому ушли бы напоминания по правилам, ничего не отправляя;
+- **wyślij** — отправить по правилам (то же, что делает расписание каждый час).
 
 **Android-приложение (Firebase), по желанию:**
 1. https://console.firebase.google.com → Add project «Tropami» (Analytics можно выключить).
