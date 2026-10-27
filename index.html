@@ -1178,14 +1178,17 @@ async function setBase(id = currentStyleId()){
     else notice(t('tiles_fail'), true);
   };
   if(s.vector){
+    // Sprawdzamy, czy serwer stylu odpowiada — działa też w karcie w tle (bez czekania na rysowanie)
+    const styleOk = await fetch(s.vector).then(r => r.ok).catch(() => false);
+    if(seq !== baseSeq) return;
+    if(!styleOk){ fail(); return; }
     try{ await ensureMapLibre(); }catch(e){ fail(); return; }
     if(seq !== baseSeq) return;
     base = L.maplibreGL({ style:s.vector, attribution:s.attr }).addTo(map);
-    let okv = false;
     const gl = base.getMaplibreMap?.();
-    gl?.on('load', () => okv = true);
-    gl?.on('error', e => { if(!okv) console.warn('style error', e?.error?.message || e); });
-    setTimeout(() => { if(!okv && seq === baseSeq) fail(); }, 9000);
+    let styled = false;
+    gl?.on('styledata', () => styled = true);
+    gl?.on('error', e => { console.warn('map style error', e?.error?.message || e); if(!styled && seq === baseSeq) fail(); });
     return;
   }
   const url = typeof s.raster === 'function' ? s.raster() : s.raster;
