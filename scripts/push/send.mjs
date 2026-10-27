@@ -85,7 +85,10 @@ async function sendWeb(row, msg){
 let fcm = null;
 async function fcmClient(){
   if(fcm) return fcm;
-  const sa = JSON.parse(env.FCM_SERVICE_ACCOUNT);
+  let rawSa = env.FCM_SERVICE_ACCOUNT.trim();
+  if(!rawSa.startsWith('{')){ try{ rawSa = Buffer.from(rawSa.replace(/\s+/g, ''), 'base64').toString('utf8'); }catch(e){} }
+  rawSa = rawSa.replace(/^\uFEFF/, '').replace(/[\u201C\u201D\u201E\u201F]/g, '"');
+  const sa = JSON.parse(rawSa.slice(rawSa.indexOf('{'), rawSa.lastIndexOf('}') + 1));
   const auth = new GoogleAuth({ credentials: sa, scopes: ['https://www.googleapis.com/auth/firebase.messaging'] });
   fcm = { project: sa.project_id, client: await auth.getClient() };
   return fcm;

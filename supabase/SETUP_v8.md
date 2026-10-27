@@ -81,6 +81,11 @@ Supabase → **Authentication → URL Configuration**
    Содержимое целиком → секрет `FCM_SERVICE_ACCOUNT`.
 4. Actions → «Android build» → Run workflow. В новом APK уведомления заработают.
 
+**Надёжнее вставлять файлы как base64** (одна длинная строка — ничего не испортится при копировании):
+- Mac (Терминал): `base64 -i ~/Downloads/google-services.json | pbcopy` → вставить в секрет (Cmd+V)
+- Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("$HOME\Downloads\google-services.json")) | Set-Clipboard`
+Так же можно и для `FCM_SERVICE_ACCOUNT` (подставить имя второго файла). Сборка понимает оба варианта: обычный JSON и base64.
+
 Без Firebase уведомления работают в браузере, в приложении, установленном из Chrome («Установить приложение»), и на iPhone (после «На экран Домой»).
 
 ## Как смотреть аналитику

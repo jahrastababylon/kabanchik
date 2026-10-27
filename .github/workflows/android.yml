@@ -44,10 +44,13 @@ jobs:
         env:
           GS: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
-          if [ -n "$GS" ]; then
-            printf '%s' "$GS" > mobile/android/app/google-services.json
+          if [ -n "$GS" ] && GS="$GS" node scripts/ci/fix-json.mjs GS mobile/android/app/google-services.json; then
             node -e "const f='mobile/capacitor.config.json',c=require('./'+f);c.appendUserAgent='TropamiApp TropamiPush';require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
             echo "PUSH=1" >> "$GITHUB_ENV"
+          elif [ -n "$GS" ]; then
+            echo "PUSH=0" >> "$GITHUB_ENV"
+            rm -f mobile/android/app/google-services.json
+            echo "::warning::GOOGLE_SERVICES_JSON jest uszkodzony — buduję APK bez powiadomień push."
           else
             echo "PUSH=0" >> "$GITHUB_ENV"
             echo "::notice::Brak GOOGLE_SERVICES_JSON — APK bez powiadomień push. Zobacz scripts/push/README.md"
