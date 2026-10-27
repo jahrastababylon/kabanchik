@@ -65,7 +65,14 @@ jobs:
           TROPAMI_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease bundleRelease
+          set -o pipefail
+          if ! ./gradlew --no-daemon assembleRelease bundleRelease 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
+            # Błąd widoczny w podsumowaniu uruchomienia (także bez logowania do GitHub)
+            ERR=$(grep -E "What went wrong|error:|Error|FAILURE|Exception|> " "$RUNNER_TEMP/gradle.log" | grep -v "^> Task" | tail -n 25)
+            { echo '### Gradle error'; echo '```'; echo "$ERR"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error title=Gradle build failed::$(echo "$ERR" | sed ':a;N;$!ba;s/\n/%0A/g')"
+            exit 1
+          fi
           mkdir -p "$GITHUB_WORKSPACE/dist"
           cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/tropami.apk"
           cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/dist/tropami.aab"

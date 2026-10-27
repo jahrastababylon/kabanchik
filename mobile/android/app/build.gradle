@@ -8,8 +8,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Numer wersji nadaje GitHub Actions (numer uruchomienia); lokalnie 1
-        versionCode (System.getenv("TROPAMI_VERSION_CODE") ?: "1").toInteger()
-        versionName System.getenv("TROPAMI_VERSION_NAME") ?: "0.1.0"
+        versionCode = Integer.parseInt(System.getenv("TROPAMI_VERSION_CODE") ?: "1")
+        versionName = System.getenv("TROPAMI_VERSION_NAME") ?: "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -21,16 +21,16 @@ android {
         // Klucz wydania z sekretów GitHub (patrz mobile/README.md). Bez niego — klucz testowy (debug).
         release {
             if (System.getenv("TROPAMI_KEYSTORE")) {
-                storeFile file(System.getenv("TROPAMI_KEYSTORE"))
-                storePassword System.getenv("TROPAMI_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("TROPAMI_KEY_ALIAS")
-                keyPassword System.getenv("TROPAMI_KEY_PASSWORD")
+                storeFile = file(System.getenv("TROPAMI_KEYSTORE"))
+                storePassword = System.getenv("TROPAMI_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("TROPAMI_KEY_ALIAS")
+                keyPassword = System.getenv("TROPAMI_KEY_PASSWORD")
             }
         }
     }
     buildTypes {
         release {
-            signingConfig System.getenv("TROPAMI_KEYSTORE") ? signingConfigs.release : signingConfigs.debug
+            signingConfig = System.getenv("TROPAMI_KEYSTORE") ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
