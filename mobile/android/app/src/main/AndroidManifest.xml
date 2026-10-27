@@ -33,6 +33,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+        <!-- Powiadomienia Firebase: ikona i kolor w pasku stanu -->
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_tropami" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/tropami_moss" />
     </application>
 
     <!-- Permissions -->

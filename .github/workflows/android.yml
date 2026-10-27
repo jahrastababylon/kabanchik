@@ -38,6 +38,21 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # Firebase (powiadomienia w aplikacji Android): sekret GOOGLE_SERVICES_JSON = zawartość pliku google-services.json.
+      # Bez niego aplikacja działa normalnie, tylko bez powiadomień (strona wie to ze znacznika w User-Agent).
+      - name: Firebase config
+        env:
+          GS: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GS" ]; then
+            printf '%s' "$GS" > mobile/android/app/google-services.json
+            node -e "const f='mobile/capacitor.config.json',c=require('./'+f);c.appendUserAgent='TropamiApp TropamiPush';require('fs').writeFileSync(f,JSON.stringify(c,null,2))"
+            echo "PUSH=1" >> "$GITHUB_ENV"
+          else
+            echo "PUSH=0" >> "$GITHUB_ENV"
+            echo "::notice::Brak GOOGLE_SERVICES_JSON — APK bez powiadomień push. Zobacz scripts/push/README.md"
+          fi
+
       - name: Install Capacitor
         working-directory: mobile
         run: |
@@ -85,7 +100,7 @@ jobs:
           V="0.1.${{ github.run_number }}"
           if [ "$SIGNED" = "1" ]; then
             TITLE="Tropami Android $V"
-            NOTES="Tropami dla Androida / for Android. Pobierz tropami.apk na telefonie i otwórz plik. Download tropami.apk on your phone and open it. Google Play: tropami.aab."
+            NOTES="Tropami dla Androida / for Android. Pobierz tropami.apk na telefonie i otwórz plik. Download tropami.apk on your phone and open it. Powiadomienia / push: $([ "$PUSH" = 1 ] && echo tak/yes || echo nie/no)."
           else
             TITLE="Tropami Android $V (test)"
             NOTES="Wersja testowa z kluczem tymczasowym — aktualizacja wymaga odinstalowania poprzedniej wersji. Test build with a temporary key — updating requires uninstalling the previous version."

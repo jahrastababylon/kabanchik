@@ -376,6 +376,41 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .chip small{font-weight:500;font-size:11px}
 .settings .field{gap:8px}
 .leaflet-container .maplibregl-canvas{outline:none}
+/* profil i konto */
+.avatar{flex:none;width:64px;height:64px;border-radius:50%;background:var(--moss-soft);color:var(--moss);display:inline-grid;place-items:center;font:800 24px/1 var(--f-display);overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar.sm{width:30px;height:30px;font-size:13px}
+.avatar.md{width:44px;height:44px;font-size:18px}
+.avatar.lg{width:84px;height:84px;font-size:34px}
+.levelcard .avatar{background:rgba(255,255,255,.18);color:inherit}
+.prof-head{display:flex;align-items:center;gap:16px}
+.avpick{position:relative;cursor:pointer;flex:none}
+.avpick input{position:absolute;width:1px;height:1px;opacity:0}
+.avpick .cam{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;background:var(--fox);color:var(--fox-ink);display:grid;place-items:center;border:3px solid var(--surface)}
+.acct{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:18px;background:var(--surface-2)}
+.acct.warn{background:var(--fox-soft)}
+.acct .input{background:var(--surface)}
+.input.code{letter-spacing:.35em;font-weight:800;font-size:22px;text-align:center}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer}
+.tg>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tg b{font-size:14.5px}
+.tg small{color:var(--ink-2);font-size:12.5px;line-height:1.35}
+.sw{appearance:none;-webkit-appearance:none;flex:none;width:48px;height:28px;margin:0;border-radius:14px;background:var(--line);position:relative;cursor:pointer;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.sw:checked{background:var(--moss)}
+.sw:checked::after{transform:translateX(20px)}
+.sw:disabled{opacity:.5}
+.linkbtn{border:0;background:none;padding:0;color:var(--moss);font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.danger-link{color:var(--danger)}
+.btn.danger{background:var(--danger);color:#fff}
+.pushcard{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--surface-2)}
+.pushcard svg{flex:none;color:var(--fox)}
+.pushcard span{flex:1;font-weight:700;font-size:14px}
+.nudge{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--fox-soft);border:0;text-align:left;width:100%}
+.nudge b{display:block;font-size:14.5px}
+.nudge small{color:var(--ink-2);font-size:12.5px}
+.rname{display:flex;align-items:center;gap:10px;min-width:0}
+.rname>div{min-width:0}
 @media (min-width:900px){
   .top{max-width:620px}
   .sheet.panel{left:max(12px,env(safe-area-inset-left,0px));right:auto;width:440px;margin:0;bottom:84px;border-radius:24px;max-height:calc(100% - 180px)}
@@ -436,6 +471,7 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 
 <section class="sheet panel" id="p-quests"><div class="sheet-head"><h2 data-i18n="tab_quests"></h2><button class="iconbtn" data-tabclose></button></div><div class="sheet-body" id="questsBody"></div></section>
 <section class="sheet panel" id="p-atlas"><div class="sheet-head"><h2 data-i18n="atlas_title"></h2><button class="iconbtn" data-tabclose></button></div><div class="sheet-body" id="atlasBody"></div></section>
+<section class="sheet" id="profile" aria-modal="true" role="dialog"><div class="sheet-head"><h2 data-i18n="profile_title"></h2><button class="iconbtn" data-close="profile"></button></div><div class="sheet-body" id="profileBody"></div></section>
 <section class="sheet panel" id="p-rank"><div class="sheet-head"><h2 data-i18n="tab_rank"></h2><button class="iconbtn" data-tabclose></button></div><div class="sheet-body" id="rankBody"></div></section>
 
 <div class="modal" id="modal" hidden><div class="mcard" id="mcard" role="dialog" aria-modal="true"></div></div>
@@ -459,7 +495,10 @@ const CONFIG = {
   CUSTOM_ATTRIBUTION: '',
   DEFAULT_STYLE: 'auto',       // auto = VersaTiles Colorful w dzień, Eclipse w trybie ciemnym; albo id stylu z listy STYLES
   NEAR_RADIUS_KM: 25,
+  // Klucz publiczny Web Push (VAPID). Prywatny jest tylko w sekretach GitHub (VAPID_PRIVATE_KEY).
+  VAPID_PUBLIC_KEY: 'BCSmeA1KF8DKec-2GhIHJvFH1Hpn4GZvOK9BV43XSn5u8B4uIeZNJkFWQJNXqmtNBr7sJE72xjou7vtnH6li7iM',
 };
+const APP_VERSION = '1.4.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
 
 /* =====================================================================
@@ -621,6 +660,69 @@ const STR = {
     ago_now:'just now', ago_min:'min ago', ago_h:'h ago', ago_y:'yesterday', ago_d:'days ago',
   },
 };
+/* Konto, profil, powiadomienia, statystyki */
+Object.assign(STR.pl, {
+  profile_title:'Profil i konto', profile_btn:'Profil i konto', avatar_change:'Zmień zdjęcie profilowe', avatar_remove:'Usuń zdjęcie',
+  avatar_saved:'Zdjęcie zapisane', avatar_fail:'Nie udało się zapisać zdjęcia',
+  phone_l:'Telefon', phone_hint:'Tylko do kontaktu w sprawie nagród. Nikomu go nie pokazujemy.', phone_bad:'Sprawdź numer telefonu',
+  marketing_l:'Możecie napisać do mnie w sprawie nagród i akcji', profile_saved:'Profil zapisany', profile_fail:'Nie udało się zapisać profilu',
+  acct_h:'Konto', acct_anon_t:'Postępy są tylko na tym urządzeniu',
+  acct_anon_p:'Dodaj e-mail — nie stracisz XP, odznak ani obserwacji, a na innym telefonie po prostu się zalogujesz. Bez hasła: wyślemy kod.',
+  login_t:'Zaloguj się', login_p:'Wpisz e-mail swojego konta. Postępy z tego urządzenia dołączymy do konta.',
+  email_l:'E-mail', email_ph:'twoj@email.pl', send_code:'Wyślij kod', code_l:'Kod z e-maila', verify:'Potwierdź',
+  code_sent:'Wysłaliśmy kod na {email}. Sprawdź też folder spam.', resend:'Wyślij ponownie', change_email:'Inny adres',
+  have_account:'Mam już konto — zaloguj się', create_instead:'Nie mam konta — dodaj e-mail',
+  email_bad:'Wpisz poprawny adres e-mail', email_exists:'To konto już istnieje. Zaloguj się — postępy z tego urządzenia zostaną dołączone.',
+  no_account:'Nie ma konta z tym adresem. Dodaj e-mail do tego urządzenia.', code_bad:'Kod jest nieprawidłowy albo wygasł',
+  mail_off:'Logowanie e-mailem jeszcze nie działa — konfigurujemy wysyłkę. Spróbuj później.', rate_limit:'Za dużo prób. Odczekaj minutę i spróbuj ponownie.',
+  acct_err:'Coś poszło nie tak', acct_ok_p:'Postępy są bezpieczne. Na innym urządzeniu zaloguj się tym adresem.',
+  account_created:'Konto gotowe — postępy są bezpieczne', logged_in:'Zalogowano', logged_in_merged:'Zalogowano. Dołączono obserwacje z tego urządzenia: {n}',
+  sign_out:'Wyloguj', sign_out_q:'Na tym urządzeniu zaczniesz od zera. Konto i postępy zostaną na serwerze.', sign_out_yes:'Tak, wyloguj', signed_out:'Wylogowano',
+  delete_acct:'Usuń konto i dane', delete_q:'Pseudonim, zdjęcie, telefon, potwierdzenia i statystyki zostaną usunięte. Obserwacje zostaną na mapie bez podpisu. Nie da się tego cofnąć.',
+  delete_yes:'Tak, usuń wszystko', deleted:'Konto i dane usunięte', demo_acct:'W trybie demo konta nie działają.',
+  save_progress:'Zapisz postępy', save_progress_p:'Dodaj e-mail, żeby nie stracić XP i odznak przy zmianie telefonu.',
+  onb_login:'Masz już konto? Zaloguj się', onb_need_consent:'Najpierw zaznacz zgodę',
+  notif_h:'Powiadomienia', notif_l:'Przypomnienia', notif_p:'Seria dni, potwierdzenia Twoich obserwacji, nowe zwierzęta w okolicy. Najwyżej raz dziennie, 10:00–20:00.',
+  notif_on:'Powiadomienia włączone', notif_off:'Powiadomienia wyłączone', notif_blocked:'Powiadomienia są zablokowane w ustawieniach przeglądarki lub telefonu. Odblokuj je tam i wróć.',
+  notif_unsupported:'Ta przeglądarka nie obsługuje powiadomień.',
+  notif_ios:'Na iPhonie powiadomienia działają, gdy Tropami jest na ekranie początkowym: Safari → Udostępnij → „Do ekranu początkowego”, potem otwórz z ikony.',
+  notif_app_old:'Ta wersja aplikacji nie obsługuje jeszcze powiadomień. Pobierz nową wersję ze strony Tropami.', notif_fail:'Nie udało się włączyć powiadomień',
+  n_streak:'Seria dni', n_confirm:'Potwierdzenia', n_nearby:'Nowe w okolicy', n_weekly:'Nowe wyzwania',
+  push_ask_t:'Przypominać Ci o Tropami?', push_ask_p:'Damy znać, gdy ktoś potwierdzi Twoją obserwację albo gdy seria będzie zagrożona. Najwyżej raz dziennie.',
+  push_yes:'Tak, przypominaj', push_no:'Nie teraz', push_card:'Włącz przypomnienia o serii', ok:'OK',
+  privacy_h:'Prywatność', stats_l:'Statystyki użycia', stats_p:'Pomagają nam zobaczyć, co działa w aplikacji. Nie sprzedajemy danych.',
+});
+Object.assign(STR.en, {
+  profile_title:'Profile & account', profile_btn:'Profile & account', avatar_change:'Change profile photo', avatar_remove:'Remove photo',
+  avatar_saved:'Photo saved', avatar_fail:'Could not save the photo',
+  phone_l:'Phone', phone_hint:'Only to contact you about prizes. We never show it to anyone.', phone_bad:'Check the phone number',
+  marketing_l:'You may contact me about prizes and campaigns', profile_saved:'Profile saved', profile_fail:'Could not save the profile',
+  acct_h:'Account', acct_anon_t:'Your progress lives only on this device',
+  acct_anon_p:'Add your email so you never lose XP, badges or sightings, and simply sign in on another phone. No password: we send you a code.',
+  login_t:'Sign in', login_p:'Enter your account email. Progress from this device will be added to your account.',
+  email_l:'Email', email_ph:'you@email.com', send_code:'Send code', code_l:'Code from the email', verify:'Confirm',
+  code_sent:'We sent a code to {email}. Check your spam folder too.', resend:'Send again', change_email:'Other address',
+  have_account:'I already have an account — sign in', create_instead:'No account yet — add my email',
+  email_bad:'Enter a valid email address', email_exists:'This account already exists. Sign in — progress from this device will be added.',
+  no_account:'There is no account with this address. Add your email to this device instead.', code_bad:'The code is wrong or has expired',
+  mail_off:'Email sign-in is not working yet — we are setting up email delivery. Please try later.', rate_limit:'Too many attempts. Wait a minute and try again.',
+  acct_err:'Something went wrong', acct_ok_p:'Your progress is safe. On another device, sign in with this address.',
+  account_created:'Account ready — your progress is safe', logged_in:'Signed in', logged_in_merged:'Signed in. Sightings added from this device: {n}',
+  sign_out:'Sign out', sign_out_q:'You will start from scratch on this device. Your account and progress stay on the server.', sign_out_yes:'Yes, sign out', signed_out:'Signed out',
+  delete_acct:'Delete account and data', delete_q:'Your nickname, photo, phone, confirmations and statistics will be deleted. Sightings stay on the map without your name. This cannot be undone.',
+  delete_yes:'Yes, delete everything', deleted:'Account and data deleted', demo_acct:'Accounts do not work in demo mode.',
+  save_progress:'Save your progress', save_progress_p:'Add your email so you keep your XP and badges when you change phones.',
+  onb_login:'Already have an account? Sign in', onb_need_consent:'Tick the consent box first',
+  notif_h:'Notifications', notif_l:'Reminders', notif_p:'Day streak, confirmations of your sightings, new animals nearby. At most once a day, 10:00–20:00.',
+  notif_on:'Notifications on', notif_off:'Notifications off', notif_blocked:'Notifications are blocked in your browser or phone settings. Unblock them there and come back.',
+  notif_unsupported:'This browser does not support notifications.',
+  notif_ios:'On iPhone, notifications work when Tropami is on your Home Screen: Safari → Share → “Add to Home Screen”, then open it from the icon.',
+  notif_app_old:'This app version does not support notifications yet. Download the new version from the Tropami website.', notif_fail:'Could not turn on notifications',
+  n_streak:'Day streak', n_confirm:'Confirmations', n_nearby:'New nearby', n_weekly:'New quests',
+  push_ask_t:'Want reminders from Tropami?', push_ask_p:'We will let you know when someone confirms your sighting or your streak is about to end. At most once a day.',
+  push_yes:'Yes, remind me', push_no:'Not now', push_card:'Turn on streak reminders', ok:'OK',
+  privacy_h:'Privacy', stats_l:'Usage statistics', stats_p:'They help us see what works in the app. We do not sell data.',
+});
 const t = k => STR[LANG][k] ?? STR.pl[k] ?? k;
 const appName = () => CONFIG.APP_NAME;
 const LOCALE = () => LANG === 'pl' ? 'pl-PL' : 'en-GB';
@@ -897,7 +999,10 @@ function ring(pct, size = 36, stroke = 4){
    ===================================================================== */
 function supaApi(){
   const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-  let uid = null;
+  let uid = null, user = null, token = null;
+  const setSession = s => { if(s?.user){ user = s.user; uid = s.user.id; token = s.access_token; } };
+  sb.auth.onAuthStateChange((_ev, s) => setSession(s));
+  const anonSession = async () => { const s = ok(await sb.auth.signInAnonymously()).session; setSession(s); };
   const ok = ({ data, error }) => { if(error) throw error; return data; };
   const num = r => ({ ...r, lat:+r.lat, lng:+r.lng });
   // Najnowsza dostępna wersja funkcji w bazie (v7 → v6 → v4); zapamiętujemy, która działa
@@ -916,8 +1021,9 @@ function supaApi(){
     async init(){
       let session = ok(await sb.auth.getSession()).session;
       if(!session) session = ok(await sb.auth.signInAnonymously()).session;
-      uid = session.user.id; return uid;
+      setSession(session); return uid;
     },
+    account(){ return { id:uid, email:user?.email || null, anon:!user?.email }; },
     async species(){ return ok(await sb.from('species').select('id,name_pl,icon,danger_level')); },
     async area(b){
       const args = { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 };
@@ -949,9 +1055,59 @@ function supaApi(){
         : { ...base, p_behavior:[o.taxon, o.behavior].filter(Boolean).join(' — ') || null });
     },
     async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
-    async leaderboard(since, near){ return ok(await sb.rpc('dk_leaderboard', { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null })); },
+    async leaderboard(since, near){
+      const args = { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null };
+      return rpcBest('rank', ['dk_leaderboard_v2', 'dk_leaderboard'], () => args);
+    },
     async getNickname(){ const { data } = await sb.from('profiles').select('nickname').eq('id', uid).maybeSingle(); return data?.nickname || ''; },
     async setNickname(n){ ok(await sb.rpc('dk_set_nickname', { p_nickname:n })); },
+    // --- profil (v8; bez migracji: tylko pseudonim) ---
+    async getProfile(){
+      try{ return ok(await sb.rpc('dk_get_profile'))[0] || {}; }
+      catch(e){ if(missing(e)) return { nickname:await this.getNickname() }; throw e; }
+    },
+    async saveProfile(p){
+      const r = await sb.rpc('dk_save_profile', { p_nickname:p.nickname ?? null, p_avatar_url:p.avatar_url ?? null, p_phone:p.phone ?? null,
+        p_marketing_ok:p.marketing_ok ?? null, p_analytics_ok:p.analytics_ok ?? null });
+      if(r.error && missing(r.error) && p.nickname && !p.avatar_url && !p.phone){ ok(await sb.rpc('dk_set_nickname', { p_nickname:p.nickname })); return; }
+      ok(r);
+    },
+    async uploadAvatar(blob){
+      const path = `${uid}/${Date.now().toString(36)}.jpg`;
+      ok(await sb.storage.from('avatars').upload(path, blob, { contentType:'image/jpeg', upsert:false }));
+      return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    },
+    // --- konto e-mail: kod jednorazowy zamiast hasła ---
+    async startCreate(email){ ok(await sb.auth.updateUser({ email })); },
+    async verifyCreate(email, code){ const d = ok(await sb.auth.verifyOtp({ email, token:code, type:'email_change' })); setSession(d.session || { user:d.user, access_token:token }); },
+    async startLogin(email){
+      let ticket = null;
+      if(this.account().anon){ try{ ticket = ok(await sb.rpc('dk_merge_start')); }catch(e){ console.warn('merge ticket', e); } }
+      LS.set('dk_merge', { ticket, ts:Date.now() });
+      ok(await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false } }));
+    },
+    async verifyLogin(email, code){
+      const d = ok(await sb.auth.verifyOtp({ email, token:code, type:'email' })); setSession(d.session);
+      const m = LS.get('dk_merge', null); LS.set('dk_merge', null);
+      if(!m?.ticket) return 0;
+      try{ return ok(await sb.rpc('dk_merge_finish', { p_ticket:m.ticket })) || 0; }catch(e){ console.warn('merge', e); return 0; }
+    },
+    async signOut(){ await sb.auth.signOut(); await anonSession(); },
+    async deleteMe(){ ok(await sb.rpc('dk_delete_me')); await sb.auth.signOut().catch(() => {}); await anonSession(); },
+    // --- analityka ---
+    async track(events){ return ok(await sb.rpc('dk_track', { p_events:events })); },
+    trackBeacon(events){
+      if(!token) return;
+      fetch(`${CONFIG.SUPABASE_URL}/rest/v1/rpc/dk_track`, { method:'POST', keepalive:true,
+        headers:{ apikey:CONFIG.SUPABASE_ANON_KEY, Authorization:`Bearer ${token}`, 'Content-Type':'application/json' },
+        body:JSON.stringify({ p_events:events }) }).catch(() => {});
+    },
+    // --- push ---
+    async pushSubscribe(o){
+      ok(await sb.rpc('dk_push_subscribe', { p_kind:o.kind, p_endpoint:o.endpoint, p_p256dh:o.p256dh || null, p_auth:o.auth || null,
+        p_lang:LANG, p_tz:USER_TZ, p_lat:o.lat ?? null, p_lng:o.lng ?? null, p_prefs:o.prefs || null }));
+    },
+    async pushUnsubscribe(endpoint){ ok(await sb.rpc('dk_push_unsubscribe', { p_endpoint:endpoint })); },
   };
 }
 
@@ -1028,6 +1184,20 @@ function demoApi(){
     },
     async getNickname(){ return db.nickname || ''; },
     async setNickname(n){ db.nickname = n; save(); },
+    account(){ return { id:'me', email:null, anon:true, demo:true }; },
+    async getProfile(){ return { nickname:db.nickname || '', avatar_url:db.avatar || '', phone:db.phone || '', marketing_ok:!!db.mkt }; },
+    async saveProfile(p){
+      if(p.nickname) db.nickname = p.nickname;
+      if(p.avatar_url) db.avatar = p.avatar_url === '-' ? '' : p.avatar_url;
+      if(p.phone != null) db.phone = p.phone === '-' ? '' : p.phone;
+      if(p.marketing_ok != null) db.mkt = p.marketing_ok;
+      save();
+    },
+    async uploadAvatar(blob, dataUrl){ return dataUrl; },
+    async startCreate(){ throw new Error(t('demo_acct')); },
+    async startLogin(){ throw new Error(t('demo_acct')); },
+    async track(){ return 0; }, trackBeacon(){},
+    async pushSubscribe(){}, async pushUnsubscribe(){},
   };
 }
 
@@ -1035,6 +1205,7 @@ function demoApi(){
    STAN + OBLICZENIA GRY
    ===================================================================== */
 const S = {
+  profile:{ nickname:'' },
   species:[], spById:{}, area:[], mine:[], myConf:[], mode:'pins', spFilter:new Set(), time:'30',
   nickname:'', adding:false, pick:null, tab:'map', rankPeriod:'week', rankScope:'near',
 };
@@ -1254,7 +1425,7 @@ function showGhost(ll){
   removeGhost();
   ghost = L.marker(ll, { zIndexOffset:2000, keyboard:false,
     icon:L.divIcon({ className:'', iconSize:[0,0], html:`<div class="tapghost"><button type="button">${small(ICON.plus, 18)}${esc(t('report_tap'))}</button><i></i></div>` }) })
-    .on('click', () => { S.pick = { lat:ll.lat, lng:wrap(ll.lng) }; removeGhost(); openForm(); })
+    .on('click', () => { AN.track('report_start', { via:'tap' }); S.pick = { lat:ll.lat, lng:wrap(ll.lng) }; removeGhost(); openForm(); })
     .addTo(map);
   clearTimeout(showGhost.tm); showGhost.tm = setTimeout(removeGhost, 6000);
 }
@@ -1322,6 +1493,7 @@ function applyStatic(){
   $('#addBtn').setAttribute('aria-label', t('submit'));
 }
 function setLang(v){
+  AN.track('lang_change', { lang:v });
   LS.set('dk_lang', v); LANG = detectLang();
   applyStatic(); renderChips(); renderAll();
 }
@@ -1339,15 +1511,17 @@ function renderChips(){
       <select id="timeSel" aria-label="${esc(t('period'))}">${Object.entries(opts).map(([v, l]) => `<option value="${v}"${S.time === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
     <button class="chip${S.spFilter.size ? '' : ' on'}" data-sp="">${esc(t('all'))}</button>
     ${S.species.map(s => `<button class="chip${S.spFilter.has(s.id) ? ' on' : ''}" data-sp="${esc(s.id)}">${esc(spIcon(s))} ${esc(spName(s))}</button>`).join('')}`;
-  $('#timeSel').onchange = e => { S.time = e.target.value; renderMap(); };
+  $('#timeSel').onchange = e => { S.time = e.target.value; AN.track('filter_time', { period:S.time }); renderMap(); };
   $$('#chips [data-sp]').forEach(b => b.onclick = () => {
     const id = b.dataset.sp;
     if(!id) S.spFilter.clear(); else S.spFilter.has(id) ? S.spFilter.delete(id) : S.spFilter.add(id);
+    AN.track('filter_species', { species:id ? S.spById[id]?.name_pl : 'all', on:!id || S.spFilter.has(id) });
     renderChips(); renderMap();
   });
 }
 function renderAll(){ MY_LEVEL = levelOf(myStats().xp).idx; renderHud(); renderMap(); if(S.tab !== 'map') renderPanel(S.tab); }
 function setTab(tb){
+  if(tb !== S.tab && tb !== 'map') AN.track('tab_open', { tab:tb });
   S.tab = tb;
   $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tb));
   ['quests','atlas','rank'].forEach(p => $('#p-' + p).classList.toggle('open', p === tb));
@@ -1355,9 +1529,9 @@ function setTab(tb){
 }
 function renderPanel(tb){ if(tb === 'quests') renderQuests(); else if(tb === 'atlas') renderAtlas(); else if(tb === 'rank') renderRank(); }
 function renderPanelIfOpen(tb){ if(S.tab === tb) renderPanel(tb); }
-function setMode(m){ S.mode = m; $$('.seg button[data-mode]').forEach(x => x.classList.toggle('on', x.dataset.mode === m)); renderMap(); }
+function setMode(m){ if(m !== S.mode) AN.track('map_mode', { mode:m }); S.mode = m; $$('.seg button[data-mode]').forEach(x => x.classList.toggle('on', x.dataset.mode === m)); renderMap(); }
 function openSheet(id){ closeSheets(); $('#' + id).classList.add('open'); $('#scrim').classList.add('on'); }
-function closeSheets(){ ['card','form'].forEach(i => $('#' + i).classList.remove('open')); $('#scrim').classList.remove('on'); }
+function closeSheets(){ ['card','form','profile'].forEach(i => $('#' + i).classList.remove('open')); $('#scrim').classList.remove('on'); }
 
 /* ---------- nazwa miejsca (Nominatim) ---------- */
 const placeCache = {};
@@ -1377,6 +1551,7 @@ async function placeName(lat, lng){
 const findSighting = id => S.area.find(x => x.id === id) || S.mine.find(x => x.id === id);
 async function openCard(id){
   const s = findSighting(id); if(!s) return;
+  AN.track('sighting_open', { own:!!s.is_mine, photo:!!s.has_photo });
   const sp = S.spById[s.species_id] || { name_pl:'?', icon:'?', danger_level:0 };
   const risky = (sp.danger_level >= 2) || /Agresywny|Ranny/.test(s.behavior || '');
   const when = new Date(s.seen_at);
@@ -1406,7 +1581,7 @@ async function openCard(id){
   if(cb) cb.onclick = async () => {
     cb.disabled = true; cb.textContent = t('saving');
     const before = snapshot();
-    try{ await API.confirm(s.id); }
+    try{ await API.confirm(s.id); AN.track('confirm_given'); }
     catch(e){ toast(t('confirm_fail') + ': ' + (e.message || e)); cb.disabled = false; return; }
     await reload(); closeSheets(); reward(before, 'confirm');
   };
@@ -1437,6 +1612,7 @@ function openCell(c){
 
 /* ---------- dodawanie ---------- */
 function startAdd(center){
+  AN.track('report_start', { via:center ? 'square' : 'button' });
   closeSheets(); setTab('map'); removeGhost();
   S.adding = true; document.body.classList.add('adding');
   if(center) map.setView(center, Math.max(map.getZoom(), 16));
@@ -1453,7 +1629,8 @@ function updatePickHint(){
 
 const F = { species:null, behaviors:new Set(), photo:null };
 function openForm(){
-  F.species = null; F.behaviors = new Set(); F.photo = null; F.tx = null; F.offline = false;
+  F.species = null; F.behaviors = new Set(); F.photo = null; F.tx = null; F.offline = false; F.t0 = Date.now(); F.searches = 0;
+  AN.track('report_form');
   const st = myStats(), now = new Date(), min = new Date(Date.now() - 7*864e5);
   const opt = `<span class="muted" style="font-weight:500">${esc(t('optional'))}</span>`;
   $('#formBody').innerHTML = `
@@ -1477,6 +1654,7 @@ function openForm(){
   $$('#spGrid .spbtn').forEach(b => b.onclick = () => {
     F.species = b.dataset.id; $$('#spGrid .spbtn').forEach(x => x.classList.toggle('on', x === b));
     const sp = S.spById[F.species], need = needsTaxon(sp), bird = sp?.name_pl === 'Ptak';
+    AN.track('report_species', { species:sp?.name_pl, needs_name:need });
     $('#taxonField').hidden = !need;
     F.tx = null; F.offline = false;
     const edu = $('#spEdu'); edu.innerHTML = ''; edu.className = 'edu';
@@ -1501,7 +1679,7 @@ function openForm(){
   $('#fPhoto').onchange = async e => {
     const file = e.target.files[0]; if(!file) return;
     $('#fPhotoTxt').textContent = t('compressing');
-    try{ F.photo = await compress(file, DEMO ? 640 : 1000, DEMO ? .6 : .7); const p = $('#fPrev'); p.src = F.photo; p.hidden = false; $('#fPhotoTxt').textContent = t('change_photo'); }
+    try{ F.photo = await compress(file, DEMO ? 640 : 1000, DEMO ? .6 : .7); const p = $('#fPrev'); p.src = F.photo; p.hidden = false; $('#fPhotoTxt').textContent = t('change_photo'); AN.track('report_photo'); }
     catch(err){ toast(err.message); $('#fPhotoTxt').textContent = t('add_photo'); }
     xpPreview();
   };
@@ -1516,14 +1694,17 @@ async function taxonLookup(q, bird, autoPick){
   try{ list = await inatSearch(q, bird, S.pick); F.offline = false; }
   catch(e){ F.offline = true; box.innerHTML = `<div class="msg">${esc(t('species_db_off'))}</div>`; return; }
   if($('#fTaxon')?.value.trim() !== q) return;          // użytkownik pisze dalej
+  F.searches = (F.searches || 0) + 1;
+  AN.track('taxon_search', { q:q.toLowerCase().slice(0, 30), results:list.length, bird, chip:!!autoPick });
   if(!list.length){ box.innerHTML = `<div class="msg">${esc(t('no_match'))}</div>`; return; }
-  if(autoPick){ pickTaxon(list[0]); return; }
+  if(autoPick){ pickTaxon(list[0], 0); return; }
   box.innerHTML = list.map((x, i) => { const ph = freePhoto(x), nm = x.preferred_common_name || x.name;
     return `<button type="button" role="option" data-i="${i}">${ph ? `<img class="th" src="${esc(ph.sq)}" alt="" loading="lazy">` : `<span class="th">${bird ? '🐦' : '🐾'}</span>`}
       <span><b>${esc(nm.charAt(0).toUpperCase() + nm.slice(1))}</b><i>${esc(x.name)}</i></span><small>${x._near ? `${x._near.toLocaleString(LOCALE())} ${esc(t('obs_near'))}` : `${(x.observations_count || 0).toLocaleString(LOCALE())} ${esc(t('obs_world'))}`}</small></button>`; }).join('');
-  $$('#taxSugg [data-i]').forEach(b => b.onclick = () => pickTaxon(list[+b.dataset.i]));
+  $$('#taxSugg [data-i]').forEach(b => b.onclick = () => pickTaxon(list[+b.dataset.i], +b.dataset.i));
 }
-function pickTaxon(x){
+function pickTaxon(x, pos){
+  AN.track('taxon_pick', { sci:x.name, pos:pos ?? 0, near:(x._near || 0) > 0 });
   const nm = x.preferred_common_name || x.name;
   F.tx = { name:nm.charAt(0).toUpperCase() + nm.slice(1), sci:x.name, id:x.id };
   $('#fTaxon').value = F.tx.name;
@@ -1568,7 +1749,9 @@ async function submitForm(){
   const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = t('saving');
   const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.species.has(F.species);
   try{ await API.add({ species_id:F.species, taxon:taxon || null, taxon_sci, taxon_inat, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
-  catch(e){ toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
+  catch(e){ AN.track('report_fail', { species:spSel?.name_pl, error:String(e.message || e).slice(0, 120) }); toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
+  AN.track('report_submit', { species:spSel?.name_pl, sci:taxon_sci || null, photo:hadPhoto, new_species:newSp, behaviors:F.behaviors.size, note:!!note,
+    secs:Math.round((Date.now() - (F.t0 || Date.now())) / 1000), searches:F.searches || 0, first:before.xp === 0 });
   closeSheets();
   if(S.spFilter.size && !S.spFilter.has(F.species)) S.spFilter.clear();
   if(S.time !== 'all' && Date.now() - when > (+S.time) * 864e5) S.time = '30';
@@ -1586,6 +1769,10 @@ function reward(before, kind, extra = {}){
   const qs = weeklyQuests().filter(q => after.quests.has(q.id) && !before.quests.has(q.id));
   const newCells = [...after.cells].filter(c => !before.cells.has(c)).length;
   const lvUp = after.level > before.level;
+  AN.track('reward', { kind, xp:gained, level_up:lvUp, badges:newBadges.length, quests:qs.length, new_squares:newCells });
+  if(lvUp) AN.track('level_up', { level:after.level + 1 });
+  newBadges.forEach(b => AN.track('badge_unlocked', { badge:b.id }));
+  qs.forEach(q => AN.track('quest_complete', { quest:q.id }));
   renderAll();
   if(kind === 'confirm' && !newBadges.length && !lvUp && !qs.length){ toast(`+${gained} XP`, 'xp'); return; }
 
@@ -1614,7 +1801,7 @@ function reward(before, kind, extra = {}){
     <button class="btn moss block" id="mOk">${esc(t('next'))}</button></div>`;
   $('#modal').hidden = false;
   $('#mOk').focus();
-  $('#mOk').onclick = () => { $('#modal').hidden = true; };
+  $('#mOk').onclick = () => { $('#modal').hidden = true; if(kind === 'add') afterReward(); };
   requestAnimationFrame(() => requestAnimationFrame(() => { const a = $('#rwArc'); if(a) a.style.strokeDashoffset = (C * (1 - la.pct)).toFixed(1); }));
   const t0 = performance.now(), el = $('#gainNum');
   const step = ts => { const k = Math.min(1, (ts - t0) / 800); el.textContent = '+' + Math.round(gained * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
@@ -1640,7 +1827,9 @@ function renderQuests(){
           <div><b>${esc(q[LANG])}</b><div class="bar"><i style="width:${p / q.target * 100}%"></i></div></div>
           <span class="mono">${p}/${q.target}</span></div>`; }).join('')}
       <p class="muted" style="margin:0;font-size:13px">${esc(t('q_all3'))}</p>
-    </div>`;
+    </div>
+    ${PUSH.status() === 'off' ? `<div class="pushcard">${ICON.bell}<span>${esc(t('push_card'))}</span><button class="btn moss" style="height:40px;padding:0 14px" id="qPush">${esc(t('push_yes'))}</button></div>` : ''}`;
+  if($('#qPush')) $('#qPush').onclick = async () => { if(await PUSH.enable('quests')){ toast(t('notif_on')); renderQuests(); } };
 }
 function renderAtlas(){
   const st = myStats(), lv = levelOf(st.xp), ul = new Set(unlocked(st));
@@ -1650,9 +1839,11 @@ function renderAtlas(){
   $('#atlasBody').innerHTML = `
     <div class="levelcard">
       <div class="top-l"><div style="position:relative;width:64px;height:64px">${ring(lv.pct, 64, 6)}<b class="mono" style="position:absolute;inset:0;display:grid;place-items:center;font-size:22px">${lv.idx + 1}</b></div>
-        <div><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || t('your_level'))}</div><h3>${esc(lv.name)}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} ${esc(t('r_to'))}: ${esc(lv.next.name)}` : ''}</div></div></div>
+        <div style="min-width:0"><div class="eyebrow" style="color:inherit;opacity:.75">${esc(S.nickname || t('your_level'))}</div><h3>${esc(lv.name)}</h3><div class="xp">${st.xp} XP${lv.next ? ` · ${lv.toNext} ${esc(t('r_to'))}: ${esc(lv.next.name)}` : ''}</div></div></div>
       <div class="ladder">${LEVELS.map((l, i) => `<div class="${i <= lv.idx ? 'on' : ''}"><i></i><span>${esc(l[LANG])}</span><span>${l.xp}</span></div>`).join('')}</div>
     </div>
+    <button class="btn ghost block" id="profBtn">${avatarHtml(S.profile?.avatar_url, S.nickname, 'sm')} ${esc(t('profile_btn'))}</button>
+    ${API.account().anon && !API.account().demo && st.my.length ? `<button class="nudge" id="saveNudge"><span style="font-size:26px">💾</span><span><b>${esc(t('save_progress'))}</b><small>${esc(t('save_progress_p'))}</small></span></button>` : ''}
     <div class="sec"><h3>${esc(t('perks_h'))}</h3><div class="perks">
       ${PERKS.map(pk => { const on = lv.idx >= pk.lvl; return `<div class="perk${on ? ' on' : ''}"><div class="pi">${ICON[pk.icon]}</div>
         <div><b>${esc(pk[LANG][0])}</b><small>${esc(pk[LANG][1])}</small></div>
@@ -1683,6 +1874,8 @@ function renderAtlas(){
         ${STYLES.map(s => { const av = styleAvailable(s); return `<button class="chip${styleId === s.id ? ' on' : ''}" data-style="${s.id}"${av ? '' : ' disabled'}>${esc(s.name)}${av ? '' : ` <small>· ${esc(t('needs_key'))}</small>`}</button>`; }).join('')}</div>
         <p class="muted" style="margin:0;font-size:12.5px">${esc(t('style_note'))}</p></div>
     </div>`;
+  $('#profBtn').onclick = () => openProfile('atlas');
+  if($('#saveNudge')) $('#saveNudge').onclick = () => openProfile('atlas_nudge', 'create');
   $('#cardBtn').onclick = () => shareImage('card');
   $('#certBtn').onclick = () => shareImage('cert');
   $('#showCells').onclick = () => {
@@ -1690,7 +1883,7 @@ function renderAtlas(){
     if(st.my.length){ const b = L.latLngBounds(st.my.map(s => [s.lat, s.lng])); map.fitBounds(b.pad(.3), { maxZoom:14 }); }
   };
   $$('#atlasBody [data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
-  $$('#atlasBody [data-style]').forEach(b => b.onclick = () => { LS.set('dk_style_v2', b.dataset.style); setBase(b.dataset.style); renderAtlas(); });
+  $$('#atlasBody [data-style]').forEach(b => b.onclick = () => { AN.track('map_style', { style:b.dataset.style }); LS.set('dk_style_v2', b.dataset.style); setBase(b.dataset.style); renderAtlas(); });
 }
 async function renderRank(){
   const body = $('#rankBody'), R = CONFIG.NEAR_RADIUS_KM;
@@ -1717,7 +1910,7 @@ async function renderRank(){
     const me = rows.find(r => r.is_me);
     $('#rankList').innerHTML = rows.length ? rows.map((r, i) => `
       <div class="rrow${r.is_me ? ' isme' : ''}${i === 0 ? ' top1' : ''}"><span class="n">${i + 1}</span>
-        <div style="min-width:0"><b>${esc(r.is_me ? (S.nickname || t('you')) : String(r.nickname).replace(/^Tropiciel #/, LANG === 'en' ? 'Tracker #' : 'Tropiciel #'))}${r.is_me ? ' · ' + esc(t('you')) : ''}</b><small>${r.sightings} ${pw(r.sightings, 'sighting')} · ${r.species} ${pw(r.species, 'species')}</small></div>
+        <div class="rname">${avatarHtml(r.is_me ? S.profile?.avatar_url : r.avatar_url, r.is_me ? S.nickname : r.nickname, 'sm')}<div><b>${esc(r.is_me ? (S.nickname || t('you')) : String(r.nickname).replace(/^Tropiciel #/, LANG === 'en' ? 'Tracker #' : 'Tropiciel #'))}${r.is_me ? ' · ' + esc(t('you')) : ''}</b><small>${r.sightings} ${pw(r.sightings, 'sighting')} · ${r.species} ${pw(r.species, 'species')}</small></div></div>
         <span class="x">${r.xp}</span></div>`).join('')
       + (me ? '' : `<p class="muted" style="font-size:13px">${esc(t('not_in_rank'))}</p>`)
       : `<p class="muted">${esc(t('rank_empty'))}</p>`;
@@ -1725,17 +1918,8 @@ async function renderRank(){
 }
 function renderNickRow(){
   const row = $('#nickRow');
-  row.innerHTML = `<span>${esc(t('playing_as'))} <b>${esc(S.nickname || t('anon'))}</b></span><button class="btn ghost" style="height:36px;font-size:13px" id="nickEdit">${small(ICON.edit)} ${esc(t('change'))}</button>`;
-  $('#nickEdit').onclick = () => {
-    row.innerHTML = `<form class="nickform" id="nickForm"><input class="input" id="nickIn" maxlength="24" value="${esc(S.nickname)}" placeholder="${esc(t('nick_ph'))}" aria-label="${esc(t('nick_l'))}"><button class="btn moss" style="height:46px">${esc(t('save'))}</button></form>`;
-    $('#nickIn').focus();
-    $('#nickForm').onsubmit = async e => {
-      e.preventDefault(); const v = $('#nickIn').value.trim();
-      if(v.length < 2){ toast(t('nick_short')); return; }
-      try{ await API.setNickname(v); S.nickname = v; toast(t('nick_saved')); renderRank(); }
-      catch(err){ toast(t('nick_fail') + ': ' + (err.message || err)); }
-    };
-  };
+  row.innerHTML = `<span class="rname">${avatarHtml(S.profile?.avatar_url, S.nickname, 'sm')}<span>${esc(t('playing_as'))} <b>${esc(S.nickname || t('anon'))}</b></span></span><button class="btn ghost" style="height:36px;font-size:13px" id="nickEdit">${small(ICON.edit)} ${esc(t('change'))}</button>`;
+  $('#nickEdit').onclick = () => openProfile('rank');
 }
 
 /* ---------- karta tropiciela i certyfikat (obrazek PNG) ---------- */
@@ -1785,7 +1969,8 @@ async function shareImage(kind){
     }
     const blob = await new Promise(r => c.toBlob(r, 'image/png'));
     const file = new File([blob], (card ? 'tracker-card' : 'certificate') + '.png', { type:'image/png' });
-    if(navigator.canShare?.({ files:[file] })){ try{ await navigator.share({ files:[file], title:appName() }); return; }catch(e){ if(e.name === 'AbortError') return; } }
+    if(navigator.canShare?.({ files:[file] })){ try{ await navigator.share({ files:[file], title:appName() }); AN.track('share_image', { kind, method:'share' }); return; }catch(e){ if(e.name === 'AbortError') return; } }
+    AN.track('share_image', { kind, method:'download' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }catch(e){ console.error(e); toast(t('share_fail')); }
@@ -1806,7 +1991,9 @@ function initSearch(){
         const d = await r.json();
         box.innerHTML = d.length ? d.map(x => `<button data-ll="${x.lat},${x.lon}" data-bb="${(x.boundingbox || []).join(',')}">${esc(x.display_name.split(',').slice(0, 3).join(','))}</button>`).join('') : `<button disabled>${esc(t('no_results'))}</button>`;
         box.hidden = false;
+        AN.track('place_search', { results:d.length });
         $$('#results [data-ll]').forEach(btn => btn.onclick = () => {
+          AN.track('place_pick');
           const bb = btn.dataset.bb.split(',').map(Number);
           if(bb.length === 4 && bb.every(isFinite)) map.fitBounds([[bb[0], bb[2]], [bb[1], bb[3]]], { maxZoom:16 });
           else { const [a, o] = btn.dataset.ll.split(',').map(Number); map.setView([a, o], 15); }
@@ -1817,13 +2004,15 @@ function initSearch(){
   });
   q.addEventListener('blur', () => setTimeout(() => box.hidden = true, 200));
 }
-function locate(silent){
-  if(!navigator.geolocation){ if(!silent) toast(t('geo_none')); return; }
+function locate(silent, source){
+  if(!navigator.geolocation){ if(!silent) toast(t('geo_none')); AN.track('location_result', { result:'unavailable', source:source || (silent ? 'auto' : 'button') }); return; }
   navigator.geolocation.getCurrentPosition(p => {
+    AN.track('location_result', { result:'granted', source:source || (silent ? 'auto' : 'button') });
     const ll = [p.coords.latitude, p.coords.longitude]; map.setView(ll, 14);
     if(!meDot) meDot = L.marker(ll, { icon:L.divIcon({ className:'', iconSize:[18,18], html:'<div class="medot"></div>' }), interactive:false, zIndexOffset:-100 }).addTo(map);
     else meDot.setLatLng(ll);
-  }, () => {
+  }, err => {
+    AN.track('location_result', { result:err?.code === 1 ? 'denied' : 'error', source:source || (silent ? 'auto' : 'button') });
     if(silent) return;
     if(location.protocol !== 'https:' && !/^(localhost|127\.)/.test(location.hostname)) toast(t('geo_https'));
     else toast(t('geo_denied'));
@@ -1831,6 +2020,438 @@ function locate(silent){
 }
 async function locateIfAllowed(){
   try{ const p = await navigator.permissions?.query({ name:'geolocation' }); if(p?.state === 'granted') locate(true); }catch(e){}
+}
+
+/* =====================================================================
+   ANALITYKA — zdarzenia trafiają do bazy (dk_track → schemat analytics).
+   Paczki co kilka sekund; przy zamknięciu karty wysyłka „keepalive”.
+   Wyłączenie: Profil → Prywatność → Statystyki użycia.
+   ===================================================================== */
+const USER_TZ = (() => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; }catch(e){ return 'UTC'; } })();
+const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const inNativeApp = () => !!window.Capacitor?.isNativePlatform?.();
+function platformName(){
+  if(inNativeApp()) return (window.Capacitor.getPlatform?.() || 'android') + '_app';
+  const kind = IS_IOS ? 'ios' : /Android/.test(navigator.userAgent) ? 'android' : matchMedia('(pointer:coarse)').matches ? 'mobile' : 'desktop';
+  return kind + (isStandalone() ? '_pwa' : '_web');
+}
+const AN = {
+  q:[], sid:null, last:0, tm:null, dead:false, errs:0,
+  on: LS.get('dk_analytics', true) !== false,
+  plat: null,
+  session(){
+    const now = Date.now();
+    if(!this.sid || now - this.last > 30 * 60e3) this.sid = now.toString(36) + Math.random().toString(36).slice(2, 7);
+    this.last = now; return this.sid;
+  },
+  track(name, props = {}){
+    if(!this.on || this.dead) return;
+    this.plat ||= platformName();
+    this.q.push({ name, props, ts:new Date().toISOString(), sid:this.session(), platform:this.plat, v:APP_VERSION, lang:LANG, tz:USER_TZ });
+    if(this.q.length > 200) this.q.splice(0, this.q.length - 200);
+    clearTimeout(this.tm);
+    if(this.q.length >= 20) this.flush(); else this.tm = setTimeout(() => this.flush(), 4000);
+  },
+  async flush(beacon){
+    if(!this.q.length || !API?.track) return;
+    if(DEMO || !this.on){ this.q = []; return; }
+    const batch = this.q.splice(0, 50);
+    try{ beacon ? API.trackBeacon(batch) : await API.track(batch); }
+    catch(e){
+      if(/PGRST202|Could not find the function/i.test((e?.code || '') + (e?.message || ''))){ this.dead = true; this.q = []; return; } // brak migracji v8
+      this.q.unshift(...batch);
+    }
+    if(this.q.length && !beacon) this.tm = setTimeout(() => this.flush(), 4000);
+  },
+  setOn(v){
+    this.on = v; LS.set('dk_analytics', v);
+    if(!v) this.q = [];
+  },
+};
+addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') AN.flush(true); });
+addEventListener('pagehide', () => AN.flush(true));
+addEventListener('appinstalled', () => AN.track('pwa_installed'));
+addEventListener('error', e => { if(AN.errs++ < 5) AN.track('js_error', { msg:String(e.message || '').slice(0, 160), src:String(e.filename || '').split('/').pop().slice(0, 40), line:e.lineno || 0 }); });
+addEventListener('unhandledrejection', e => { if(AN.errs++ < 5) AN.track('js_error', { msg:String(e.reason?.message || e.reason || '').slice(0, 160), src:'promise' }); });
+
+// Przybliżone miejsce (~10 km) — tylko do statystyk miast i „co nowego w okolicy”
+function coarseLL(){
+  const ll = meDot ? meDot.getLatLng() : (map && map.getZoom() >= 9 ? map.getCenter() : null);
+  return ll ? { lat:Math.round(ll.lat * 10) / 10, lng:Math.round(wrap(ll.lng) * 10) / 10 } : {};
+}
+function userProps(){
+  const st = myStats(), lv = levelOf(st.xp), acc = API?.account?.() || {};
+  return { level:lv.idx + 1, xp:st.xp, sightings:st.my.length, species:st.species.size, streak:st.streak,
+           account:!acc.anon, push:PUSH.status() === 'on', ...coarseLL() };
+}
+
+/* =====================================================================
+   POWIADOMIENIA PUSH
+   • przeglądarka / aplikacja z ekranu głównego / iPhone (16.4+, z ekranu początkowego): Web Push
+   • aplikacja Android (APK): Firebase — działa w wersji zbudowanej z kluczem Firebase (znacznik „TropamiPush”)
+   Wysyła je GitHub Actions co godzinę; reguły w bazie (dk_push_due).
+   ===================================================================== */
+const PUSH = {
+  P(){ return window.Capacitor?.Plugins?.PushNotifications; },
+  native(){ return inNativeApp() && !!this.P() && /TropamiPush/.test(navigator.userAgent); },
+  web(){ return !inNativeApp() && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && !!CONFIG.VAPID_PUBLIC_KEY; },
+  prefs(){ return { streak:true, confirm:true, nearby:true, weekly:true, ...LS.get('dk_push_prefs', {}) }; },
+  status(){
+    if(DEMO) return 'unsupported';
+    if(inNativeApp() && !this.native()) return 'app_old';
+    if(this.native()) return LS.get('dk_push_on', false) ? 'on' : 'off';
+    if(!this.web()) return IS_IOS && !isStandalone() ? 'ios_install' : 'unsupported';
+    if(Notification.permission === 'denied') return 'blocked';
+    return Notification.permission === 'granted' && LS.get('dk_push_on', false) ? 'on' : 'off';
+  },
+  key(){ const s = CONFIG.VAPID_PUBLIC_KEY.replace(/-/g, '+').replace(/_/g, '/'); const raw = atob(s + '='.repeat((4 - s.length % 4) % 4)); return Uint8Array.from(raw, c => c.charCodeAt(0)); },
+  async nativeToken(){
+    const P = this.P();
+    let perm = await P.checkPermissions();
+    if(perm.receive !== 'granted') perm = await P.requestPermissions();
+    if(perm.receive !== 'granted') return null;
+    return new Promise((res, rej) => {
+      const tm = setTimeout(() => rej(new Error('timeout')), 15000);
+      P.addListener('registration', t => { clearTimeout(tm); res(t.value); });
+      P.addListener('registrationError', e => { clearTimeout(tm); rej(new Error(e?.error || 'registration')); });
+      P.register();
+    });
+  },
+  async webSub(ask){
+    if(ask){ const p = await Notification.requestPermission(); if(p !== 'granted') return null; }
+    else if(Notification.permission !== 'granted') return null;
+    const reg = await navigator.serviceWorker.ready;
+    return (await reg.pushManager.getSubscription()) || reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:this.key() });
+  },
+  async save(o){ await API.pushSubscribe({ ...o, prefs:this.prefs(), ...coarseLL() }); LS.set('dk_push_endpoint', o.endpoint); },
+  async enable(source){
+    try{
+      if(this.native()){
+        const token = await this.nativeToken();
+        if(!token){ AN.track('push_prompt_result', { result:'denied', source }); return false; }
+        await this.save({ kind:'fcm', endpoint:token });
+      } else {
+        const sub = await this.webSub(true);
+        if(!sub){ AN.track('push_prompt_result', { result:Notification.permission === 'denied' ? 'denied' : 'dismissed', source }); return false; }
+        const j = sub.toJSON();
+        await this.save({ kind:'webpush', endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth });
+      }
+      LS.set('dk_push_on', true);
+      AN.track('push_subscribed', { channel:this.native() ? 'fcm' : 'webpush', source });
+      return true;
+    }catch(e){ console.warn('push', e); AN.track('push_error', { msg:String(e.message || e).slice(0, 120), source }); toast(t('notif_fail')); return false; }
+  },
+  async disable(){
+    const ep = LS.get('dk_push_endpoint', null);
+    LS.set('dk_push_on', false);
+    if(ep) await API.pushUnsubscribe(ep).catch(() => {});
+    try{
+      if(this.native()) await this.P().unregister?.();
+      else if(this.web()){ const reg = await navigator.serviceWorker.getRegistration(); await (await reg?.pushManager.getSubscription())?.unsubscribe(); }
+    }catch(e){}
+    AN.track('push_disabled');
+  },
+  // Przy każdym otwarciu: odśwież „ostatnio aktywny”, strefę czasową, okolicę i preferencje
+  async sync(){
+    if(this.status() !== 'on') return;
+    try{
+      if(this.native()){ const ep = LS.get('dk_push_endpoint', null); if(ep) await this.save({ kind:'fcm', endpoint:ep }); }
+      else { const sub = await this.webSub(false); if(sub){ const j = sub.toJSON(); await this.save({ kind:'webpush', endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth }); } }
+    }catch(e){ console.warn('push sync', e); }
+  },
+  listen(){
+    if(!this.native()) return;
+    this.P().addListener('pushNotificationActionPerformed', a => {
+      const d = a.notification?.data || {};
+      AN.track('push_open', { kind:d.kind || '', channel:'fcm' });
+      if(d.kind === 'streak' || d.kind === 'weekly') setTab('quests');
+    });
+  },
+  // Miękka prośba (nasz ekran) przed systemowym pytaniem — max raz na 14 dni, max 3 razy
+  async ask(source){
+    const st = this.status(), asked = LS.get('dk_push_asked', { n:0, ts:0 });
+    if(!['off', 'ios_install'].includes(st) || asked.n >= 3 || Date.now() - asked.ts < 14 * 864e5) return false;
+    LS.set('dk_push_asked', { n:asked.n + 1, ts:Date.now() });
+    AN.track('push_prompt_shown', { source, status:st });
+    const ios = st === 'ios_install';
+    $('#mcard').innerHTML = `<div class="rw">
+      <div class="rw-ring" style="width:96px;height:96px"><div style="font-size:54px">🔔</div></div>
+      <h2 style="font-size:22px">${esc(t('push_ask_t'))}</h2>
+      <p class="muted" style="margin:0">${esc(ios ? t('notif_ios') : t('push_ask_p'))}</p>
+      ${ios ? `<button class="btn moss block" id="pAskNo">${esc(t('ok'))}</button>`
+            : `<button class="btn primary block" id="pAskYes">${esc(t('push_yes'))}</button><button class="btn ghost block" id="pAskNo">${esc(t('push_no'))}</button>`}</div>`;
+    $('#modal').hidden = false;
+    $('#pAskNo').onclick = () => { $('#modal').hidden = true; AN.track('push_prompt_result', { result:'later', source }); };
+    if($('#pAskYes')) $('#pAskYes').onclick = async () => {
+      $('#modal').hidden = true;
+      if(await this.enable(source)){ toast(t('notif_on')); renderPanelIfOpen('quests'); }
+    };
+    return true;
+  },
+};
+
+/* =====================================================================
+   PROFIL I KONTO
+   Bez konta: anonimowa sesja na urządzeniu (jak dotąd), pseudonim i zdjęcie zapisane w bazie.
+   Z kontem: e-mail + kod jednorazowy (bez hasła); logowanie na innym telefonie łączy postępy.
+   ===================================================================== */
+Object.assign(ICON, {
+  bell:   I('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>'),
+  user:   I('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),
+  mail:   I('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'),
+});
+function avatarHtml(url, name, cls = ''){
+  const ini = String(name || '').trim().charAt(0).toUpperCase();
+  return `<span class="avatar ${cls}">${url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : (ini ? esc(ini) : '🐾')}</span>`;
+}
+async function loadProfile(){
+  const acc = API.account(), cache = LS.get('dk_profile', null);
+  try{
+    const p = await API.getProfile();
+    S.profile = { nickname:p.nickname || '', avatar_url:p.avatar_url || '', phone:p.phone || '', marketing_ok:!!p.marketing_ok, analytics_ok:p.analytics_ok !== false };
+  }catch(e){
+    console.warn('profile', e);
+    S.profile = cache && cache.uid === acc.id ? { ...cache } : { nickname:'' };
+  }
+  S.nickname = S.profile.nickname;
+  LS.set('dk_profile', { uid:acc.id, nickname:S.profile.nickname, avatar_url:S.profile.avatar_url || '' });
+  if(S.profile.analytics_ok === false && AN.on) AN.setOn(false);
+}
+function authErr(e){
+  const s = `${e?.code || ''} ${e?.message || e || ''}`;
+  if(/email_exists|already been registered|already registered/i.test(s)) return 'email_exists';
+  if(/otp_disabled|signups? not allowed|user not found|user_not_found/i.test(s)) return 'no_account';
+  if(/rate.?limit|too many|security purposes/i.test(s)) return 'rate_limit';
+  if(/otp_expired|expired|invalid.*(otp|token)|token.*invalid/i.test(s)) return 'code_bad';
+  if(/email_address_invalid|invalid.*email|validate email/i.test(s)) return 'email_bad';
+  if(/not authorized|smtp|sending|manual.?linking|email_provider_disabled|provider.*disabled|confirmation email/i.test(s)) return 'mail_off';
+  return 'acct_err';
+}
+const PF = { step:'idle', mode:'create', email:'', busy:false, arm:null };
+function openProfile(from, mode){
+  PF.step = 'idle'; PF.arm = null; PF.mode = mode || 'create';
+  renderProfile(); openSheet('profile');
+  AN.track('profile_open', { from:from || 'atlas' });
+}
+function renderProfile(){
+  const p = S.profile || {}, st = myStats(), lv = levelOf(st.xp), demo = !!API.account().demo;
+  $('#profileBody').innerHTML = `
+    <div class="prof-head">
+      <label class="avpick" aria-label="${esc(t('avatar_change'))}">${avatarHtml(p.avatar_url, p.nickname, 'lg')}<span class="cam">${small(ICON.camera, 16)}</span><input type="file" id="pfAvatar" accept="image/*"></label>
+      <div style="min-width:0;display:flex;flex-direction:column;gap:2px">
+        <h3 style="font-size:22px;overflow:hidden;text-overflow:ellipsis">${esc(p.nickname || t('anon'))}</h3>
+        <div class="muted" style="font-size:13px">${esc(lv.name)} · ${st.xp} XP</div>
+        ${p.avatar_url ? `<button class="linkbtn" id="pfAvDel" style="font-size:13px;align-self:flex-start">${esc(t('avatar_remove'))}</button>` : ''}
+      </div>
+    </div>
+    <form class="sec" id="pfForm" novalidate>
+      <div class="field"><label for="pfNick">${esc(t('nick_l'))}</label><input class="input" id="pfNick" maxlength="24" autocomplete="nickname" value="${esc(p.nickname || '')}" placeholder="${esc(t('nick_ph'))}"></div>
+      <div class="field"><label for="pfPhone">${esc(t('phone_l'))} <span class="muted" style="font-weight:500">${esc(t('optional'))}</span></label>
+        <input class="input" id="pfPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="${esc(p.phone || '')}" placeholder="+48 600 000 000">
+        <small class="muted" style="font-size:12.5px">${esc(t('phone_hint'))}</small></div>
+      <label class="tg"><span><b>${esc(t('marketing_l'))}</b></span><input type="checkbox" class="sw" id="pfMkt"${p.marketing_ok ? ' checked' : ''}></label>
+      <button class="btn moss block" id="pfSave">${esc(t('save'))}</button>
+    </form>
+    <div class="sec"><h3>${esc(t('acct_h'))}</h3><div id="pfAcct"></div></div>
+    <div class="sec"><h3>${esc(t('notif_h'))}</h3><div id="pfPush"></div></div>
+    <div class="sec"><h3>${esc(t('privacy_h'))}</h3>
+      <label class="tg"><span><b>${esc(t('stats_l'))}</b><small>${esc(t('stats_p'))}</small></span><input type="checkbox" class="sw" id="pfStats"${AN.on ? ' checked' : ''}></label>
+      <a class="muted" style="font-size:13px" href="../privacy.html" target="_blank" rel="noopener">${esc(t('privacy_link'))}</a></div>
+    ${demo ? '' : `<div class="sec" id="pfDanger"></div>`}`;
+  $('#pfForm').onsubmit = e => { e.preventDefault(); saveProfileForm(); };
+  $('#pfAvatar').onchange = e => uploadAvatar(e.target.files[0]);
+  if($('#pfAvDel')) $('#pfAvDel').onclick = async () => {
+    try{ await API.saveProfile({ avatar_url:'-' }); S.profile.avatar_url = ''; afterProfileChange(); AN.track('avatar_removed'); }
+    catch(e){ toast(t('avatar_fail')); }
+  };
+  $('#pfStats').onchange = async e => {
+    const v = e.target.checked;
+    if(!v) AN.track('analytics_off');
+    await AN.flush(); AN.setOn(v);
+    if(v) AN.track('analytics_on');
+    API.saveProfile({ analytics_ok:v }).catch(() => {});
+  };
+  renderAcct(); renderPushBox(); renderDanger();
+}
+function afterProfileChange(){
+  S.nickname = S.profile.nickname;
+  LS.set('dk_profile', { uid:API.account().id, nickname:S.profile.nickname, avatar_url:S.profile.avatar_url || '' });
+  renderProfile(); renderHud(); renderPanelIfOpen('atlas'); renderPanelIfOpen('rank');
+}
+async function saveProfileForm(){
+  const nick = $('#pfNick').value.trim(), phone = $('#pfPhone').value.trim(), mkt = $('#pfMkt').checked;
+  if(nick && nick.length < 2){ toast(t('nick_short')); return; }
+  const digits = phone.replace(/[^0-9+]/g, '');
+  if(phone && !/^\+?[0-9]{6,15}$/.test(digits)){ toast(t('phone_bad')); $('#pfPhone').focus(); return; }
+  const btn = $('#pfSave'); btn.disabled = true; btn.textContent = t('saving');
+  try{
+    await API.saveProfile({ nickname:nick || null, phone:phone ? phone : (S.profile.phone ? '-' : null), marketing_ok:mkt });
+    const fields = [nick !== (S.profile.nickname || '') && 'nickname', phone !== (S.profile.phone || '') && 'phone', mkt !== !!S.profile.marketing_ok && 'marketing'].filter(Boolean);
+    Object.assign(S.profile, { nickname:nick || S.profile.nickname, phone:digits, marketing_ok:mkt });
+    AN.track('profile_saved', { fields:fields.join(',') });
+    toast(t('profile_saved')); afterProfileChange();
+  }catch(e){ toast(t('profile_fail') + ': ' + (e.message || e)); btn.disabled = false; btn.textContent = t('save'); }
+}
+async function uploadAvatar(file){
+  if(!file) return;
+  try{
+    const data = await compress(file, 320, .82);
+    const blob = await (await fetch(data)).blob();
+    const url = await API.uploadAvatar(blob, data);
+    await API.saveProfile({ avatar_url:url });
+    S.profile.avatar_url = url; afterProfileChange(); toast(t('avatar_saved'));
+    AN.track('avatar_upload', { kb:Math.round(blob.size / 1024) });
+  }catch(e){ console.warn(e); toast(t('avatar_fail') + ': ' + (e.message || e)); }
+}
+function renderAcct(){
+  const box = $('#pfAcct'); if(!box) return;
+  const acc = API.account();
+  if(acc.demo){ box.className = 'acct'; box.innerHTML = `<p class="muted" style="margin:0">${esc(t('demo_acct'))}</p>`; return; }
+  if(!acc.anon){
+    box.className = 'acct';
+    box.innerHTML = `<div class="row" style="gap:10px">${small(ICON.mail, 20)}<b style="overflow:hidden;text-overflow:ellipsis">${esc(acc.email)}</b></div>
+      <p class="muted" style="margin:0;font-size:13.5px">${esc(t('acct_ok_p'))}</p>
+      ${PF.arm === 'out' ? `<p style="margin:0;font-size:13.5px">${esc(t('sign_out_q'))}</p><div class="btns"><button class="btn ghost" id="pfOutNo">${esc(t('cancel'))}</button><button class="btn moss" id="pfOutYes">${esc(t('sign_out_yes'))}</button></div>`
+                         : `<button class="btn ghost" id="pfOut">${esc(t('sign_out'))}</button>`}`;
+    if($('#pfOut')) $('#pfOut').onclick = () => { PF.arm = 'out'; renderAcct(); };
+    if($('#pfOutNo')) $('#pfOutNo').onclick = () => { PF.arm = null; renderAcct(); };
+    if($('#pfOutYes')) $('#pfOutYes').onclick = signOut;
+    return;
+  }
+  box.className = 'acct' + (PF.mode === 'create' ? ' warn' : '');
+  const create = PF.mode === 'create';
+  if(PF.step === 'code'){
+    box.innerHTML = `<p style="margin:0;font-size:14px">${esc(t('code_sent').replace('{email}', PF.email))}</p>
+      <div class="field"><label for="pfCode">${esc(t('code_l'))}</label><input class="input code" id="pfCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••"></div>
+      <button class="btn primary block" id="pfVerify">${esc(t('verify'))}</button>
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap"><button class="linkbtn" id="pfResend">${esc(t('resend'))}</button><button class="linkbtn" id="pfOther">${esc(t('change_email'))}</button></div>`;
+    $('#pfVerify').onclick = acctVerify;
+    $('#pfCode').onkeydown = e => { if(e.key === 'Enter') acctVerify(); };
+    $('#pfCode').oninput = e => { if(e.target.value.replace(/\D/g, '').length === 6 && !PF.busy) acctVerify(); };
+    $('#pfResend').onclick = acctSend;
+    $('#pfOther').onclick = () => { PF.step = 'idle'; renderAcct(); };
+    return;
+  }
+  box.innerHTML = `<div><b>${esc(create ? t('acct_anon_t') : t('login_t'))}</b><p class="muted" style="margin:4px 0 0;font-size:13.5px">${esc(create ? t('acct_anon_p') : t('login_p'))}</p></div>
+    <div class="field"><label for="pfEmail">${esc(t('email_l'))}</label><input class="input" id="pfEmail" type="email" inputmode="email" autocomplete="email" value="${esc(PF.email)}" placeholder="${esc(t('email_ph'))}"></div>
+    <button class="btn ${create ? 'primary' : 'moss'} block" id="pfSend">${esc(t('send_code'))}</button>
+    <button class="linkbtn" id="pfMode" style="align-self:flex-start">${esc(create ? t('have_account') : t('create_instead'))}</button>`;
+  $('#pfSend').onclick = acctSend;
+  $('#pfEmail').onkeydown = e => { if(e.key === 'Enter') acctSend(); };
+  $('#pfMode').onclick = () => { PF.mode = create ? 'login' : 'create'; renderAcct(); };
+}
+async function acctSend(){
+  const inp = $('#pfEmail'); if(inp) PF.email = inp.value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(PF.email)){ toast(t('email_bad')); inp?.focus(); return; }
+  if(PF.busy) return; PF.busy = true;
+  const mode = PF.mode, btn = $('#pfSend') || $('#pfResend'); if(btn) btn.disabled = true;
+  AN.track('account_start', { mode });
+  try{
+    if(mode === 'create') await API.startCreate(PF.email); else await API.startLogin(PF.email);
+    PF.step = 'code'; AN.track('account_code_sent', { mode });
+    renderAcct(); $('#pfCode')?.focus();
+  }catch(e){
+    const k = authErr(e); console.warn('auth', e);
+    AN.track('account_error', { step:'send', mode, code:k });
+    if(k === 'email_exists'){ PF.mode = 'login'; renderAcct(); }
+    else if(k === 'no_account'){ PF.mode = 'create'; renderAcct(); }
+    toast(t(k));
+  }finally{ PF.busy = false; const b = $('#pfSend') || $('#pfResend'); if(b) b.disabled = false; }
+}
+async function acctVerify(){
+  const code = ($('#pfCode')?.value || '').replace(/\D/g, '');
+  if(code.length < 6){ toast(t('code_bad')); return; }
+  if(PF.busy) return; PF.busy = true;
+  const mode = PF.mode, btn = $('#pfVerify'); if(btn){ btn.disabled = true; btn.textContent = t('saving'); }
+  try{
+    if(mode === 'create'){
+      await API.verifyCreate(PF.email, code);
+      AN.track('account_verified', { mode });
+      toast(t('account_created'));
+    } else {
+      const moved = await API.verifyLogin(PF.email, code);
+      AN.track('account_verified', { mode, merged:moved || 0 });
+      await afterIdentityChange();
+      toast(moved ? t('logged_in_merged').replace('{n}', moved) : t('logged_in'));
+    }
+    PF.step = 'idle'; renderProfile();
+  }catch(e){
+    const k = authErr(e); console.warn('verify', e);
+    AN.track('account_error', { step:'verify', mode, code:k });
+    toast(t(k === 'acct_err' ? 'code_bad' : k));
+    if(btn){ btn.disabled = false; btn.textContent = t('verify'); }
+  }finally{ PF.busy = false; }
+}
+async function afterIdentityChange(){
+  await loadProfile();
+  await reload(); renderChips(); renderAll();
+  PUSH.sync();
+}
+async function signOut(){
+  try{
+    AN.track('sign_out'); await AN.flush();
+    await API.signOut();
+    LS.set('dk_profile', null);
+    await afterIdentityChange();
+    PF.arm = null; renderProfile(); toast(t('signed_out'));
+  }catch(e){ toast(t('acct_err') + ': ' + (e.message || e)); }
+}
+function renderDanger(){
+  const box = $('#pfDanger'); if(!box) return;
+  box.innerHTML = PF.arm === 'del'
+    ? `<p style="margin:0;font-size:13.5px">${esc(t('delete_q'))}</p><div class="btns"><button class="btn ghost" id="pfDelNo">${esc(t('cancel'))}</button><button class="btn danger" id="pfDelYes">${esc(t('delete_yes'))}</button></div>`
+    : `<button class="linkbtn danger-link" id="pfDel" style="align-self:flex-start">${esc(t('delete_acct'))}</button>`;
+  if($('#pfDel')) $('#pfDel').onclick = () => { PF.arm = 'del'; renderDanger(); };
+  if($('#pfDelNo')) $('#pfDelNo').onclick = () => { PF.arm = null; renderDanger(); };
+  if($('#pfDelYes')) $('#pfDelYes').onclick = async () => {
+    try{
+      AN.track('account_delete'); await AN.flush();
+      if(PUSH.status() === 'on') await PUSH.disable();
+      await API.deleteMe();
+      LS.set('dk_profile', null);
+      await afterIdentityChange();
+      PF.arm = null; closeSheets(); toast(t('deleted'));
+    }catch(e){ toast(t('acct_err') + ': ' + (e.message || e)); }
+  };
+}
+function renderPushBox(){
+  const box = $('#pfPush'); if(!box) return;
+  const st = PUSH.status(), pr = PUSH.prefs();
+  const msg = { blocked:'notif_blocked', unsupported:'notif_unsupported', ios_install:'notif_ios', app_old:'notif_app_old' }[st];
+  box.innerHTML = msg ? `<p class="muted" style="margin:0;font-size:13.5px">${esc(t(msg))}</p>`
+    : `<label class="tg"><span><b>${esc(t('notif_l'))}</b><small>${esc(t('notif_p'))}</small></span><input type="checkbox" class="sw" id="pfPushOn"${st === 'on' ? ' checked' : ''}></label>
+       ${st === 'on' ? `<div class="bchips" style="margin-top:10px">${['streak', 'confirm', 'nearby', 'weekly'].map(k => `<button class="chip${pr[k] ? ' on' : ''}" data-pref="${k}">${esc(t('n_' + k))}</button>`).join('')}</div>` : ''}`;
+  if($('#pfPushOn')) $('#pfPushOn').onchange = async e => {
+    e.target.disabled = true;
+    if(e.target.checked){ if(await PUSH.enable('profile')) toast(t('notif_on')); }
+    else { await PUSH.disable(); toast(t('notif_off')); }
+    renderPushBox();
+  };
+  $$('#pfPush [data-pref]').forEach(b => b.onclick = async () => {
+    const p = PUSH.prefs(); p[b.dataset.pref] = !p[b.dataset.pref]; LS.set('dk_push_prefs', p);
+    AN.track('push_prefs', { [b.dataset.pref]:p[b.dataset.pref] });
+    renderPushBox(); PUSH.sync();
+  });
+}
+
+/* Po zamknięciu okna nagrody: raz poprosić o powiadomienia, potem zaproponować zapis postępów */
+async function afterReward(){
+  const n = S.mine.length, acc = API.account();
+  if(n >= 1 && await PUSH.ask('after_report')) return;
+  const nudge = LS.get('dk_acct_nudge', 0);
+  if(acc.anon && !acc.demo && [2, 5, 10, 20].includes(n) && Date.now() - nudge > 3 * 864e5){
+    LS.set('dk_acct_nudge', Date.now());
+    AN.track('account_nudge_shown', { sightings:n });
+    $('#mcard').innerHTML = `<div class="rw">
+      <div class="rw-ring" style="width:96px;height:96px"><div style="font-size:54px">💾</div></div>
+      <h2 style="font-size:22px">${esc(t('save_progress'))}</h2>
+      <p class="muted" style="margin:0">${esc(t('save_progress_p'))}</p>
+      <button class="btn primary block" id="nYes">${esc(t('save_progress'))}</button><button class="btn ghost block" id="nNo">${esc(t('push_no'))}</button></div>`;
+    $('#modal').hidden = false;
+    $('#nNo').onclick = () => { $('#modal').hidden = true; };
+    $('#nYes').onclick = () => { $('#modal').hidden = true; openProfile('nudge', 'create'); };
+  }
 }
 
 /* ---------- toast + komunikaty ---------- */
@@ -1862,6 +2483,7 @@ let onbStep = 0;
 function openOnboarding(){ onbStep = 0; $('#onb').hidden = false; renderOnb(); }
 function renderOnb(){
   const s = SLIDES[onbStep], eyebrow = t(s.k + '_e') || appName();
+  AN.track('onboarding_view', { step:onbStep + 1 });
   const langChips = `<div class="bchips" style="justify-content:flex-end">${[['pl','PL'],['en','EN']].map(([v, l]) => `<button class="chip${LANG === v ? ' on' : ''}" data-onblang="${v}" style="height:30px">${l}</button>`).join('')}</div>`;
   $('#onbIn').innerHTML = `
     ${onbStep === 0 ? langChips : ''}
@@ -1871,7 +2493,8 @@ function renderOnb(){
     ${s.last ? `
       <div class="field"><label for="onbNick">${esc(t('nick_l'))}</label><input class="input" id="onbNick" maxlength="24" placeholder="${esc(t('onb_nick_ph'))}" value="${esc(S.nickname)}"></div>
       <label class="consent"><input type="checkbox" id="onbOk"><span>${esc(t('consent'))} <a href="../privacy.html" target="_blank" rel="noopener">${esc(t('privacy_link'))}</a></span></label>
-      <p style="font-size:13px">${esc(t('emergency'))} ${esc(EMERG[LANG])}.</p>` : ''}
+      <p style="font-size:13px">${esc(t('emergency'))} ${esc(EMERG[LANG])}.</p>
+      ${DEMO ? '' : `<button class="linkbtn" id="onbLogin" style="align-self:flex-start">${esc(t('onb_login'))}</button>`}` : ''}
     <div class="btns" style="margin-top:auto">
       ${onbStep ? `<button class="btn ghost" id="onbBack">${esc(t('back'))}</button>` : ''}
       <button class="btn ${s.last ? 'primary' : 'moss'}" id="onbNext"${s.last ? ' disabled' : ''}>${esc(s.last ? t('onb_go') : t('next'))}</button></div>`;
@@ -1882,9 +2505,16 @@ function renderOnb(){
     $('#onbNext').onclick = async () => {
       const n = $('#onbNick').value.trim();
       if(n && n.length < 2){ toast(t('nick_short')); return; }
-      if(n && n !== S.nickname){ try{ await API.setNickname(n); S.nickname = n; }catch(e){ toast(t('nick_fail') + ': ' + (e.message || e)); } }
+      if(n && n !== S.nickname){ try{ await API.saveProfile({ nickname:n }); S.nickname = n; S.profile.nickname = n; LS.set('dk_profile', { uid:API.account().id, nickname:n, avatar_url:S.profile.avatar_url || '' }); }catch(e){ toast(t('nick_fail') + ': ' + (e.message || e)); } }
+      AN.track('onboarding_complete', { nickname:!!(n || S.nickname), login:false });
       LS.set('dk_onb_v4', true); $('#onb').hidden = true; renderHud();
-      locate(false);
+      locate(false, 'onboarding');
+    };
+    if($('#onbLogin')) $('#onbLogin').onclick = () => {
+      if(!$('#onbOk').checked){ toast(t('onb_need_consent')); return; }
+      AN.track('onboarding_complete', { nickname:false, login:true });
+      LS.set('dk_onb_v4', true); $('#onb').hidden = true; renderHud();
+      locate(false, 'onboarding'); openProfile('onboarding', 'login');
     };
   } else $('#onbNext').onclick = () => { onbStep++; renderOnb(); };
 }
@@ -1928,8 +2558,9 @@ async function boot(){
     const sp = await API.species();
     S.species = sp.sort((a, b) => (SP_ORDER.indexOf(a.name_pl) + 1 || 99) - (SP_ORDER.indexOf(b.name_pl) + 1 || 99));
     S.spById = {}; S.species.forEach(s => S.spById[s.id] = s);
-    await reload();
-    S.nickname = await API.getNickname();
+    const cache = LS.get('dk_profile', null);
+    if(cache?.uid === API.account().id){ S.profile = { ...cache }; S.nickname = cache.nickname || ''; }
+    await Promise.all([reload(), loadProfile()]);
   };
   try{
     await start();
@@ -1943,7 +2574,16 @@ async function boot(){
     } else notice(t('start_fail') + ': ' + (e.message || e), true);
   }
   renderChips(); renderAll();
-  if(!LS.get('dk_onb_v4', false)) openOnboarding(); else locateIfAllowed();
+  const firstOpen = !LS.get('dk_onb_v4', false);
+  if(firstOpen) openOnboarding(); else locateIfAllowed();
+  // statystyki otwarcia (po chwili — gdy znana jest okolica), powrót z powiadomienia, odświeżenie push
+  const qp = new URLSearchParams(location.search), fromPush = qp.get('push');
+  if(fromPush){ AN.track('push_open', { kind:fromPush, channel:'web' }); qp.delete('push'); history.replaceState(null, '', location.pathname + (qp.toString() ? '?' + qp : '') + location.hash);
+    if(fromPush === 'streak' || fromPush === 'weekly') setTab('quests'); }
+  const lastOpen = LS.get('dk_last_open', 0); LS.set('dk_last_open', Date.now());
+  setTimeout(() => AN.track('app_open', { ...userProps(), first:firstOpen, standalone:isStandalone(),
+    days_away:lastOpen ? Math.floor((Date.now() - lastOpen) / 864e5) : null, ref:document.referrer ? new URL(document.referrer).hostname.slice(0, 40) : '' }), 2500);
+  PUSH.listen(); PUSH.sync();
   if('serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.)/.test(location.hostname)))
     navigator.serviceWorker.register('sw.js').catch(() => {});
 }

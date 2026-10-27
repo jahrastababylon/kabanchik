@@ -13,5 +13,15 @@
   "ios": {
     "backgroundColor": "#2D5843",
     "contentInset": "never"
+  },
+  "appendUserAgent": "TropamiApp",
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    }
   }
 }

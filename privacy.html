@@ -53,11 +53,15 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 
 <h2>2. Jakie dane zbieramy</h2>
 <ul>
-  <li><b>Anonimowy identyfikator</b> — tworzony automatycznie przy pierwszym uruchomieniu. Nie prosimy o e-mail ani numer telefonu.</li>
-  <li><b>Pseudonim</b> — jeśli go podasz. Widzą go inni w rankingu i przy Twoich obserwacjach.</li>
+  <li><b>Anonimowy identyfikator</b> — tworzony automatycznie przy pierwszym uruchomieniu. Z aplikacji można korzystać bez konta.</li>
+  <li><b>Pseudonim i zdjęcie profilowe</b> — jeśli je podasz. Widzą je inni w rankingu i przy Twoich obserwacjach.</li>
+  <li><b>Adres e-mail</b> — tylko jeśli założysz konto. Służy do logowania jednorazowym kodem i przeniesienia postępów na inne urządzenie. Nie pokazujemy go innym.</li>
+  <li><b>Numer telefonu</b> — opcjonalnie, tylko do kontaktu w sprawie nagród. Nie pokazujemy go innym.</li>
   <li><b>Obserwacje</b> — gatunek, miejsce na mapie, data i godzina, opcjonalnie opis zachowania, notatka i zdjęcie. Obserwacje są publiczne i widoczne na mapie.</li>
   <li><b>Potwierdzenia</b> cudzych obserwacji.</li>
   <li><b>Twoja bieżąca lokalizacja</b> — tylko wtedy, gdy na to pozwolisz, i tylko po to, by pokazać mapę wokół Ciebie. Nie zapisujemy jej, dopóki sam nie zgłosisz obserwacji w danym miejscu.</li>
+  <li><b>Statystyki użycia</b> — zdarzenia w aplikacji (np. otwarcie, zgłoszenie, wybór gatunku), typ urządzenia, język, strefa czasowa i przybliżona okolica (~10 km). Powiązane z anonimowym identyfikatorem. Możesz je wyłączyć: Profil i konto → Prywatność.</li>
+  <li><b>Powiadomienia push</b> — jeśli je włączysz: adres subskrypcji urządzenia, strefa czasowa, przybliżona okolica (~10 km) i wybrane rodzaje przypomnień. Możesz je wyłączyć w aplikacji lub w ustawieniach telefonu.</li>
   <li><b>Ustawienia w przeglądarce</b> (język, styl mapy, postęp w samouczku) — zapisywane lokalnie na Twoim urządzeniu.</li>
 </ul>
 <p>Nie sprzedajemy danych osobowych.</p>
@@ -66,13 +70,19 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <ul>
   <li>Prowadzenie wspólnej mapy obserwacji i gry (zgoda — art. 6 ust. 1 lit. a RODO, wyrażana w aplikacji).</li>
   <li>Udostępnianie <b>zanonimizowanych</b> danych o obserwacjach miastom, szkołom i naukowcom (zgoda — j.w.).</li>
+  <li>Konto, przeniesienie postępów i kontakt w sprawie nagród (wykonanie usługi — art. 6 ust. 1 lit. b RODO; telefon i kontakt marketingowy — zgoda).</li>
+  <li>Statystyki użycia, rozwój aplikacji i mierzenie zasięgu, także dla partnerów i reklamodawców w formie zbiorczej (prawnie uzasadniony interes — art. 6 ust. 1 lit. f RODO; możesz się sprzeciwić, wyłączając statystyki).</li>
+  <li>Przypomnienia push (zgoda wyrażana przy włączeniu powiadomień).</li>
   <li>Bezpieczeństwo i ochrona przed nadużyciami, np. limit zgłoszeń (prawnie uzasadniony interes — art. 6 ust. 1 lit. f RODO).</li>
 </ul>
 
 <h2>4. Komu przekazujemy dane</h2>
 <div class="tbl"><table>
   <tr><th>Usługa</th><th>Do czego</th><th>Gdzie</th></tr>
-  <tr><td>Supabase</td><td>baza danych i zdjęcia</td><td>UE (Frankfurt)</td></tr>
+  <tr><td>Supabase</td><td>baza danych, logowanie, zdjęcia, statystyki</td><td>UE (Frankfurt)</td></tr>
+  <tr><td>Dostawca poczty (SMTP)</td><td>wysyłka kodów logowania</td><td>UE</td></tr>
+  <tr><td>GitHub Actions</td><td>wysyłka przypomnień push</td><td>USA</td></tr>
+  <tr><td>Google Firebase, Mozilla, Apple, Microsoft</td><td>dostarczanie powiadomień push na Twoje urządzenie (usługa powiadomień Twojej przeglądarki lub telefonu)</td><td>USA / globalnie</td></tr>
   <tr><td>GitHub Pages</td><td>hosting strony i aplikacji</td><td>globalnie</td></tr>
   <tr><td>VersaTiles, OpenFreeMap, OpenStreetMap</td><td>kafelki mapy (otrzymują adres IP)</td><td>UE</td></tr>
   <tr><td>Nominatim (OpenStreetMap)</td><td>wyszukiwanie adresów, nazwy miejsc</td><td>UE</td></tr>
@@ -80,7 +90,7 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 </table></div>
 
 <h2>5. Jak długo przechowujemy dane</h2>
-<p>Obserwacje przechowujemy, dopóki projekt działa, bo są wartością naukową. Na Twoją prośbę usuniemy Twoje obserwacje i pseudonim lub trwale je zanonimizujemy.</p>
+<p>Obserwacje przechowujemy, dopóki projekt działa, bo są wartością naukową. Konto możesz usunąć sam: Profil i konto → „Usuń konto i dane”. Usuwamy wtedy pseudonim, zdjęcie profilowe, e-mail, telefon, potwierdzenia, subskrypcje push i statystyki, a obserwacje zostają na mapie bez podpisu. Statystyki użycia przechowujemy do 24 miesięcy.</p>
 
 <h2>6. Twoje prawa</h2>
 <p>Masz prawo do dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przeniesienia oraz do wycofania zgody w dowolnym momencie (bez wpływu na wcześniejsze przetwarzanie). Napisz na <b>hello@tropami.eu</b>. Możesz też złożyć skargę do Prezesa Urzędu Ochrony Danych Osobowych.</p>
@@ -103,11 +113,15 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 
 <h2>2. What data we collect</h2>
 <ul>
-  <li><b>An anonymous identifier</b> — created automatically on first launch. We do not ask for your email or phone number.</li>
-  <li><b>Nickname</b> — if you set one. Others see it in the ranking and on your sightings.</li>
+  <li><b>An anonymous identifier</b> — created automatically on first launch. You can use the app without an account.</li>
+  <li><b>Nickname and profile photo</b> — if you set them. Others see them in the ranking and on your sightings.</li>
+  <li><b>Email address</b> — only if you create an account. Used to sign in with a one-time code and to move your progress to another device. Never shown to others.</li>
+  <li><b>Phone number</b> — optional, only to contact you about prizes. Never shown to others.</li>
   <li><b>Sightings</b> — species, place on the map, date and time, and optionally behaviour, a note and a photo. Sightings are public and visible on the map.</li>
   <li><b>Confirmations</b> of other people’s sightings.</li>
   <li><b>Your current location</b> — only if you allow it, and only to show the map around you. We do not store it unless you report a sighting at that place.</li>
+  <li><b>Usage statistics</b> — events in the app (e.g. opening it, reporting, choosing a species), device type, language, time zone and approximate area (~10 km). Linked to the anonymous identifier. You can turn them off: Profile &amp; account → Privacy.</li>
+  <li><b>Push notifications</b> — if you turn them on: your device's subscription address, time zone, approximate area (~10 km) and the reminder types you chose. You can turn them off in the app or in your phone settings.</li>
   <li><b>Browser settings</b> (language, map style, tutorial progress) — stored locally on your device.</li>
 </ul>
 <p>We do not sell personal data.</p>
@@ -116,13 +130,19 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 <ul>
   <li>Running the shared sightings map and the game (consent — Art. 6(1)(a) GDPR, given in the app).</li>
   <li>Sharing <b>anonymised</b> sighting data with cities, schools and researchers (consent — as above).</li>
+  <li>Your account, moving progress between devices and contacting you about prizes (performance of the service — Art. 6(1)(b) GDPR; phone and marketing contact — consent).</li>
+  <li>Usage statistics, improving the app and measuring reach, including aggregated figures for partners and advertisers (legitimate interest — Art. 6(1)(f) GDPR; you can object by turning statistics off).</li>
+  <li>Push reminders (consent, given when you turn notifications on).</li>
   <li>Security and abuse prevention, e.g. report limits (legitimate interest — Art. 6(1)(f) GDPR).</li>
 </ul>
 
 <h2>4. Who receives data</h2>
 <div class="tbl"><table>
   <tr><th>Service</th><th>Purpose</th><th>Where</th></tr>
-  <tr><td>Supabase</td><td>database and photos</td><td>EU (Frankfurt)</td></tr>
+  <tr><td>Supabase</td><td>database, sign-in, photos, statistics</td><td>EU (Frankfurt)</td></tr>
+  <tr><td>Email provider (SMTP)</td><td>sending sign-in codes</td><td>EU</td></tr>
+  <tr><td>GitHub Actions</td><td>sending push reminders</td><td>USA</td></tr>
+  <tr><td>Google Firebase, Mozilla, Apple, Microsoft</td><td>delivering push notifications to your device (your browser's or phone's notification service)</td><td>USA / global</td></tr>
   <tr><td>GitHub Pages</td><td>hosting of the site and app</td><td>global</td></tr>
   <tr><td>VersaTiles, OpenFreeMap, OpenStreetMap</td><td>map tiles (receive your IP address)</td><td>EU</td></tr>
   <tr><td>Nominatim (OpenStreetMap)</td><td>address search, place names</td><td>EU</td></tr>
@@ -130,7 +150,7 @@ td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);verti
 </table></div>
 
 <h2>5. How long we keep data</h2>
-<p>We keep sightings for as long as the project runs, because they have scientific value. On request we delete your sightings and nickname or anonymise them permanently.</p>
+<p>We keep sightings for as long as the project runs, because they have scientific value. You can delete your account yourself: Profile &amp; account → “Delete account and data”. We then delete your nickname, profile photo, email, phone, confirmations, push subscriptions and statistics; sightings stay on the map without your name. Usage statistics are kept for up to 24 months.</p>
 
 <h2>6. Your rights</h2>
 <p>You have the right to access, rectify and erase your data, to restrict processing, to data portability, and to withdraw consent at any time (without affecting earlier processing). Write to <b>hello@tropami.eu</b>. You can also lodge a complaint with your data protection authority (in Poland: the President of the Personal Data Protection Office, UODO).</p>

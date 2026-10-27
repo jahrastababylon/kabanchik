@@ -1,0 +1,44 @@
+# Przypomnienia push: co godzinę baza wybiera, komu i co wysłać (seria, potwierdzenia, powrót po przerwie,
+# nowe wyzwania), a ten skrypt wysyła. Reguły i limity: supabase/supabase_v8_accounts.sql → dk_push_due.
+# Sekrety: SUPABASE_SERVICE_ROLE_KEY, VAPID_PRIVATE_KEY (+ opcjonalnie FCM_SERVICE_ACCOUNT) — zobacz scripts/push/README.md
+name: Push reminders
+
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Tylko pokaż, nic nie wysyłaj'
+        type: boolean
+        default: true
+
+concurrency:
+  group: push-reminders
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: scripts/push/package-lock.json
+      - name: Install
+        working-directory: scripts/push
+        run: npm ci --omit=dev
+      - name: Send
+        working-directory: scripts/push
+        env:
+          SUPABASE_URL: https://jxvjurltvjgcqxvhbfhx.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VAPID_PUBLIC_KEY: BCSmeA1KF8DKec-2GhIHJvFH1Hpn4GZvOK9BV43XSn5u8B4uIeZNJkFWQJNXqmtNBr7sJE72xjou7vtnH6li7iM
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: mailto:hello@tropami.eu
+          FCM_SERVICE_ACCOUNT: ${{ secrets.FCM_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
+        run: node send.mjs
