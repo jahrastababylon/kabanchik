@@ -1189,6 +1189,7 @@ async function setBase(id = currentStyleId()){
     let styled = false;
     gl?.on('styledata', () => styled = true);
     gl?.on('error', e => { console.warn('map style error', e?.error?.message || e); if(!styled && seq === baseSeq) fail(); });
+    gl?.once('load', repaintBase); setTimeout(repaintBase, 1500);
     return;
   }
   const url = typeof s.raster === 'function' ? s.raster() : s.raster;
@@ -1199,6 +1200,16 @@ async function setBase(id = currentStyleId()){
     .addTo(map);
   setTimeout(() => { if(!okT && seq === baseSeq) fail(); }, 7000);
 }
+// Wektorowa mapa czasem nie odświeża się po zmianie rozmiaru albo powrocie z tła — wymuszamy przerysowanie
+function repaintBase(){
+  if(!map) return;
+  map.invalidateSize();
+  const gl = base?.getMaplibreMap?.();
+  if(gl){ gl.resize(); gl.triggerRepaint(); }
+}
+addEventListener('resize', () => { clearTimeout(repaintBase.t); repaintBase.t = setTimeout(repaintBase, 150); });
+addEventListener('orientationchange', () => setTimeout(repaintBase, 300));
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') setTimeout(repaintBase, 100); });
 function initialView(){
   const saved = LS.get('dk_view', null);
   if(saved && isFinite(saved.lat)) return saved;
