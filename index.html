@@ -449,7 +449,7 @@ const CONFIG = {
   // Własny serwer kafelków (np. MapTiler, Stadia). Pojawi się jako styl „Custom”.
   CUSTOM_TILES: '',
   CUSTOM_ATTRIBUTION: '',
-  DEFAULT_STYLE: 'osm',        // osm | liberty | positron | dark | carto_voyager | carto_positron | carto_dark
+  DEFAULT_STYLE: 'auto',       // auto = VersaTiles Colorful w dzień, Eclipse w trybie ciemnym; albo id stylu z listy STYLES
   NEAR_RADIUS_KM: 25,
 };
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
@@ -1126,6 +1126,7 @@ const ATTR_ESRI = 'Tiles © <a href="https://www.esri.com" target="_blank" rel="
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const carto = p => `https://{s}.basemaps.cartocdn.com/${p}/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CONFIG.CARTO_KEY)}`;
 const STYLES = [
+  { id:'auto',           name:'Auto · Colorful / Eclipse', auto:true },
   { id:'osm',            name:'OpenStreetMap',            raster:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr:ATTR_OSM, invertDark:true },
   { id:'liberty',        name:'OpenFreeMap · Liberty',     vector:'https://tiles.openfreemap.org/styles/liberty', attr:ATTR_OFM },
   { id:'positron',       name:'OpenFreeMap · Positron',    vector:'https://tiles.openfreemap.org/styles/positron', attr:ATTR_OFM },
@@ -1145,11 +1146,15 @@ const STYLES = [
 ];
 if(CONFIG.CUSTOM_TILES) STYLES.push({ id:'custom', name:'Custom', raster:CONFIG.CUSTOM_TILES, attr:CONFIG.CUSTOM_ATTRIBUTION || ATTR_OSM });
 const styleAvailable = s => !s.key || !!CONFIG.CARTO_KEY;
+// Klucz v2: nowy domyślny styl dla wszystkich (stary wybór „osm” z testów nie przechodzi)
 function currentStyleId(){
-  const id = LS.get('dk_style', CONFIG.DEFAULT_STYLE);
+  const id = LS.get('dk_style_v2', CONFIG.DEFAULT_STYLE);
   const s = STYLES.find(x => x.id === id);
-  return s && styleAvailable(s) ? id : 'osm';
+  return s && styleAvailable(s) ? id : 'auto';
 }
+// „auto” zależy od motywu telefonu; zapasowe style, gdy któryś serwer nie odpowiada
+const resolveStyle = id => id === 'auto' ? (isDark() ? 'vt_eclipse' : 'vt_colorful') : id;
+const STYLE_FALLBACK = { vt_colorful:'liberty', vt_graybeard:'positron', vt_eclipse:'dark', liberty:'osm', bright:'osm', positron:'osm', dark:'osm', fiord:'osm' };
 function isDark(){ const th = document.documentElement.dataset.theme; return th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
 
 const loadedScripts = {};
@@ -1163,12 +1168,13 @@ async function ensureMapLibre(){
 
 let baseSeq = 0;
 async function setBase(id = currentStyleId()){
-  const seq = ++baseSeq, s = STYLES.find(x => x.id === id) || STYLES[0];
+  id = resolveStyle(id);
+  const seq = ++baseSeq, s = STYLES.find(x => x.id === id) || STYLES.find(x => x.id === 'osm');
   if(base){ map.removeLayer(base); base = null; }
   document.body.classList.toggle('tiles-invert', !!(s.invertDark && isDark()));
   const fail = () => {
     if(seq !== baseSeq) return;
-    if(s.id !== 'osm'){ toast(t('style_fail')); LS.set('dk_style', 'osm'); setBase('osm'); renderPanelIfOpen('atlas'); }
+    if(s.id !== 'osm'){ const next = STYLE_FALLBACK[s.id] || 'osm'; console.warn('map style failed:', s.id, '→', next); setBase(next); }
     else notice(t('tiles_fail'), true);
   };
   if(s.vector){
@@ -1661,7 +1667,7 @@ function renderAtlas(){
     if(st.my.length){ const b = L.latLngBounds(st.my.map(s => [s.lat, s.lng])); map.fitBounds(b.pad(.3), { maxZoom:14 }); }
   };
   $$('#atlasBody [data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
-  $$('#atlasBody [data-style]').forEach(b => b.onclick = () => { LS.set('dk_style', b.dataset.style); setBase(b.dataset.style); renderAtlas(); });
+  $$('#atlasBody [data-style]').forEach(b => b.onclick = () => { LS.set('dk_style_v2', b.dataset.style); setBase(b.dataset.style); renderAtlas(); });
 }
 async function renderRank(){
   const body = $('#rankBody'), R = CONFIG.NEAR_RADIUS_KM;
