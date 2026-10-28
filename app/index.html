@@ -2744,8 +2744,11 @@ async function boot(){
   if(fromPush){ AN.track('push_open', { kind:fromPush, channel:'web' }); qp.delete('push'); history.replaceState(null, '', location.pathname + (qp.toString() ? '?' + qp : '') + location.hash);
     if(fromPush === 'streak' || fromPush === 'weekly') setTab('quests'); }
   const lastOpen = LS.get('dk_last_open', 0); LS.set('dk_last_open', Date.now());
+  // skąd przyszedł użytkownik (link z ?src= lub utm_source) — zapamiętujemy pierwsze źródło
+  const srcNow = (qp.get('src') || qp.get('utm_source') || '').slice(0, 40);
+  if(srcNow && !LS.get('dk_src', '')) LS.set('dk_src', srcNow);
   setTimeout(() => AN.track('app_open', { ...userProps(), first:firstOpen, standalone:isStandalone(),
-    days_away:lastOpen ? Math.floor((Date.now() - lastOpen) / 864e5) : null, ref:document.referrer ? new URL(document.referrer).hostname.slice(0, 40) : '' }), 2500);
+    days_away:lastOpen ? Math.floor((Date.now() - lastOpen) / 864e5) : null, ref:document.referrer ? new URL(document.referrer).hostname.slice(0, 40) : '', src:srcNow || LS.get('dk_src', '') }), 2500);
   PUSH.listen(); PUSH.sync();
   dailyCheckin();
   // logowanie: dostępni dostawcy, powrót z Google/Apple (strona) i z przeglądarki (aplikacja Android)
