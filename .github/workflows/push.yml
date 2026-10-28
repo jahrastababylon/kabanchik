@@ -39,7 +39,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           VAPID_PUBLIC_KEY: BCSmeA1KF8DKec-2GhIHJvFH1Hpn4GZvOK9BV43XSn5u8B4uIeZNJkFWQJNXqmtNBr7sJE72xjou7vtnH6li7iM
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-          VAPID_SUBJECT: mailto:hello@tropami.eu
+          VAPID_SUBJECT: mailto:hello@tropami.com
           FCM_SERVICE_ACCOUNT: ${{ secrets.FCM_SERVICE_ACCOUNT }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'próba' && '1' || '0' }}
           TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'test' && '1' || '0' }}

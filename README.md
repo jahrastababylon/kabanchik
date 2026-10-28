@@ -1,6 +1,6 @@
 # Tropami — как запустить
 
-Сайт: **https://jahrastababylon.github.io/kabanchik/** · приложение: **https://jahrastababylon.github.io/kabanchik/app/** (после включения GitHub Pages, см. ниже).
+Сайт: **https://tropami.com/** · приложение: **https://tropami.com/app/** (старый адрес jahrastababylon.github.io/kabanchik/ автоматически переадресует сюда)
 
 В папке:
 

@@ -14,7 +14,7 @@ import webpush from 'web-push';
 import { GoogleAuth } from 'google-auth-library';
 
 const env = process.env;
-const APP_URL = env.APP_URL || 'https://jahrastababylon.github.io/kabanchik/app/';
+const APP_URL = env.APP_URL || 'https://tropami.com/app/';
 const DRY = env.DRY_RUN === '1' || env.DRY_RUN === 'true';
 const TEST = env.TEST === '1' || env.TEST === 'true';
 
@@ -121,7 +121,7 @@ async function main(){
   }
   const hasWeb = !!(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY);
   const hasFcm = !!env.FCM_SERVICE_ACCOUNT;
-  if(hasWeb) webpush.setVapidDetails(env.VAPID_SUBJECT || 'mailto:hello@tropami.eu', env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
+  if(hasWeb) webpush.setVapidDetails(env.VAPID_SUBJECT || 'mailto:hello@tropami.com', env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
 
   const due = await rpc(TEST ? 'dk_push_test' : 'dk_push_due');
   console.log(`${TEST ? 'Test — urządzeń' : 'Do wysłania'}: ${due.length} (web push: ${hasWeb ? 'tak' : 'brak kluczy'}, Firebase: ${hasFcm ? 'tak' : 'brak klucza'})`);

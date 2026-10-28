@@ -1,7 +1,7 @@
 # Tropami — Android i iOS
 
 Natywne „opakowania” (Capacitor 8) dla aplikacji webowej z katalogu `app/`.
-Aplikacja ładuje stronę `https://jahrastababylon.github.io/kabanchik/app/`, więc każda zmiana w `app/` trafia do użytkowników od razu, bez nowej wersji APK.
+Aplikacja ładuje stronę `https://tropami.com/app/`, więc każda zmiana w `app/` trafia do użytkowników od razu, bez nowej wersji APK.
 
 - Android: identyfikator `com.tropami.app` (stały — nie zmieniać po publikacji w Google Play)
 - iOS: bundle id `com.tropami.app`
@@ -38,7 +38,7 @@ Klucz trzymaj poza repozytorium (menedżer haseł). Utrata klucza = brak aktuali
 2. Konto osobiste: wymagany test zamknięty z min. 12 testerami przez 14 dni przed publikacją.
    Konto organizacji (np. fundacji) — inne zasady, wymaga numeru D-U-N-S.
 3. Utwórz aplikację, wgraj `tropami.aab`, włącz „Play App Signing”.
-4. Polityka prywatności: `https://jahrastababylon.github.io/kabanchik/privacy.html` (po zakupie domeny — adres na tropami).
+4. Polityka prywatności: `https://tropami.com/privacy.html`.
 
 ## iOS
 
@@ -58,9 +58,8 @@ Dystrybucja: TestFlight (testerzy) → App Store.
 Instalacja ze strony na iPhonie jest możliwa tylko jako aplikacja webowa (Safari → Udostępnij → Do ekranu początkowego).
 Apple pozwala na „Web Distribution” w UE tylko wydawcom spełniającym wysokie progi (np. 1 mln instalacji albo organizacja non-profit zwolniona z opłat).
 
-## Zmiana adresu po zakupie domeny
+## Domena
 
-Gdy aplikacja będzie pod `https://tropami.eu/app/`:
-1. W `capacitor.config.json` i `www/` zmień adres.
-2. Wypchnij zmiany — GitHub Actions zbuduje nową wersję APK.
-GitHub Pages przekierowuje stary adres `jahrastababylon.github.io/kabanchik/` na nową domenę, więc starsze APK też będą działać.
+Strona i aplikacja działają pod `https://tropami.com` (plik `CNAME` w katalogu głównym repozytorium, DNS w Namecheap).
+Stary adres `jahrastababylon.github.io/kabanchik/` przekierowuje na domenę. APK zbudowane przed zmianą domeny
+trzeba zaktualizować — otwierają stary adres, a przekierowanie na inną domenę Android otwiera w przeglądarce.

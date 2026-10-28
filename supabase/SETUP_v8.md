@@ -17,11 +17,11 @@ SQL Editor → New query → вставить `supabase_v8_accounts.sql` → Run
 
 ### 2.1 Адреса возврата (1 минута, нужно для Google и Apple)
 Supabase → **Authentication → URL Configuration**
-- **Site URL:** `https://jahrastababylon.github.io/kabanchik/app/`
+- **Site URL:** `https://tropami.com/app/`
 - **Redirect URLs** → Add URL, по одному:
-  - `https://jahrastababylon.github.io/kabanchik/app/**`
+  - `https://tropami.com/app/**`
+  - `https://jahrastababylon.github.io/kabanchik/app/**` (stary adres — można zostawić)
   - `com.tropami.app://auth`  ← возврат в Android-приложение
-  (после покупки домена добавить `https://tropami.eu/app/**`)
 
 ### 2.2 Google (10–15 минут, бесплатно)
 1. https://console.cloud.google.com → вверху выбор проекта → **New project** → «Tropami» → Create.
@@ -30,7 +30,7 @@ Supabase → **Authentication → URL Configuration**
    В **Branding → Authorized domains** добавить `supabase.co`.
    В **Audience** нажать **Publish app** (иначе войти смогут только тестовые аккаунты). Для входа нужны только e-mail и имя — проверка Google не требуется.
 3. **Clients → Create client** → Application type **Web application**, имя `Tropami web`:
-   - Authorized JavaScript origins: `https://jahrastababylon.github.io`
+   - Authorized JavaScript origins: `https://tropami.com`
    - Authorized redirect URIs: `https://jxvjurltvjgcqxvhbfhx.supabase.co/auth/v1/callback`
    → Create → откроется окно с **Client ID** и **Client secret**.
 4. Supabase → **Authentication → Sign In / Providers → Google** → Enable →
@@ -42,7 +42,7 @@ Supabase → **Authentication → URL Configuration**
 
 ### 2.4 E-mail с кодом (по желанию, нужен свой почтовый сервер)
 1. **SMTP** (без него Supabase не даёт менять шаблоны писем): Brevo (бесплатно ~300 писем в день) →
-   Senders/Domains (лучше свой домен `tropami.eu` с DNS-записями) → SMTP & API → Generate SMTP key.
+   Senders/Domains (свой домен `tropami.com` с DNS-записями) → SMTP & API → Generate SMTP key.
    Supabase → **Authentication → Emails → SMTP Settings → Enable custom SMTP**:
    Sender email = подтверждённый в Brevo адрес, Sender name `Tropami`, Host `smtp-relay.brevo.com`, Port `587`,
    Username = **Login** со страницы SMTP в Brevo, Password = SMTP-ключ.

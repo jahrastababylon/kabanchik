@@ -3,9 +3,13 @@
   "appName": "Tropami",
   "webDir": "www",
   "server": {
-    "url": "https://jahrastababylon.github.io/kabanchik/app/",
+    "url": "https://tropami.com/app/",
     "androidScheme": "https",
-    "errorPath": "offline.html"
+    "errorPath": "offline.html",
+    "allowNavigation": [
+      "tropami.com",
+      "www.tropami.com"
+    ]
   },
   "android": {
     "backgroundColor": "#2D5843"
