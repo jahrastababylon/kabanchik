@@ -1,0 +1,24 @@
+# Usuwa obserwacje wymienione w ops/cleanup.request.json i ich zdjęcia ze Storage.
+# Uruchamia się, gdy ten plik się zmieni (albo ręcznie: Actions → Cleanup → Run workflow).
+name: Cleanup
+
+on:
+  push:
+    branches: [main]
+    paths: ['ops/cleanup.request.json']
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Usuń
+        env:
+          SUPABASE_URL: https://jxvjurltvjgcqxvhbfhx.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/ops/cleanup.mjs ops/cleanup.request.json
