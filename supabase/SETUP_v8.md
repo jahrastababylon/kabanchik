@@ -20,7 +20,7 @@ Supabase → **Authentication → URL Configuration**
 - **Site URL:** `https://tropami.com/app/`
 - **Redirect URLs** → Add URL, по одному:
   - `https://tropami.com/app/**`
-  - `https://jahrastababylon.github.io/kabanchik/app/**` (stary adres — można zostawić)
+  - `https://jahrastababylon.github.io/kabanchik/app/**` (старый адрес — можно оставить)
   - `com.tropami.app://auth`  ← возврат в Android-приложение
 
 ### 2.2 Google (10–15 минут, бесплатно)
