@@ -1,50 +1,41 @@
-// Tropami — usuwanie wskazanych (testowych) obserwacji i ich zdjęć ze Storage.
-// Usuwa TYLKO obserwacje wymienione w ops/cleanup.request.json (sighting_ids)
-// oraz pliki w folderach ich autorów w kubełku „photos”. Bez listy nic nie robi.
+// Tropami — usuwanie zdjęć testowych kont ze Storage (kubełek „photos”).
+// Usuwa TYLKO pliki w folderach, których nazwa (= id autora) zaczyna się od author_prefixes z ops/cleanup.request.json.
+// Same obserwacje usuwa SQL (supabase_v11_rewards_moderation.sql, sekcja 0) — klucz service_role nie ma praw do tabel.
 import { readFileSync, appendFileSync } from 'node:fs';
 const { SUPABASE_URL: U, SUPABASE_SERVICE_ROLE_KEY: K, GITHUB_STEP_SUMMARY: SUM } = process.env;
 const req = JSON.parse(readFileSync(process.argv[2] || 'ops/cleanup.request.json', 'utf8'));
-const ids = (req.sighting_ids || []).filter(x => /^[0-9a-f-]{36}$/i.test(x));
+const prefixes = (req.author_prefixes || []).filter(p => /^[0-9a-f]{4,}$/i.test(p));
 const DRY = req.dry_run === true;
 const H = { apikey:K, Authorization:`Bearer ${K}`, 'Content-Type':'application/json' };
 const log = [];
 const say = s => { console.log(s); log.push(s); };
-async function call(method, path, body, extra = {}){
-  const r = await fetch(U + path, { method, headers:{ ...H, ...extra }, body: body ? JSON.stringify(body) : undefined });
+async function call(method, path, body){
+  const r = await fetch(U + path, { method, headers:H, body: body ? JSON.stringify(body) : undefined });
   const t = await r.text();
-  if(!r.ok) throw new Error(`${method} ${path.slice(0, 80)} → ${r.status} ${t.slice(0, 300)}`);
+  if(!r.ok) throw new Error(`${method} ${path} → ${r.status} ${t.slice(0, 300)}`);
   return t ? JSON.parse(t) : null;
 }
-if(!U || !K){ console.log('::error::Brak SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY'); process.exit(1); }
-if(!ids.length){ say('Brak sighting_ids — nic do zrobienia.'); process.exit(0); }
-
 async function main(){
-const inList = `(${ids.join(',')})`;
-const rows = await call('GET', `/rest/v1/sightings?id=in.${inList}&select=id,photo_url,created_by`);
-say(`Obserwacje do usunięcia: ${rows.length} z ${ids.length} podanych`);
-const authors = [...new Set(rows.map(r => r.created_by).filter(Boolean))];
-const files = new Set();
-for(const r of rows){
-  const m = /\/object\/public\/photos\/(.+)$/.exec(r.photo_url || '');
-  if(m) files.add(decodeURIComponent(m[1].split('?')[0]));
-}
-for(const a of authors){
-  const list = await call('POST', '/storage/v1/object/list/photos', { prefix:`${a}/`, limit:1000 });
-  for(const f of list || []) if(f.id) files.add(`${a}/${f.name}`);
-}
-say(`Pliki zdjęć do usunięcia: ${files.size}`);
-if(DRY){ say('Tryb próbny — nic nie usunięto.'); }
-else {
-  const conf = await call('DELETE', `/rest/v1/confirmations?sighting_id=in.${inList}`, null, { Prefer:'return=representation' }).catch(e => { say('confirmations: ' + e.message); return []; });
-  say(`Usunięto potwierdzeń: ${(conf || []).length}`);
-  const del = await call('DELETE', `/rest/v1/sightings?id=in.${inList}`, null, { Prefer:'return=representation' });
-  say(`Usunięto obserwacji: ${(del || []).length}`);
-  if(files.size){
-    const out = await call('DELETE', '/storage/v1/object/photos', { prefixes:[...files] });
-    say(`Usunięto plików: ${(out || []).length}`);
+  if(!U || !K) throw new Error('Brak SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY');
+  if(!prefixes.length){ say('Brak author_prefixes — nic do zrobienia.'); return; }
+  for(const bucket of req.buckets || ['photos']){
+    const root = await call('POST', `/storage/v1/object/list/${bucket}`, { prefix:'', limit:1000 });
+    const folders = (root || []).filter(f => !f.id).map(f => f.name);
+    say(`[${bucket}] folderów w kubełku: ${folders.length}`);
+    const mine = folders.filter(f => prefixes.some(p => f.toLowerCase().startsWith(p.toLowerCase())));
+    const files = [];
+    for(const f of mine){
+      const list = await call('POST', `/storage/v1/object/list/${bucket}`, { prefix:`${f}/`, limit:1000 });
+      for(const o of list || []) if(o.id) files.push(`${f}/${o.name}`);
+    }
+    say(`[${bucket}] foldery testowe: ${mine.map(f => f.slice(0, 8) + '…').join(', ') || '—'} · plików: ${files.length}`);
+    if(DRY || !files.length) continue;
+    const out = await call('DELETE', `/storage/v1/object/${bucket}`, { prefixes:files });
+    say(`[${bucket}] usunięto plików: ${(out || []).length}`);
   }
-}
+  if(DRY) say('Tryb próbny — nic nie usunięto.');
 }
 try{ await main(); }
 catch(e){ say('BŁĄD: ' + e.message); console.log(`::error title=Cleanup::${String(e.message).replace(/\n/g, ' ').slice(0, 400)}`); process.exitCode = 1; }
-if(SUM) appendFileSync(SUM, '### Czyszczenie danych testowych\n\n' + log.map(l => '- ' + l).join('\n') + '\n');
+console.log(`::notice title=Cleanup::${log.join(' | ').slice(0, 900)}`);
+if(SUM) appendFileSync(SUM, '### Czyszczenie zdjęć testowych\n\n' + log.map(l => '- ' + l).join('\n') + '\n');
