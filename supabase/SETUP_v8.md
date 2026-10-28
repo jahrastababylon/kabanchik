@@ -105,8 +105,32 @@ select name, props, created_at from analytics.events order by id desc limit 100;
 ## v10: открытые данные, частые виды, опыт за редкость, ежедневный вход
 
 1. SQL Editor → `supabase/supabase_v10_open_data_xp.sql` → Run (после v8 и v9).
-2. Тестовые данные: `supabase/cleanup_test_data.sql` → Run (удаляет все отметки из приложения, тестовую статистику).
-   Фото: Storage → `photos` → выделить всё → Delete (по желанию и `avatars`).
+2. Тестовые данные: уже не нужно — 6 тестовых отметок удаляет v11 (ниже), фото удалены через Actions → **Cleanup**.
+   (`supabase/cleanup_test_data.sql` оставлен на будущее: удаляет ВСЕ отметки из приложения.)
 3. GitHub → Actions → **Import open data** → Run workflow (сначала можно с галочкой «Tylko pokaż»).
    Настоящие наблюдения из GBIF/iNaturalist (CC0, CC BY) по ~40 городам Европы за последние 60 дней,
    с реальными датами и авторами. Дальше — автоматически по понедельникам.
+
+## v11: награды без «охоты», приглашения, следы, модерация фото
+
+1. SQL Editor → `supabase/supabase_v11_rewards_moderation.sql` → Run (после v10). Повторный запуск безопасен.
+   Внутри: удаление 6 тестовых отметок, «следы» вместо зверя, ежедневная загадка, бонус 7 дней,
+   приглашения (+30 / +10), «поделиться» (+5), новый рейтинг, жалобы на фото, премодерация (выключена).
+2. Очки за новый вид и за редкость убраны. Кабан и волк без фото = столько же, сколько с фото (не подходить!).
+
+**Модерация фото — как включить потом:**
+- Жалобы: пользователь жмёт «Zgłoś zdjęcie». После 3 жалоб фото само скрывается.
+- Очередь: `select * from moderation_queue;`
+- Скрыть / вернуть: Table Editor → `sightings` → `photo_status` = `hidden` / `visible`.
+- Премодерация (каждое новое фото ждёт проверки): `update app_settings set value = 'true' where key = 'photo_premoderation';`
+- Порог жалоб: `update app_settings set value = '2' where key = 'photo_report_hide_at';`
+
+**Как удалить фото вручную (без меня):** Supabase → Storage → `photos` → папка пользователя → отметить файлы → Delete.
+Или поменять список в `ops/cleanup.request.json` (author_prefixes — первые символы id автора) и закоммитить — Actions → **Cleanup** удалит.
+
+**Статистика приглашений и каналов:**
+```sql
+select count(*) total, count(*) filter (where exists (select 1 from sightings s where s.created_by = r.referee)) active from referrals r;
+select props->>'src' src, count(distinct user_id) users from analytics.events where name = 'app_open' and props->>'src' <> '' group by 1 order by 2 desc;
+select name, count(*) from analytics.events where name in ('share','share_bonus','quiz_answer','invite_open','referral_claim','photo_report') group by 1;
+```

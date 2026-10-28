@@ -3,6 +3,7 @@
 // W aplikacji takie pinezki są oznaczone jako „z otwartych danych” i nie liczą się do rankingu ani raportów.
 //
 // Zmienne: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DAYS (domyślnie 60), PER_CITY (domyślnie 25), DRY_RUN=1
+// Miasta priorytetowe (FOCUS) dostają 3× więcej obserwacji i promień 15 km — tam startujemy z promocją.
 
 const env = process.env;
 const DAYS = +env.DAYS || 60, PER_CITY = +env.PER_CITY || 25, DRY = env.DRY_RUN === '1' || env.DRY_RUN === 'true';
@@ -18,8 +19,12 @@ export const CITIES = [
   ['Amsterdam', 52.368, 4.904], ['Bruxelles', 50.850, 4.352], ['Paris', 48.857, 2.352], ['London', 51.507, -0.128],
   ['Dublin', 53.350, -6.260], ['Madrid', 40.417, -3.704], ['Barcelona', 41.385, 2.173], ['Lisboa', 38.722, -9.139],
   ['Roma', 41.903, 12.496], ['Milano', 45.464, 9.190], ['Zürich', 47.377, 8.542], ['Athína', 37.984, 23.728],
-  ['Lefkosia', 35.185, 33.382], ['Lemesos', 34.707, 33.022],
+  ['Lefkosia', 35.185, 33.382], ['Lemesos', 34.707, 33.022], ['Gdynia', 54.518, 18.531],
 ];
+// 10 miast startowych: polskie (język aplikacji, nasz rynek) + miasta znane z dzikich zwierząt w mieście
+// i z aktywnymi obserwatorami przyrody: dziki w Berlinie, Barcelonie, Rzymie i Trójmieście, lisy w Londynie,
+// daniele w dublińskim Phoenix Park, bobry i dziki w Warszawie, Pradze i Wrocławiu.
+export const FOCUS = new Set(['Kraków','Warszawa','Gdańsk','Gdynia','Wrocław','Berlin','London','Barcelona','Roma','Praha','Dublin']);
 // Aves, Mammalia, Reptilia, Amphibia
 const CLASSES = [212, 359, 358, 131];
 const SKIP = /^(Homo|Felis catus|Canis familiaris|Canis lupus familiaris|Bos taurus|Equus|Ovis aries|Capra hircus|Sus scrofa domesticus|Gallus gallus)\b/;
@@ -62,8 +67,9 @@ export async function vernacular(key, fallback){
 }
 
 export async function cityRows([name, lat, lng], { days = DAYS, perCity = PER_CITY } = {}){
+  const focus = FOCUS.has(name); if(focus) perCity *= 3;
   const to = new Date(), from = new Date(Date.now() - days * 864e5), d = x => x.toISOString().slice(0, 10);
-  const q = new URLSearchParams({ geoDistance:`${lat},${lng},12km`, eventDate:`${d(from)},${d(to)}`, hasCoordinate:'true',
+  const q = new URLSearchParams({ geoDistance:`${lat},${lng},${focus ? 15 : 12}km`, eventDate:`${d(from)},${d(to)}`, hasCoordinate:'true',
     occurrenceStatus:'PRESENT', basisOfRecord:'HUMAN_OBSERVATION', limit:'300' });
   CLASSES.forEach(c => q.append('classKey', c));
   ['CC0_1_0', 'CC_BY_4_0'].forEach(l => q.append('license', l));

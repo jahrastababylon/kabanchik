@@ -137,8 +137,6 @@ body.tiles-invert .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightn
 .cross::after{content:"";position:absolute;left:50%;bottom:-4px;width:10px;height:5px;margin-left:-5px;border-radius:50%;background:rgba(0,0,0,.35)}
 .addbar{position:fixed;z-index:700;left:0;right:0;bottom:0;background:var(--surface);border-radius:22px 22px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.18);padding-top:16px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px;max-width:560px;margin-inline:auto}
 .addbar .hint{font-size:14px}
-.addbar .zone{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--moss)}
-.addbar .zone.new{color:var(--fox)}
 body:not(.adding) .cross, body:not(.adding) .addbar{display:none}
 body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .top .chips, body.adding .empty-note{display:none}
 
@@ -228,12 +226,48 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .atl.locked .e{filter:grayscale(1) brightness(2.2)}}
 .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
 .badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
-.medal{width:62px;height:62px;display:grid;place-items:center;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);background:var(--fox);color:var(--fox-ink)}
-.medal svg{width:28px;height:28px}
-.badge b{font-size:12.5px;line-height:1.2}
+.badges{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:16px 10px}
+/* Medal: brąz / srebro / złoto; zablokowany — szary z pierścieniem postępu */
+.medal{--c1:#F3C79B;--c2:#C77A3E;--edge:#9C5A28;position:relative;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(from 210deg,var(--c1),var(--c2),var(--c1),var(--c2),var(--c1));box-shadow:0 6px 14px -6px color-mix(in srgb,var(--edge) 70%,transparent),inset 0 0 0 3px color-mix(in srgb,var(--edge) 55%,transparent)}
+.medal::before{content:"";position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff9 0,#fff0 45%),radial-gradient(circle at 50% 60%,var(--c1),var(--c2));box-shadow:inset 0 -3px 0 #0002,inset 0 2px 0 #fff6}
+.medal span{position:relative;font-size:30px;line-height:1;filter:drop-shadow(0 2px 1px #0003)}
+.medal.t2{--c1:#F1F4F6;--c2:#A9B4BC;--edge:#6F7C86}
+.medal.t3{--c1:#FFE9A3;--c2:#E2A92B;--edge:#A8741A}
+.medal.lg{width:92px;height:92px}.medal.lg span{font-size:42px}.medal.lg::before{inset:9px}
+.medal.off{background:conic-gradient(var(--fox) var(--p),var(--line) 0);box-shadow:none}
+.medal.off::before{inset:5px;background:var(--surface-2);box-shadow:none}
+.medal.off span{filter:grayscale(1);opacity:.4}
+.badge b{font:600 13.5px/1.2 var(--f-display)}
 .badge small{font-size:11px;color:var(--ink-2);line-height:1.25}
-.badge.locked .medal{background:var(--surface-2);color:var(--ink-2);outline:0}
 .badge.locked b{color:var(--ink-2)}
+.badge.pop .medal{animation:medalpop .9s cubic-bezier(.2,.9,.3,1.35)}
+@keyframes medalpop{0%{transform:scale(.3) rotate(-25deg);opacity:0}60%{transform:scale(1.12) rotate(6deg);opacity:1}100%{transform:none}}
+/* formularz: zwierzę / ślady */
+.evseg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.evseg button{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:600 15.5px var(--f-display)}
+.evseg button span{font-size:20px}
+.evseg button.on{border-color:var(--moss);background:var(--moss-soft)}
+.evnote{margin:6px 0 0;font-size:12.5px}
+.pin .trb{position:absolute;left:-6px;bottom:-6px;font-size:13px;font-style:normal;background:var(--surface);border-radius:50%;width:20px;height:20px;display:grid;place-items:center;box-shadow:0 1px 3px #0003}
+/* zagadka dnia */
+.quizcard{display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:20px;background:var(--moss-soft)}
+.quizcard .qq{margin:0;font:600 17px/1.3 var(--f-display)}
+.qopts{display:flex;flex-direction:column;gap:8px}
+.qopt{min-height:46px;padding:10px 14px;border-radius:13px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:500 15px var(--f-body);text-align:left}
+.qopt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--surface))}
+.qopt.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.qopt.dim{opacity:.55}
+.qwhy{font-size:14px;line-height:1.4}.qwhy .mono{margin-top:6px;font-size:12.5px;color:var(--ink-2)}
+/* zaproszenia */
+.invcard{display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:20px;background:var(--fox-soft)}
+.inv-top{display:flex;gap:12px;align-items:flex-start}.inv-top .e{font-size:36px;line-height:1}
+.inv-top b{display:block;font:600 17px var(--f-display);margin-bottom:3px}.inv-top small{font-size:13px;color:var(--ink-2);line-height:1.35}
+.inv-stat{font-size:12.5px;color:var(--ink-2)}
+/* karta obserwacji: linki pomocnicze; podgląd udostępniania */
+.cardlinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.linkbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--ink-2);font:500 13.5px var(--f-body);padding:6px 2px;text-decoration:underline;text-underline-offset:3px}
+.shareprev .sp-img{max-height:52vh;max-width:100%;border-radius:16px;box-shadow:var(--shadow)}
 .rules{display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:14px}
 .rules span:nth-child(even){font:700 13px var(--f-mono);color:var(--moss);text-align:right}
 
@@ -284,7 +318,6 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .mprog .bar{color:var(--ink)}
 .newbadges{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
 .newbadges .badge{width:96px}
-.newbadges .medal{animation:spin .9s cubic-bezier(.2,.9,.3,1.2)}
 @keyframes spin{from{transform:rotateY(180deg) scale(.6)}to{transform:none}}
 
 /* toast */
@@ -312,7 +345,6 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .stylelist{display:flex;flex-wrap:wrap;gap:6px}
 .pin.ext{border-style:dashed;opacity:.88;width:34px;height:34px;font-size:17px}
 .spbtn.hot{border-color:var(--fox);background:var(--fox-soft)}
-.zonesbar{position:fixed;z-index:600;left:50%;transform:translateX(-50%);bottom:calc(98px + env(safe-area-inset-bottom,0px));display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 14px;background:var(--moss);color:var(--moss-ink);font:600 14px var(--f-display);box-shadow:var(--shadow);white-space:nowrap}
 .tab span:last-child,.fab span:last-child,.chip,.seg button{font-family:var(--f-display);font-weight:500}
 .levelcard h3,.streakcard .big b,.rw-ring b,.gain b{font-family:var(--f-display)}
 .pin.gold{border-color:#D9A520;box-shadow:0 0 0 3px rgba(217,165,32,.35),0 4px 10px rgba(0,0,0,.28)}
@@ -446,7 +478,6 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 
 <button class="float" id="locate"></button>
 <div class="empty-note" id="emptyNote" hidden></div>
-<button class="zonesbar" id="zonesBar" hidden></button>
 
 <nav class="tabbar" id="tabbar">
   <button class="tab on" data-tab="map"><span class="ic"></span><span data-i18n="tab_map"></span></button>
@@ -461,7 +492,6 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 </div>
 <div class="addbar">
   <div class="hint" data-i18n-html="add_hint"></div>
-  <div class="zone" id="pickHint"></div>
   <div class="btns"><button class="btn ghost" id="addCancel" data-i18n="cancel"></button><button class="btn primary" id="addOk" data-i18n="here"></button></div>
 </div>
 
@@ -503,7 +533,7 @@ const CONFIG = {
   AUTH_EMAIL: false,
   AUTH_REDIRECT_APP: 'com.tropami.app://auth',
 };
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
 
 /* =====================================================================
@@ -577,8 +607,8 @@ const STR = {
     onb1_p:'Dziki, lisy i sarny korzystają z tych samych parków i ulic co my — w każdym mieście. Zaznaczaj, gdzie je widzisz, a razem stworzymy mapę dzikich korytarzy.',
     onb2_e:'Zgłoszenie w 20 sekund', onb2_t:'Zobaczyłeś zwierzę? Postaw pinezkę',
     onb2_p:'Stuknij w mapę tam, gdzie było zwierzę, albo użyj pomarańczowego przycisku. Wybierz gatunek — ssaka albo ptaka. Zdjęcie jest mile widziane.',
-    onb3_e:'Gra w tropiciela', onb3_t:'Zbieraj XP, odznaki i kwadraty mapy',
-    onb3_p:'Każde zgłoszenie to XP. XP podnosi poziom, a każdy poziom coś odblokowuje: kartę tropiciela, złotą pinezkę, imienny certyfikat i miejsce w raporcie dla miasta.',
+    onb3_e:'Gra w tropiciela', onb3_t:'Zbieraj XP i odznaki — nawet bez spotkania zwierzęcia',
+    onb3_p:'XP dostajesz za obserwacje i ślady, codzienne wejście, zagadkę dnia i zaproszonych znajomych. Każdy poziom coś odblokowuje: kartę tropiciela, złotą pinezkę, imienny certyfikat i miejsce w raporcie dla miasta.',
     onb4_e:'Ostatni krok', onb4_t:'Jak mamy Cię nazywać?',
     onb4_p:'Wymyśliliśmy Ci pseudonim — zostaw go albo wpisz swój. Zmienisz go w każdej chwili w profilu. Za chwilę zapytamy o lokalizację, żeby pokazać mapę wokół Ciebie.',
     onb_nick_ph:'np. LisiTrop',
@@ -649,8 +679,8 @@ const STR = {
     onb1_p:'Wild boars, foxes and deer use the same parks and streets as we do — in every city. Mark where you see them and together we will map the wild corridors.',
     onb2_e:'Report in 20 seconds', onb2_t:'Saw an animal? Drop a pin',
     onb2_p:'Tap the map where the animal was, or use the orange button. Choose the species — a mammal or a bird. A photo is welcome.',
-    onb3_e:'The tracker game', onb3_t:'Collect XP, badges and map squares',
-    onb3_p:'Every report earns XP. XP raises your level and each level unlocks something: a tracker card, a gold pin, a named certificate and a place in the report for the city.',
+    onb3_e:'The tracker game', onb3_t:'Collect XP and badges — even on days without animals',
+    onb3_p:'You earn XP for sightings and traces, opening the app each day, the daily quiz and inviting friends. Each level unlocks something: a tracker card, a gold pin, a named certificate and a place in the report for the city.',
     onb4_e:'Last step', onb4_t:'What should we call you?',
     onb4_p:'We picked a nickname for you — keep it or type your own. You can change it any time in your profile. Next we will ask for your location to show the map around you.',
     onb_nick_ph:'e.g. FoxTracker',
@@ -737,6 +767,45 @@ Object.assign(STR.en, {
   push_ask_t:'Want reminders from Tropami?', push_ask_p:'We will let you know when someone confirms your sighting or your streak is about to end. At most once a day.',
   push_yes:'Yes, remind me', push_no:'Not now', push_card:'Turn on streak reminders', ok:'OK',
   privacy_h:'Privacy', stats_l:'Usage statistics', stats_p:'They help us see what works in the app. We do not sell data.',
+});
+/* v11: nagrody, ślady, zagadki, zaproszenia, udostępnianie, zgłaszanie zdjęć */
+Object.assign(STR.pl, {
+  ev_q:'Co widziałeś?', ev_seen:'Zwierzę', ev_traces:'Ślady', ev_traces_p:'Tropy, ryjowisko, nora, gniazdo — też się liczą i pomagają znaleźć miejsca, gdzie zwierzęta żyją.',
+  tr_label:'Jakie ślady?', traces_of:'Ślady',
+  safe_t:'Bezpieczeństwo przede wszystkim', safe_p:'Nie podchodź i nie rób zdjęć z bliska. Zgłoszenie bez zdjęcia jest warte tyle samo (+{xp} XP). Możesz zgłosić je później — do 7 dni wstecz.',
+  photo_not_needed:'niepotrzebne', x_safe:'Bez podchodzenia',
+  x_traces:'Ślady',
+  p_safe:'Dzik lub wilk bez zdjęcia (nie podchodź!)', p_traces:'Ślady zwierzęcia (tropy, nora, ryjowisko)', p_streak7:'Co 7 dni serii', p_quiz:'Zagadka dnia (dobra odpowiedź / próba)',
+  p_share:'Udostępnienie (raz dziennie)', p_invite:'Znajomy z Twojego zaproszenia zgłosi pierwszą obserwację', p_welcome:'Start z zaproszenia',
+  quiz_h:'Zagadka dnia', quiz_ok:'Brawo!', quiz_bad:'Prawie!', quiz_done:'Nowa zagadka jutro', quiz_xp:'+{xp} XP',
+  inv_h:'Zaproś znajomych', inv_p:'+{xp} XP za każdą osobę, która przyjdzie z Twojego linku i zgłosi pierwszą obserwację. Ona dostaje +10 XP na start.',
+  inv_btn:'Wyślij zaproszenie', inv_stat:'Zaproszeni: {n} · z obserwacją: {ok}', inv_text:'Zbieram dzikie zwierzęta w mieście na mapie Tropami. Dołącz — dostaniesz +10 XP na start:',
+  inv_copied:'Link skopiowany', ref_welcome:'Witaj! Przyszedłeś z zaproszenia — +10 XP na start',
+  share_btn:'Pochwal się', share_btn_xp:'Pochwal się · +5 XP', share_done:'+5 XP za udostępnienie', share_story_cta:'Widzisz dzikie zwierzęta w mieście?', share_story_cta2:'Dodaj je na mapę',
+  share_seen_by:'zgłasza', share_code:'kod', share_save:'Zapisz obrazek', share_copy:'Skopiuj link', share_hold:'Przytrzymaj obrazek, żeby go zapisać albo wysłać.',
+  report_photo:'Zgłoś zdjęcie', report_q:'Co jest nie tak ze zdjęciem?', rp_not_animal:'Nie ma na nim zwierzęcia', rp_person:'Widać osobę lub tablicę rejestracyjną',
+  rp_bad:'Nieodpowiednie treści', rp_thanks:'Dziękujemy — sprawdzimy to zdjęcie', photo_pending:'Zdjęcie czeka na sprawdzenie — inni zobaczą je po akceptacji.',
+  streak7_toast:'Tydzień z rzędu! +15 XP',
+  b_rare_none:'', groups_h:'Grupy zwierząt',
+});
+Object.assign(STR.en, {
+  ev_q:'What did you see?', ev_seen:'Animal', ev_traces:'Traces', ev_traces_p:'Tracks, rooting, a burrow, a nest — they count too and help find the places where animals live.',
+  tr_label:'What traces?', traces_of:'Traces',
+  safe_t:'Safety first', safe_p:'Do not approach and do not take close-up photos. A report without a photo is worth just as much (+{xp} XP). You can report it later — up to 7 days back.',
+  photo_not_needed:'not needed', x_safe:'Kept your distance',
+  x_traces:'Traces',
+  p_safe:'Wild boar or wolf without a photo (keep away!)', p_traces:'Animal traces (tracks, burrow, rooting)', p_streak7:'Every 7 days of your streak', p_quiz:'Daily quiz (right answer / try)',
+  p_share:'Sharing (once a day)', p_invite:'A friend you invited reports their first sighting', p_welcome:'Joining with an invite',
+  quiz_h:'Daily quiz', quiz_ok:'Well done!', quiz_bad:'Almost!', quiz_done:'New question tomorrow', quiz_xp:'+{xp} XP',
+  inv_h:'Invite friends', inv_p:'+{xp} XP for every person who joins with your link and reports their first sighting. They get +10 XP to start.',
+  inv_btn:'Send an invite', inv_stat:'Invited: {n} · with a sighting: {ok}', inv_text:'I am mapping wild animals in the city with Tropami. Join me — you get +10 XP to start:',
+  inv_copied:'Link copied', ref_welcome:'Welcome! You joined with an invite — +10 XP to start',
+  share_btn:'Show it off', share_btn_xp:'Show it off · +5 XP', share_done:'+5 XP for sharing', share_story_cta:'Spot wild animals in the city?', share_story_cta2:'Put them on the map',
+  share_seen_by:'spotted by', share_code:'code', share_save:'Save image', share_copy:'Copy link', share_hold:'Press and hold the image to save or send it.',
+  report_photo:'Report photo', report_q:'What is wrong with the photo?', rp_not_animal:'There is no animal in it', rp_person:'A person or a number plate is visible',
+  rp_bad:'Inappropriate content', rp_thanks:'Thank you — we will check this photo', photo_pending:'Your photo is waiting for review — others will see it once approved.',
+  streak7_toast:'A full week in a row! +15 XP',
+  b_rare_none:'', groups_h:'Animal groups',
 });
 const t = k => STR[LANG][k] ?? STR.pl[k] ?? k;
 const appName = () => CONFIG.APP_NAME;
@@ -871,12 +940,16 @@ function eduLoading(box){ if(box){ box.className = 'edu loading'; box.textConten
 
 function taxonTitle(s){
   const sp = S.spById[s.species_id];
-  if(!s.taxon) return spName(sp);
-  return sp?.name_pl === 'Inne' ? s.taxon : `${spName(sp)} · ${s.taxon}`;
+  const base = !s.taxon ? spName(sp) : sp?.name_pl === 'Inne' ? s.taxon : `${spName(sp)} · ${s.taxon}`;
+  return s.evidence === 'traces' ? `${t('traces_of')}: ${base}` : base;
 }
 const spName = sp => !sp ? t('unknown') : (LANG === 'en' ? (SP_EN[sp.name_pl] || sp.name_pl) : sp.name_pl);
 const BEHAVIORS = ['Przechodził','Żerował','Z młodymi','W grupie','Agresywny','Ranny lub martwy'];
 const BEH_EN = { 'Przechodził':'Passing by', 'Żerował':'Feeding', 'Z młodymi':'With young', 'W grupie':'In a group', 'Agresywny':'Aggressive', 'Ranny lub martwy':'Injured or dead' };
+const TRACES = ['Tropy','Ryjowisko','Nora lub legowisko','Gniazdo','Odchody','Pióra lub sierść','Zgryzy, szyszki'];
+const TRACES_EN = { 'Tropy':'Footprints', 'Ryjowisko':'Rooted-up ground', 'Nora lub legowisko':'Burrow or den', 'Gniazdo':'Nest', 'Odchody':'Droppings', 'Pióra lub sierść':'Feathers or fur', 'Zgryzy, szyszki':'Gnawed cones or bark' };
+Object.assign(BEH_EN, TRACES_EN);
+
 const behName = b => LANG === 'en' ? (BEH_EN[b] || b) : b;
 function behText(s){
   if(!s || LANG === 'pl') return s;
@@ -905,21 +978,99 @@ const SP_TIPS = {
   },
 };
 
-/* ---------- reguły gry ---------- */
-const XP = { sighting:10, photo:10, newSpecies:20, confirmGiven:5, confirmReceived:5, checkin:3 };
-/* Premia za rzadkość — ta sama tabela jest w bazie (dk_rarity w supabase_v10_open_data_xp.sql) */
-const RARE = {
-  30:['Canis','Lynx','Alces','Lutra','Ursus','Bubo','Haliaeetus','Aquila','Grus','Felis'],
-  15:['Strix','Asio','Athene','Tyto','Accipiter','Falco','Buteo','Milvus','Circus','Pernis','Alcedo','Upupa','Merops','Ciconia','Oriolus','Martes','Castor','Mustela','Cervus','Dama','Vipera','Nyctalus','Myotis','Pipistrellus','Eptesicus','Plecotus','Glis','Muscardinus'],
-  5:['Dendrocopos','Dryobates','Picus','Dryocopus','Ardea','Egretta','Phalacrocorax','Sitta','Pyrrhula','Carduelis','Cygnus','Aegithalos','Certhia','Regulus','Erithacus','Lepus','Erinaceus','Natrix','Lacerta','Zootoca','Bufo','Rana','Pelophylax','Triturus','Lissotriton','Podiceps','Mergus','Aythya'],
+/* Zagadka dnia — krótkie fakty o zwierzętach w mieście. [pytanie, [odpowiedzi], indeks dobrej, wyjaśnienie] */
+const QUIZ = {
+  pl: [
+    ['Czego NIE dawać jeżowi do picia?', ['Mleka krowiego','Wody','Niczego, sam znajdzie'], 0, 'Jeże nie trawią laktozy — po mleku chorują. Miseczka wody w upał to najlepsza pomoc.'],
+    ['Kiedy lisy rodzą młode?', ['Wiosną','Latem','Zimą'], 0, 'Liszki rodzą się zwykle w marcu i kwietniu, a w maju wychodzą bawić się przed norą.'],
+    ['Spotykasz dzika na osiedlu. Co robisz?', ['Spokojnie się wycofuję','Podchodzę zrobić zdjęcie','Rzucam mu jedzenie'], 0, 'Daj dzikowi drogę ucieczki i oddal się. Dokarmianie sprawia, że dziki wracają i tracą lęk przed ludźmi.'],
+    ['Czy wiewiórki zapadają w sen zimowy?', ['Nie, są aktywne cały rok','Tak, do wiosny','Tylko samce'], 0, 'Wiewiórki zimą tylko mniej wychodzą z gniazda i korzystają z jesiennych zapasów.'],
+    ['Który ptak rozpoznaje się w lustrze?', ['Sroka','Gołąb','Wróbel'], 0, 'Sroka jako pierwszy niessak zdała „test lustra” — to jeden z najbystrzejszych ptaków.'],
+    ['Który ptak potrafi spędzić w powietrzu nawet 10 miesięcy bez lądowania?', ['Jerzyk','Jaskółka dymówka','Mewa'], 0, 'Jerzyki jedzą, piją i śpią w locie. Lądują głównie przy gnieździe.'],
+    ['Po czym poznasz, że w pobliżu żyje bóbr?', ['Drzewa ścięte „w ołówek”','Kopczyki ziemi na trawniku','Wydeptane ścieżki w śniegu'], 0, 'Bóbr ścina drzewa zębami tak, że pień wygląda jak zatemperowany ołówek.'],
+    ['Trawnik rano wygląda, jakby ktoś go przeorał. Kto to zrobił?', ['Dziki szukające pędraków','Kret','Jeż'], 0, 'To ryjowisko — dziki odwracają darń w poszukiwaniu larw i korzeni. Zgłoś je w Tropami jako ślady!'],
+    ['Kto nocą woła „hu-huuu”?', ['Puszczyk','Kruk','Dzięcioł'], 0, 'Puszczyk to najczęstsza sowa w miastach — mieszka w parkach i na starych cmentarzach.'],
+    ['Znalazłeś w trawie samotne koźlę sarny. Co robisz?', ['Odchodzę i nie dotykam','Zabieram je do weterynarza','Głaszczę, żeby się uspokoiło'], 0, 'Matka zostawia koźlę w ukryciu i wraca je karmić. Zapach człowieka może sprawić, że go nie przyjmie.'],
+    ['Młody ptak z piórami skacze po ziemi i nie umie latać. Co robisz?', ['Zostawiam go — rodzice są blisko','Zabieram do domu','Wkładam z powrotem do gniazda na siłę'], 0, 'To podlot. Uczy się latać, a rodzice wciąż go karmią. Pomóc możesz, trzymając z daleka koty i psy.'],
+    ['Dlaczego nie karmić kaczek chlebem?', ['Szkodzi im i brudzi wodę','Kaczki go nie lubią','Bo są najedzone'], 0, 'Chleb nie ma potrzebnych składników, a resztki psują wodę. Lepiej: płatki owsiane, kukurydza, mrożony groszek.'],
+    ['Ile owadów może zjeść jednej nocy mały nietoperz karlik?', ['Nawet ok. 3000','Około 10','Około 100'], 0, 'Nietoperze to naturalni łowcy komarów. Zimują w piwnicach, fortach i szczelinach budynków.'],
+    ['Które zwierzę lubi przegryzać kable w samochodach?', ['Kuna','Lis','Jeż'], 0, 'Kuna domowa chętnie chowa się pod maską — ciepło i ciemno. Pachnące odstraszacze pomagają tylko trochę.'],
+    ['Widzisz wilka niedaleko osiedla. Co robisz?', ['Nie podchodzę, biorę psa na smycz, zgłaszam','Idę za nim z telefonem','Wołam go'], 0, 'Wilki unikają ludzi. Zachowaj dystans, nie uciekaj biegiem i nie dokarmiaj. Zgłoś wilka w zabudowie służbom.'],
+    ['Jaki dźwięk wydaje lis zimą w okresie godowym?', ['Przenikliwy krzyk','Mruczenie','Gwizdanie'], 0, 'Krzyk lisicy w styczniową noc bywa brany za krzyk człowieka.'],
+    ['Która krukowata często gnieździ się w kominach?', ['Kawka','Sójka','Kruk'], 0, 'Kawki lubią dziury w budynkach i kominy. Poznasz je po jasnych, srebrnych oczach.'],
+    ['Jak najlepiej dokarmiać ptaki zimą?', ['Niesolona słonina i ziarno','Solony chleb','Resztki z obiadu'], 0, 'Sól i przyprawy szkodzą ptakom. Dokarmiaj tylko w mróz i śnieg, a karmnik regularnie czyść.'],
+    ['Kiedy najlepiej wieszać budki lęgowe?', ['Jesienią lub zimą','W czerwcu','W sierpniu'], 0, 'Ptaki wybierają miejsca na gniazda już pod koniec zimy, a zimą budka bywa też schronieniem.'],
+    ['Jak nazywa się młody dzik w pasiaste paski?', ['Warchlak','Koźlę','Szczenię'], 0, 'Paski działają jak kamuflaż w lesie. Znikają po kilku miesiącach.'],
+    ['Ile kolców ma dorosły jeż?', ['Około 6000','Około 600','Około 60 000'], 0, 'Jeż ma zwykle od 5 do 7 tysięcy kolców — to przekształcone włosy.'],
+    ['Dokąd lecą na zimę bociany białe z Polski?', ['Do Afryki','Do Skandynawii','Zostają w Polsce'], 0, 'Polskie bociany lecą przez Bosfor i Bliski Wschód aż do wschodniej i południowej Afryki.'],
+    ['Którego ptaka w miastach Europy jest coraz mniej?', ['Wróbla','Grzywacza','Sroki'], 0, 'Wróbli ubywa m.in. przez brak szczelin w budynkach i owadów dla piskląt. Pomagają budki i dzikie zakątki.'],
+    ['Który gołąb jest największy w miastach?', ['Grzywacz','Sierpówka','Gołąb miejski'], 0, 'Grzywacza poznasz po białej plamie na szyi i białym pasku na skrzydle.'],
+    ['Kiedy sierpówka dotarła do Polski?', ['W XX wieku','W średniowieczu','5 lat temu'], 0, 'Sierpówka w XX wieku przywędrowała z Bałkanów i dziś jest w każdym mieście.'],
+    ['Które zwierzę z Ameryki szybko rozprzestrzenia się w Niemczech i zachodniej Polsce?', ['Szop pracz','Borsuk','Jeż'], 0, 'Szopy pochodzą z Ameryki Północnej. W Europie to gatunek inwazyjny.'],
+    ['Jakie papugi żyją dziko w Londynie i Rzymie?', ['Aleksandretty obrożne','Ary','Kakadu'], 0, 'Zielone aleksandretty to potomkowie uciekinierów z hodowli. Świetnie znoszą europejskie zimy.'],
+    ['Do jakiej rodziny należy borsuk?', ['Łasicowatych, jak kuna i wydra','Psowatych, jak lis','Jeżowatych'], 0, 'Borsuk to największy łasicowaty w Polsce. Kopie rozległe nory z wieloma wyjściami.'],
+    ['Co je lis w mieście?', ['Prawie wszystko: gryzonie, owoce, resztki','Tylko mięso','Tylko ptaki'], 0, 'Lis jest wszystkożerny. Łapie myszy i szczury, zje też owoce i dżdżownice.'],
+    ['Jeż spaceruje po trawniku w środku dnia. Co to może znaczyć?', ['Może być chory — warto zadzwonić do ośrodka','To normalne','Trzeba go wywieźć do lasu'], 0, 'Jeże są aktywne nocą. W dzień na otwartym terenie często potrzebują pomocy.'],
+    ['Który ptak śpiewa w miastach także nocą, przy latarniach?', ['Rudzik','Wróbel','Gawron'], 0, 'Sztuczne światło sprawia, że rudziki i kosy śpiewają także po zmroku.'],
+    ['Skąd biorą się duże stada czarnych ptaków w polskich miastach zimą?', ['To gawrony ze wschodu','To kruki z gór','To szpaki z Afryki'], 0, 'Zimą do naszych miast przylatują gawrony z Rosji i Białorusi. Wiosną wracają na wschód.'],
+    ['O ile mniej więcej sowa może obrócić głowę?', ['Około 270°','Około 90°','Pełne 360°'], 0, 'Sowy mają 14 kręgów szyjnych — dwa razy więcej niż ludzie.'],
+    ['Ślady łap w jednej prostej linii, jak po sznurku. Czyje to?', ['Lisa','Kota domowego','Zająca'], 0, 'Lis stawia tylną łapę w śladzie przedniej, więc trop układa się w równą linię.'],
+    ['Co dzieje się z orzechami, których wiewiórka nie odnajdzie?', ['Mogą z nich wyrosnąć drzewa','Zawsze gniją','Zjadają je ryby'], 0, 'Wiewiórki i sójki sadzą w ten sposób las. Część zakopanych nasion kiełkuje.'],
+    ['Jak wygląda samica kaczki krzyżówki?', ['Brązowa, w plamki','Z zieloną głową','Całkiem biała'], 0, 'Zielona głowa to kaczor. Samica jest brązowa, żeby nie było jej widać na gnieździe.'],
+    ['Dlaczego dziki przychodzą do miast?', ['Szukają łatwego jedzenia','Uciekają przed zimnem','Lubią światło'], 0, 'Śmietniki, ogródki i dokarmianie to łatwy posiłek. Zamykaj kosze i nie zostawiaj resztek.'],
+    ['Po co naukowcom zgłoszenia zwierząt z miast?', ['Pokazują, którędy zwierzęta wędrują','Do liczenia turystów','Nie są potrzebne'], 0, 'Z wielu zgłoszeń widać korytarze ekologiczne — trasy, które trzeba chronić przy budowach.'],
+    ['Którego dzięcioła najczęściej spotkasz w mieście?', ['Dzięcioła dużego','Dzięcioła czarnego','Dzięcioła trójpalczastego'], 0, 'Dzięcioł duży ma czerwone podogonie, a samiec także czerwoną plamę na karku.'],
+    ['Czym żywi się czapla siwa nad miejską rzeką?', ['Rybami, żabami i gryzoniami','Ziarnem','Liśćmi'], 0, 'Czapla poluje cierpliwie, stojąc bez ruchu w płytkiej wodzie albo na łące.'],
+  ],
+  en: [
+    ['What should you NOT give a hedgehog to drink?', ['Cow’s milk','Water','Nothing, it finds its own'], 0, 'Hedgehogs cannot digest lactose — milk makes them ill. A shallow dish of water in hot weather helps most.'],
+    ['When are fox cubs born?', ['In spring','In summer','In winter'], 0, 'Cubs are usually born in March and April and come out to play by the den in May.'],
+    ['You meet a wild boar in your neighbourhood. What do you do?', ['Calmly back away','Get closer for a photo','Throw it some food'], 0, 'Leave the boar an escape route and move away. Feeding makes boars come back and lose their fear of people.'],
+    ['Do squirrels hibernate?', ['No, they are active all year','Yes, until spring','Only the males'], 0, 'In winter squirrels just leave their nest less often and live on their autumn stores.'],
+    ['Which bird recognises itself in a mirror?', ['The magpie','The pigeon','The sparrow'], 0, 'The magpie was the first non-mammal to pass the mirror test — one of the cleverest birds around.'],
+    ['Which bird can stay in the air for up to 10 months without landing?', ['The common swift','The barn swallow','The gull'], 0, 'Swifts eat, drink and sleep on the wing. They land mostly at the nest.'],
+    ['How can you tell a beaver lives nearby?', ['Trees gnawed like a pencil tip','Mounds of soil on the lawn','Trampled paths in the snow'], 0, 'A beaver gnaws trees so the stump looks like a sharpened pencil.'],
+    ['In the morning a lawn looks as if it was ploughed. Who did it?', ['Wild boars looking for grubs','A mole','A hedgehog'], 0, 'This is rooting — boars turn over the turf to find larvae and roots. Report it in Tropami as traces!'],
+    ['Who calls “twit-twoo” at night?', ['The tawny owl','The raven','The woodpecker'], 0, 'The tawny owl is the most common owl in cities — it lives in parks and old cemeteries.'],
+    ['You find a lone roe deer fawn in the grass. What do you do?', ['Walk away and do not touch it','Take it to a vet','Stroke it to calm it'], 0, 'The mother hides the fawn and comes back to feed it. Human scent can make her abandon it.'],
+    ['A feathered young bird hops on the ground and cannot fly. What do you do?', ['Leave it — its parents are close','Take it home','Force it back into the nest'], 0, 'It is a fledgling learning to fly, and its parents still feed it. You can help by keeping cats and dogs away.'],
+    ['Why not feed ducks bread?', ['It harms them and pollutes the water','Ducks do not like it','They are already full'], 0, 'Bread lacks the nutrients ducks need and leftovers spoil the water. Better: oats, sweetcorn, frozen peas.'],
+    ['How many insects can a tiny pipistrelle bat eat in one night?', ['Up to about 3,000','About 10','About 100'], 0, 'Bats are natural mosquito hunters. They spend winter in cellars, old forts and cracks in buildings.'],
+    ['Which animal likes chewing car cables?', ['The stone marten','The fox','The hedgehog'], 0, 'Stone martens love hiding under car bonnets — warm and dark.'],
+    ['You see a wolf near houses. What do you do?', ['Keep away, leash the dog, report it','Follow it with my phone','Call it over'], 0, 'Wolves avoid people. Keep your distance, do not run and never feed it. Report a wolf in a built-up area.'],
+    ['What sound does a fox make in the winter mating season?', ['A piercing scream','Purring','Whistling'], 0, 'A vixen’s scream on a January night is often mistaken for a human cry.'],
+    ['Which member of the crow family often nests in chimneys?', ['The jackdaw','The jay','The raven'], 0, 'Jackdaws love holes in buildings and chimneys. You can tell them by their pale, silvery eyes.'],
+    ['What is the best way to feed birds in winter?', ['Unsalted suet and seeds','Salted bread','Leftovers from dinner'], 0, 'Salt and spices harm birds. Feed them in frost and snow, and clean the feeder regularly.'],
+    ['When is the best time to put up nest boxes?', ['In autumn or winter','In June','In August'], 0, 'Birds start choosing nest sites at the end of winter, and in winter a box can also be a shelter.'],
+    ['What do wild boar piglets look like?', ['Striped, like a watermelon','White-spotted','Black all over'], 0, 'Piglets have pale stripes for camouflage in the forest. They fade after a few months.'],
+    ['How many spines does an adult hedgehog have?', ['About 6,000','About 600','About 60,000'], 0, 'A hedgehog usually has 5,000 to 7,000 spines — they are modified hairs.'],
+    ['Where do white storks from Poland spend the winter?', ['In Africa','In Scandinavia','They stay in Poland'], 0, 'Polish storks fly over the Bosphorus and the Middle East to eastern and southern Africa.'],
+    ['Which bird is becoming rarer in European cities?', ['The house sparrow','The wood pigeon','The magpie'], 0, 'Sparrows are declining partly because buildings lack nooks and chicks lack insects. Nest boxes and wild corners help.'],
+    ['Which is the largest pigeon in cities?', ['The wood pigeon','The collared dove','The feral pigeon'], 0, 'You can tell a wood pigeon by the white patch on its neck and the white bar on its wing.'],
+    ['When did the collared dove reach Poland?', ['In the 20th century','In the Middle Ages','5 years ago'], 0, 'The collared dove spread from the Balkans in the 20th century and is now in every city.'],
+    ['Which American animal is spreading fast in Germany and western Poland?', ['The raccoon','The badger','The hedgehog'], 0, 'Raccoons come from North America. In Europe they are an invasive species.'],
+    ['Which parrots live wild in London and Rome?', ['Rose-ringed parakeets','Macaws','Cockatoos'], 0, 'The green parakeets descend from escaped pets and cope well with European winters.'],
+    ['Which family does the badger belong to?', ['Mustelids, like the marten and otter','Canids, like the fox','Hedgehogs'], 0, 'The badger is the largest mustelid in Poland. It digs big setts with many entrances.'],
+    ['What do city foxes eat?', ['Almost anything: rodents, fruit, leftovers','Only meat','Only birds'], 0, 'Foxes are omnivores. They catch mice and rats and also eat fruit and earthworms.'],
+    ['A hedgehog is walking on a lawn at midday. What could it mean?', ['It may be ill — call a wildlife rescue','It is normal','Take it to a forest'], 0, 'Hedgehogs are active at night. Out in the open by day, they often need help.'],
+    ['Which bird also sings at night under city street lights?', ['The robin','The sparrow','The rook'], 0, 'Artificial light makes robins and blackbirds sing after dark too.'],
+    ['Where do big flocks of black birds in Polish cities come from in winter?', ['Rooks from the east','Ravens from the mountains','Starlings from Africa'], 0, 'In winter rooks from Russia and Belarus come to our cities. In spring they fly back east.'],
+    ['Roughly how far can an owl turn its head?', ['About 270°','About 90°','A full 360°'], 0, 'Owls have 14 neck vertebrae — twice as many as humans.'],
+    ['Paw prints in one straight line, as if on a string. Whose are they?', ['A fox’s','A house cat’s','A hare’s'], 0, 'A fox puts its hind paw into the print of its front paw, so the trail forms a neat line.'],
+    ['What happens to the nuts a squirrel never finds again?', ['They can grow into trees','They always rot','Fish eat them'], 0, 'Squirrels and jays plant forests this way. Some buried seeds sprout.'],
+    ['What does a female mallard look like?', ['Brown and speckled','Green-headed','All white'], 0, 'The green head belongs to the drake. The female is brown so she stays hidden on the nest.'],
+    ['Why do wild boars come into cities?', ['They look for easy food','They escape the cold','They like light'], 0, 'Bins, gardens and feeding make an easy meal. Close your bins and do not leave food out.'],
+    ['Why do scientists need animal reports from cities?', ['They show where animals move','To count tourists','They do not need them'], 0, 'Many reports reveal wildlife corridors — routes that need protecting when building.'],
+    ['Which woodpecker are you most likely to see in a city?', ['The great spotted woodpecker','The black woodpecker','The three-toed woodpecker'], 0, 'The great spotted woodpecker has a red undertail, and the male a red patch on the nape.'],
+    ['What does a grey heron eat by a city river?', ['Fish, frogs and rodents','Seeds','Leaves'], 0, 'A heron hunts patiently, standing still in shallow water or on a meadow.'],
+  ],
 };
-const RARE_SP = { 'Wilk':30, 'Borsuk':15, 'Sarna':10, 'Dzik':5, 'Lis':5, 'Jeż':5, 'Wiewiórka':0 };
-function rarity(spName, sci){
-  if(spName in RARE_SP) return RARE_SP[spName];
-  const g = String(sci || '').split(' ')[0];
-  for(const pts of [30, 15, 5]) if(RARE[pts].includes(g)) return pts;
-  return 0;
-}
+/* ---------- reguły gry ---------- */
+const XP = { sighting:10, photo:10, confirmGiven:5, confirmReceived:5, checkin:3, streak7:15, quizOk:5, quizTry:2, share:5, invite:30, welcome:10 };
+/* Nie nagradzamy podchodzenia: przy dziku i wilku zgłoszenie bez zdjęcia daje tyle co ze zdjęciem.
+   Nie ma punktów za nowy gatunek ani za rzadkość — w mieście nikt nie powinien gonić za wilkiem. */
+const KEEP_AWAY = ['Dzik','Wilk'];
+const keepAway = s => KEEP_AWAY.includes(S.spById[s?.species_id ?? s]?.name_pl);
 const taxKey = s => `${s.species_id}|${String(s.taxon_sci || s.taxon || '').trim().toLowerCase()}`;
 const LEVELS = [
   { pl:'Świeżak',   en:'Rookie',  xp:0 },
@@ -976,6 +1127,7 @@ function cellOf(lat, lng){
   const c = Math.floor(lng / w);
   return { id:r + ':' + c, lat:latc, lng:(c + .5) * w, bounds:[[r*CELL, c*w], [(r+1)*CELL, (c+1)*w]] };
 }
+const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 function dayKey(d){ d = new Date(d); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
 function weekStart(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - ((x.getDay()+6) % 7)); return x; }
 function weekKey(){ return dayKey(weekStart()); }
@@ -1056,16 +1208,21 @@ function supaApi(){
     async species(){ return ok(await sb.from('species').select('id,name_pl,icon,danger_level')); },
     async area(b){
       const args = { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 };
-      return (await rpcBest('area', ['dk_sightings_in_bbox_v4', 'dk_sightings_in_bbox_v3', 'dk_sightings_in_bbox_v2', 'dk_sightings_in_bbox'], () => args)).map(num);
+      return (await rpcBest('area', ['dk_sightings_in_bbox_v5', 'dk_sightings_in_bbox_v4', 'dk_sightings_in_bbox_v3', 'dk_sightings_in_bbox_v2', 'dk_sightings_in_bbox'], () => args)).map(num);
     },
     async mine(){
-      const list = await rpcBest('mine', ['dk_my_sightings_v3', 'dk_my_sightings_v2', 'dk_my_sightings'], () => ({}));
+      const list = await rpcBest('mine', ['dk_my_sightings_v4', 'dk_my_sightings_v3', 'dk_my_sightings_v2', 'dk_my_sightings'], () => ({}));
       const conf = ok(await sb.rpc('dk_my_confirmations'));
       let days = [];
       try{ days = ok(await sb.rpc('dk_my_checkins')).map(d => typeof d === 'string' ? d : d.dk_my_checkins); }catch(e){ if(!missing(e)) console.warn(e); }
       return { list:list.map(num), conf:conf.map(r => new Date(r.created_at).getTime()), days };
     },
-    async photo(id){ return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url; },
+    async photo(id){
+      const r = await sb.rpc('dk_sighting_photo', { p_id:id });
+      if(!r.error) return r.data || null;
+      if(!missing(r.error)) throw r.error;
+      return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url;
+    },
     async add(o){
       let photo = o.photo_url;
       if(photo && photo.startsWith('data:')){
@@ -1079,8 +1236,9 @@ function supaApi(){
         }catch(e){ console.warn('Storage unavailable, photo saved in DB:', e.message || e); }
       }
       const base = { p_species:o.species_id, p_lat:o.lat, p_lng:o.lng, p_photo:photo, p_seen_at:o.seen_at };
-      return rpcBest('add', ['dk_add_sighting_v3', 'dk_add_sighting_v2', 'dk_add_sighting'], n =>
-        n.endsWith('_v3') ? { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null, p_taxon_sci:o.taxon_sci || null, p_taxon_inat:o.taxon_inat || null }
+      return rpcBest('add', ['dk_add_sighting_v4', 'dk_add_sighting_v3', 'dk_add_sighting_v2', 'dk_add_sighting'], n =>
+        n.endsWith('_v4') ? { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null, p_taxon_sci:o.taxon_sci || null, p_taxon_inat:o.taxon_inat || null, p_evidence:o.evidence || 'seen' }
+        : n.endsWith('_v3') ? { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null, p_taxon_sci:o.taxon_sci || null, p_taxon_inat:o.taxon_inat || null }
         : n.endsWith('_v2') ? { ...base, p_behavior:o.behavior, p_taxon:o.taxon || null }
         // bez migracji v6/v7: nazwę gatunku zapisujemy na początku opisu
         : { ...base, p_behavior:[o.taxon, o.behavior].filter(Boolean).join(' — ') || null });
@@ -1088,10 +1246,16 @@ function supaApi(){
     async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
     async leaderboard(since, near){
       const args = { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null };
-      return rpcBest('rank', ['dk_leaderboard_v3', 'dk_leaderboard_v2', 'dk_leaderboard'], () => args);
+      return rpcBest('rank', ['dk_leaderboard_v4', 'dk_leaderboard_v3', 'dk_leaderboard_v2', 'dk_leaderboard'], () => args);
     },
     async getNickname(){ const { data } = await sb.from('profiles').select('nickname').eq('id', uid).maybeSingle(); return data?.nickname || ''; },
     async checkin(day){ try{ return !!ok(await sb.rpc('dk_checkin', { p_day:day })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
+    // --- v11: premie, zaproszenia, zgłoszenia zdjęć (bez migracji: puste wartości, bez błędów) ---
+    async rewards(){ try{ return ok(await sb.rpc('dk_my_rewards')) || { bonus:[] }; }catch(e){ if(!missing(e)) console.warn(e); return { bonus:[] }; } },
+    async bonus(kind, day, okAns){ try{ return +ok(await sb.rpc('dk_bonus_claim', { p_kind:kind, p_day:day, p_ok:okAns ?? null })) || 0; }catch(e){ if(!missing(e)) console.warn(e); return 0; } },
+    async refCode(){ try{ return ok(await sb.rpc('dk_my_ref_code')); }catch(e){ if(!missing(e)) console.warn(e); return null; } },
+    async refClaim(code){ try{ return !!ok(await sb.rpc('dk_referral_claim', { p_code:code })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
+    async reportPhoto(id, reason){ ok(await sb.rpc('dk_report_photo', { p_sighting:id, p_reason:reason })); },
     async setNickname(n){ ok(await sb.rpc('dk_set_nickname', { p_nickname:n })); },
     // --- profil (v8; bez migracji: tylko pseudonim) ---
     async getProfile(){
@@ -1208,7 +1372,7 @@ function demoApi(){
     USERS.forEach(u => db.gives[u] = (db.gives[u] || 0) + Math.floor(r() * 6));
     db.clusters.push([lat, lng]); save();
   }
-  const view = s => ({ id:s.id, species_id:s.species_id, taxon:s.taxon || null, taxon_sci:s.taxon_sci || null, taxon_inat:s.taxon_inat || null, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
+  const view = s => ({ id:s.id, evidence:s.evidence || 'seen', species_id:s.species_id, taxon:s.taxon || null, taxon_sci:s.taxon_sci || null, taxon_inat:s.taxon_inat || null, lat:s.lat, lng:s.lng, behavior:s.behavior, has_photo:!!s.photo_url,
     seen_at:s.seen_at, confirmed_count:s.cc, confirmed_by_me:!!s.byMe, is_mine:s.author === 'me',
     nickname: s.author === 'me' ? (db.nickname || t('you')) : s.author });
   const inBox = (s, b) => s.lat >= b.s && s.lat <= b.n && (b.w <= b.e ? s.lng >= b.w && s.lng <= b.e : s.lng >= b.w || s.lng <= b.e);
@@ -1222,10 +1386,15 @@ function demoApi(){
     },
     async mine(){ return { list:db.s.filter(s => s.author === 'me').map(view), conf:db.conf.slice(), days:(db.days || []).slice() }; },
     async checkin(day){ db.days ||= []; if(db.days.includes(day)) return false; db.days.unshift(day); save(); return true; },
+    async rewards(){ return { bonus:(db.bonus || []).slice(), invited_ok:0, invited_total:0, referred:false, ref_code:'demo42',
+      shares:(db.bonus || []).filter(b => b.kind === 'share').length, quiz_ok:(db.bonus || []).filter(b => b.kind === 'quiz' && b.xp === 5).length }; },
+    async bonus(kind, day, okAns){ db.bonus ||= []; if(db.bonus.some(b => b.kind === kind && b.day === day)) return 0;
+      const xp = kind === 'quiz' ? (okAns ? 5 : 2) : kind === 'share' ? 5 : 0; if(!xp) return 0; db.bonus.unshift({ kind, day, xp }); save(); return xp; },
+    async refCode(){ return 'demo42'; }, async refClaim(){ return false; }, async reportPhoto(){},
     async photo(id){ return db.s.find(x => x.id === id)?.photo_url || null; },
     async add(o){
       const id = 'm' + Date.now().toString(36);
-      db.s.push({ id, ...o, author:'me', cc:0 });
+      db.s.push({ id, ...o, evidence:o.evidence || 'seen', author:'me', cc:0 });
       if(!save()){ db.s[db.s.length - 1].photo_url = null; save(); toast(t('no_space')); }
       return id;
     },
@@ -1242,7 +1411,7 @@ function demoApi(){
       if(by.me || db.conf.length) U('me').cg = db.conf.filter(c => c >= tt).length;
       return Object.entries(by).map(([a, u]) => ({
         nickname: a === 'me' ? (db.nickname || t('you')) : a,
-        xp: u.n*XP.sighting + u.ph*XP.photo + u.sp.size*XP.newSpecies + u.cg*XP.confirmGiven + u.cr*XP.confirmReceived,
+        xp: u.n*XP.sighting + u.ph*XP.photo + u.cg*XP.confirmGiven + u.cr*XP.confirmReceived,
         sightings: u.n, species: u.sp.size, is_me: a === 'me',
       })).filter(x => x.xp > 0).sort((a, b) => b.xp - a.xp).slice(0, 50);
     },
@@ -1270,27 +1439,31 @@ function demoApi(){
    ===================================================================== */
 const S = {
   profile:{ nickname:'' },
-  species:[], spById:{}, area:[], mine:[], myConf:[], checkins:[], mode:'auto', spFilter:new Set(), time:'all',
+  species:[], spById:{}, area:[], mine:[], myConf:[], checkins:[], rewards:{ bonus:[] }, spFilter:new Set(), time:'all',
   nickname:'', adding:false, pick:null, tab:'map', rankPeriod:'week', rankScope:'near',
 };
 let API;
 
 function myStats(){
-  const my = S.mine;
+  const my = S.mine, R = S.rewards || {};
   const species = new Set(my.map(s => s.species_id));
   const photos = my.filter(s => s.has_photo).length;
+  const photoXp = my.filter(s => s.has_photo || keepAway(s)).length;
+  const traces = my.filter(s => s.evidence === 'traces').length;
   const given = S.myConf.length;
   const received = my.reduce((a, s) => a + (s.confirmed_count || 0), 0);
   const taxa = new Set(my.map(taxKey));
-  const rare = my.reduce((a, s) => a + rarity(S.spById[s.species_id]?.name_pl, s.taxon_sci), 0);
   const days = S.checkins.length;
-  const xp = my.length*XP.sighting + photos*XP.photo + taxa.size*XP.newSpecies + rare + given*XP.confirmGiven + received*XP.confirmReceived + days*XP.checkin;
-  const cells = new Set(my.map(s => cellOf(s.lat, s.lng).id));
+  const bonus = (R.bonus || []).reduce((a, b) => a + (+b.xp || 0), 0);
+  const invited = +R.invited_ok || 0, welcome = R.referred ? XP.welcome : 0;
+  const xp = my.length*XP.sighting + photoXp*XP.photo + given*XP.confirmGiven + received*XP.confirmReceived + days*XP.checkin
+           + bonus + invited*XP.invite + welcome;
   let far = 0;
   outer: for(let i = 1; i < my.length; i++) for(let j = 0; j < i; j++) if(dist(my[i].lat, my[i].lng, my[j].lat, my[j].lng) > 50000){ far = 1; break outer; }
   const birdId = spIdByName('Ptak');
   const birds = new Set(my.filter(s => s.species_id === birdId && s.taxon).map(s => s.taxon.trim().toLowerCase()));
-  return { my, species, taxa, rare, days, photos, given, received, xp, cells, far, birds, streak:streakOf(my) };
+  return { my, species, taxa, days, photos, photoXp, traces, given, received, xp, far, birds, streak:streakOf(my),
+           invited, invitedTotal:+R.invited_total || 0, shares:+R.shares || 0, quizOk:+R.quiz_ok || 0 };
 }
 // Seria = dni z rzędu z aplikacją (wejście albo obserwacja) — nie trzeba codziennie spotykać zwierząt
 function streakOf(my){
@@ -1307,52 +1480,66 @@ function levelOf(xp){
 const spIdByName = n => S.species.find(s => s.name_pl === n)?.id;
 const hourOf = s => new Date(s.seen_at).getHours();
 
+/* Odznaki: rzeczy osiągalne w zwykłym mieście — spacery, ptaki, ślady, regularność, ludzie.
+   tier: 1 brąz · 2 srebro · 3 złoto */
 const BADGES = [
-  { id:'first',    icon:'paw',    pl:['Pierwszy trop','Pierwsza obserwacja'],                    en:['First track','Your first sighting'],                  prog: st => [st.my.length, 1] },
-  { id:'ten',      icon:'book',   pl:['Notes terenowy','10 obserwacji'],                         en:['Field notebook','10 sightings'],                      prog: st => [st.my.length, 10] },
-  { id:'photo5',   icon:'camera', pl:['Fotopułapka','5 obserwacji ze zdjęciem'],                 en:['Camera trap','5 sightings with a photo'],             prog: st => [st.photos, 5] },
-  { id:'collector',icon:'star',   pl:['Kolekcjoner','Wszystkie gatunki z atlasu'],               en:['Collector','Every species in the atlas'],             prog: st => { const need = S.species.filter(s => s.name_pl !== 'Inne'); return [need.filter(s => st.species.has(s.id)).length, need.length || 5]; } },
-  { id:'birder',   icon:'eye',    pl:['Ornitolog','5 różnych gatunków ptaków'],                  en:['Birder','5 different bird species'],                  prog: st => [st.birds.size, 5] },
-  { id:'wolf',     icon:'eye',    pl:['Wilczy zew','Zgłoś wilka'],                               en:['Call of the wild','Report a wolf'],                   prog: st => [st.species.has(spIdByName('Wilk')) ? 1 : 0, 1] },
-  { id:'dawn',     icon:'sun',    pl:['Poranny spacer','Obserwacja między 6:00 a 10:00'],       en:['Morning walk','A sighting between 6:00 and 10:00'],   prog: st => [st.my.some(s => hourOf(s) >= 6 && hourOf(s) < 10) ? 1 : 0, 1] },
-  { id:'birder10', icon:'eye',    pl:['Ptasie radio','10 różnych gatunków ptaków'],             en:['Bird radio','10 different bird species'],             prog: st => [st.birds.size, 10] },
-  { id:'rare',     icon:'star',   pl:['Rzadki okaz','Zgłoś rzadki gatunek (np. sowę, borsuka)'], en:['Rare find','Report a rare species (e.g. an owl, a badger)'], prog: st => [st.my.some(s => rarity(S.spById[s.species_id]?.name_pl, s.taxon_sci) >= 15) ? 1 : 0, 1] },
-  { id:'regular',  icon:'flame',  pl:['Stały bywalec','30 dni z aplikacją'],                    en:['Regular','30 days with the app'],                     prog: st => [st.days, 30] },
-  { id:'cells5',   icon:'grid',   pl:['Odkrywca','Odkryj 5 kwadratów mapy'],                     en:['Explorer','Discover 5 map squares'],                  prog: st => [st.cells.size, 5] },
-  { id:'cells25',  icon:'map',    pl:['Kartograf','Odkryj 25 kwadratów mapy'],                   en:['Cartographer','Discover 25 map squares'],             prog: st => [st.cells.size, 25] },
-  { id:'traveler', icon:'globe',  pl:['Podróżnik','Obserwacje w miejscach oddalonych o 50 km'],  en:['Traveller','Sightings 50 km apart'],                  prog: st => [st.far, 1] },
-  { id:'streak3',  icon:'flame',  pl:['Na tropie','3 dni z rzędu'],                              en:['On the trail','3 days in a row'],                     prog: st => [st.streak, 3] },
-  { id:'streak7',  icon:'flame',  pl:['Tydzień w terenie','7 dni z rzędu'],                      en:['A week outdoors','7 days in a row'],                  prog: st => [st.streak, 7] },
-  { id:'helper',   icon:'check',  pl:['Pomocna łapa','Potwierdź 10 cudzych obserwacji'],         en:['Helping paw','Confirm 10 sightings by others'],       prog: st => [st.given, 10] },
-  { id:'trusted',  icon:'users',  pl:['Wiarygodne źródło','Twoje obserwacje potwierdzono 5 razy'], en:['Trusted source','Your sightings confirmed 5 times'], prog: st => [st.received, 5] },
-  { id:'tasker',   icon:'flag',   pl:['Zadaniowiec','Wszystkie wyzwania tygodnia'],              en:['Taskmaster','All weekly quests'],                     prog: () => [LS.get('dk_qweeks', []).length ? 1 : 0, 1] },
+  { id:'first',    e:'🐾', tier:1, pl:['Pierwszy trop','Pierwsza obserwacja'],                   en:['First track','Your first sighting'],                 prog: st => [st.my.length, 1] },
+  { id:'ten',      e:'📒', tier:2, pl:['Notes terenowy','10 obserwacji'],                        en:['Field notebook','10 sightings'],                     prog: st => [st.my.length, 10] },
+  { id:'fifty',    e:'📚', tier:3, pl:['Dziennik przyrodnika','50 obserwacji'],                  en:['Naturalist’s diary','50 sightings'],                 prog: st => [st.my.length, 50] },
+  { id:'photo5',   e:'📷', tier:1, pl:['Fotopułapka','5 obserwacji ze zdjęciem'],                en:['Camera trap','5 sightings with a photo'],            prog: st => [st.photos, 5] },
+  { id:'birder',   e:'🐦', tier:1, pl:['Ornitolog','5 różnych gatunków ptaków'],                 en:['Birder','5 different bird species'],                 prog: st => [st.birds.size, 5] },
+  { id:'birder10', e:'🎶', tier:2, pl:['Ptasie radio','10 różnych gatunków ptaków'],            en:['Bird radio','10 different bird species'],            prog: st => [st.birds.size, 10] },
+  { id:'groups4',  e:'🧭', tier:2, pl:['Sąsiedzi z podwórka','4 różne grupy zwierząt'],          en:['Backyard neighbours','4 different animal groups'],   prog: st => [[...st.species].filter(id => S.spById[id]?.name_pl !== 'Inne').length, 4] },
+  { id:'traces3',  e:'🔍', tier:1, pl:['Tropiciel śladów','Zgłoś 3 razy ślady zwierząt'],       en:['Track reader','Report animal traces 3 times'],       prog: st => [st.traces, 3] },
+  { id:'dawn',     e:'🌅', tier:1, pl:['Poranny spacer','Obserwacja między 6:00 a 10:00'],      en:['Morning walk','A sighting between 6:00 and 10:00'],  prog: st => [st.my.some(s => hourOf(s) >= 6 && hourOf(s) < 10) ? 1 : 0, 1] },
+  { id:'traveler', e:'🧳', tier:2, pl:['Podróżnik','Obserwacje w miejscach oddalonych o 50 km'], en:['Traveller','Sightings 50 km apart'],                 prog: st => [st.far, 1] },
+  { id:'streak3',  e:'🔥', tier:1, pl:['Na tropie','3 dni z rzędu'],                             en:['On the trail','3 days in a row'],                    prog: st => [st.streak, 3] },
+  { id:'streak7',  e:'🗓️', tier:2, pl:['Tydzień w terenie','7 dni z rzędu'],                    en:['A week outdoors','7 days in a row'],                 prog: st => [st.streak, 7] },
+  { id:'regular',  e:'🏡', tier:3, pl:['Stały bywalec','30 dni z aplikacją'],                    en:['Regular','30 days with the app'],                    prog: st => [st.days, 30] },
+  { id:'quiz7',    e:'🦉', tier:2, pl:['Mądra sowa','7 dobrych odpowiedzi w zagadce dnia'],     en:['Wise owl','7 right answers in the daily quiz'],      prog: st => [st.quizOk, 7] },
+  { id:'helper',   e:'🤝', tier:2, pl:['Pomocna łapa','Potwierdź 10 cudzych obserwacji'],        en:['Helping paw','Confirm 10 sightings by others'],      prog: st => [st.given, 10] },
+  { id:'trusted',  e:'✅', tier:2, pl:['Wiarygodne źródło','Twoje obserwacje potwierdzono 5 razy'], en:['Trusted source','Your sightings confirmed 5 times'], prog: st => [st.received, 5] },
+  { id:'sharer',   e:'📣', tier:1, pl:['Ambasador dzikich','Udostępnij 3 razy'],                  en:['Wildlife ambassador','Share 3 times'],               prog: st => [st.shares, 3] },
+  { id:'friend1',  e:'🦊', tier:2, pl:['Przewodnik stada','Znajomy z zaproszenia zgłosił obserwację'], en:['Pack guide','An invited friend reported a sighting'], prog: st => [st.invited, 1] },
+  { id:'friend3',  e:'🐺', tier:3, pl:['Własne stado','3 znajomych z zaproszenia'],              en:['Your own pack','3 invited friends'],                 prog: st => [st.invited, 3] },
+  { id:'tasker',   e:'🏁', tier:3, pl:['Zadaniowiec','Wszystkie wyzwania tygodnia'],             en:['Taskmaster','All weekly quests'],                    prog: () => [LS.get('dk_qweeks', []).length ? 1 : 0, 1] },
 ];
 const bName = b => b[LANG][0], bDesc = b => b[LANG][1];
 const unlocked = st => BADGES.filter(b => { const [a, n] = b.prog(st); return a >= n; }).map(b => b.id);
+function medalHtml(b, on, pct = 1, size = 'md'){
+  const p = Math.max(0, Math.min(1, pct));
+  return `<div class="medal t${b.tier}${on ? '' : ' off'} ${size}" style="--p:${(p * 100).toFixed(0)}%"><span>${b.e}</span></div>`;
+}
 
 function questCtx(st){
-  const ws = weekStart().getTime(), at = s => new Date(s.seen_at).getTime();
+  const ws = weekStart().getTime(), wsDay = new Date(ws), at = s => new Date(s.seen_at).getTime();
   const wk = st.my.filter(s => at(s) >= ws);
-  const before = new Set(st.my.filter(s => at(s) < ws).map(s => cellOf(s.lat, s.lng).id));
-  const now = new Set(wk.map(s => cellOf(s.lat, s.lng).id));
-  return { wk, newCells:[...now].filter(c => !before.has(c)).length, conf:S.myConf.filter(c => c >= ws).length, days:S.checkins.filter(d => new Date(d + 'T12:00:00').getTime() >= ws).length };
+  const inWeek = d => new Date(d + 'T12:00:00').getTime() >= ws;
+  const bonus = (S.rewards?.bonus || []).filter(b => inWeek(b.day));
+  return { wk, conf:S.myConf.filter(c => c >= ws).length, days:S.checkins.filter(inWeek).length,
+           quiz:bonus.filter(b => b.kind === 'quiz').length, shares:bonus.filter(b => b.kind === 'share').length, ws:wsDay };
 }
 function weeklyQuests(){
   const r = rng('q' + weekKey());
-  const cands = S.species.filter(s => ['Ptak','Wiewiórka','Jeż','Lis','Dzik'].includes(s.name_pl));
+  const cands = S.species.filter(s => ['Ptak','Wiewiórka','Jeż','Lis'].includes(s.name_pl));
   const sp = cands[Math.floor(r() * cands.length)];
   const T = [
     { id:'add3',    icon:'paw',    pl:'Zgłoś 3 obserwacje',             en:'Report 3 sightings',               target:3, p: c => c.wk.length },
     { id:'photo2',  icon:'camera', pl:'Dodaj 2 obserwacje ze zdjęciem', en:'Add 2 sightings with a photo',     target:2, p: c => c.wk.filter(s => s.has_photo).length },
     { id:'conf2',   icon:'check',  pl:'Potwierdź 2 cudze zgłoszenia',   en:'Confirm 2 sightings by others',    target:2, p: c => c.conf },
     sp && { id:'sp-'+sp.id, icon:'eye', pl:`Wypatrz gatunek: ${sp.name_pl}`, en:`Spot a species: ${SP_EN[sp.name_pl] || sp.name_pl}`, target:1, p: c => c.wk.filter(s => s.species_id === sp.id).length },
-    { id:'cells2',  icon:'grid',   pl:'Odkryj 2 nowe kwadraty mapy',    en:'Discover 2 new map squares',       target:2, p: c => c.newCells },
+    { id:'traces1', icon:'paw',    pl:'Znajdź i zgłoś ślady zwierzęcia', en:'Find and report animal traces',  target:1, p: c => c.wk.filter(s => s.evidence === 'traces').length },
     { id:'bird1',   icon:'eye',    pl:'Zgłoś ptaka',                    en:'Report a bird',                    target:1, p: c => c.wk.filter(s => S.spById[s.species_id]?.name_pl === 'Ptak').length },
     { id:'days3',   icon:'flame',  pl:'Zajrzyj do aplikacji 3 dni w tym tygodniu', en:'Open the app on 3 days this week', target:3, p: c => c.days },
+    { id:'quiz3',   icon:'book',   pl:'Rozwiąż 3 zagadki dnia',          en:'Answer 3 daily quizzes',           target:3, p: c => c.quiz },
+    { id:'share1',  icon:'users',  pl:'Udostępnij obserwację znajomym',  en:'Share a sighting with friends',    target:1, p: c => c.shares },
     { id:'variety', icon:'star',   pl:'2 różne gatunki w tym tygodniu', en:'2 different species this week',    target:2, p: c => new Set(c.wk.map(s => s.species_id)).size },
   ].filter(Boolean);
   for(let i = T.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [T[i], T[j]] = [T[j], T[i]]; }
-  return T.slice(0, 3);
+  // zawsze jedno zadanie, które da się zrobić bez spotkania zwierzęcia
+  const easy = ['days3','quiz3','share1','conf2'], out = T.slice(0, 3);
+  if(!out.some(q => easy.includes(q.id))) out[2] = T.find(q => easy.includes(q.id));
+  return out;
 }
 function questsDone(st = myStats()){ const c = questCtx(st); return weeklyQuests().filter(q => q.p(c) >= q.target).map(q => q.id); }
 function markProgress(){
@@ -1361,13 +1548,13 @@ function markProgress(){
 }
 function snapshot(){
   const st = myStats();
-  return { xp:st.xp, level:levelOf(st.xp).idx, badges:new Set(unlocked(st)), quests:new Set(questsDone(st)), cells:new Set(st.cells), species:new Set(st.species), taxa:new Set(st.taxa) };
+  return { xp:st.xp, level:levelOf(st.xp).idx, badges:new Set(unlocked(st)), quests:new Set(questsDone(st)), species:new Set(st.species), taxa:new Set(st.taxa) };
 }
 
 /* =====================================================================
    MAPA — cały świat, wybór stylu podkładu
    ===================================================================== */
-let map, base = null, markers, heat = null, cellsLayer, meDot = null;
+let map, base = null, markers, heat = null, meDot = null;
 const ATTR_OSM = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const ATTR_OFM = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ' + ATTR_OSM;
 const ATTR_CARTO = ATTR_OSM + ' © <a href="https://carto.com/attributions">CARTO</a>';
@@ -1475,14 +1662,13 @@ function initMap(){
   setBase();
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { setBase(); renderMap(); });
   markers = L.layerGroup().addTo(map);
-  cellsLayer = L.layerGroup();
   map.on('click', e => {
     if(S.adding){ map.panTo(e.latlng); return; }
     if(S.tab !== 'map'){ setTab('map'); return; }
     showGhost(e.latlng);
   });
   map.on('dragstart zoomstart', removeGhost);
-  map.on('zoomend', () => { if(S.mode !== 'zones') renderMap(); });
+  map.on('zoomend', renderMap);
   map.on('move', () => { if(S.adding) updatePickHint(); });
   let tm; map.on('moveend', () => {
     const c = map.getCenter(); LS.set('dk_view', { lat:c.lat, lng:c.lng, z:map.getZoom() });
@@ -1519,35 +1705,23 @@ function pinIcon(s){
   const sp = S.spById[s.species_id] || {};
   const fresh = Date.now() - new Date(s.seen_at) < 6 * 3600e3;
   return L.divIcon({ className:'', iconSize:[40,40], iconAnchor:[20,20],
-    html:`<div class="pin d${sp.danger_level || 0}${fresh && !s.source ? ' fresh' : ''}${s.source ? ' ext' : ''}${s.is_mine ? ' mine' : ''}${s.is_mine && MY_LEVEL >= 2 ? ' gold' : ''}">${esc(spIcon(sp))}</div>` });
+    html:`<div class="pin d${sp.danger_level || 0}${fresh && !s.source ? ' fresh' : ''}${s.source ? ' ext' : ''}${s.is_mine ? ' mine' : ''}${s.is_mine && MY_LEVEL >= 2 ? ' gold' : ''}">${esc(spIcon(sp))}${s.evidence === 'traces' ? '<i class="trb">🐾</i>' : ''}</div>` });
 }
 function renderMap(){
   if(!map) return;
-  markers.clearLayers(); cellsLayer.clearLayers(); map.removeLayer(cellsLayer);
+  markers.clearLayers();
   if(heat){ map.removeLayer(heat); heat = null; }
   const list = visible(), z = map.getZoom();
-  // Widok automatyczny: z daleka „mapa ciepła”, z bliska pinezki. Kwadraty — tylko z Atlasu.
-  const mode = S.mode === 'zones' ? 'zones' : (z < 11 && list.length > 40 ? 'heat' : 'pins');
-  $('#zonesBar').hidden = mode !== 'zones';
-  if(mode === 'zones') $('#zonesBar').innerHTML = `${small(ICON.grid, 18)}<span>${esc(t('cells_bar'))}</span>${small(ICON.close, 18)}`;
+  // Widok automatyczny: z daleka „gdzie bywają” (mapa ciepła), z bliska pinezki spotkań
+  const mode = z < 11 && list.length > 40 ? 'heat' : 'pins';
   let note = '';
   if(mode === 'pins'){
     list.forEach(s => L.marker([s.lat, s.lng], { icon:pinIcon(s), keyboard:false, title:taxonTitle(s) })
       .on('click', () => openCard(s.id)).addTo(markers));
     if(!list.length) note = z < 9 ? t('note_zoom_city') : t('note_empty');
-  } else if(mode === 'heat'){
-    if(L.heatLayer && list.length) heat = L.heatLayer(list.map(s => [s.lat, s.lng, .7]), { radius:30, blur:24, maxZoom:15, minOpacity:.3,
+  } else if(L.heatLayer && list.length){
+    heat = L.heatLayer(list.map(s => [s.lat, s.lng, .7]), { radius:30, blur:24, maxZoom:15, minOpacity:.3,
       gradient:{ .2:'#7cc39a', .5:'#e9c44a', .8:'#e2832b', 1:'#be3f2c' } }).addTo(map);
-
-  } else {
-    const moss = css('--moss'), ink2 = css('--ink-2'), vb = map.getBounds().pad(.2);
-    const mineCells = new Map(); S.mine.forEach(s => { const c = cellOf(s.lat, s.lng); mineCells.set(c.id, c); });
-    const other = new Map(); S.area.forEach(s => { const c = cellOf(s.lat, s.lng); if(!mineCells.has(c.id)) other.set(c.id, c); });
-    other.forEach(c => L.rectangle(c.bounds, { color:ink2, weight:1.2, dashArray:'5 6', fillColor:ink2, fillOpacity:.06 }).on('click', () => openCell(c)).addTo(cellsLayer));
-    mineCells.forEach(c => { if(vb.contains([c.lat, c.lng])) L.rectangle(c.bounds, { color:moss, weight:2, fillColor:moss, fillOpacity:.3 }).on('click', () => openCell(c)).addTo(cellsLayer); });
-    cellsLayer.addTo(map);
-    if(z < 12) note = t('note_zoom_cells');
-    else if(!mineCells.size) note = t('note_cells_hint');
   }
   $('#emptyNote').textContent = note; $('#emptyNote').hidden = !note;
 }
@@ -1604,7 +1778,6 @@ function setTab(tb){
 }
 function renderPanel(tb){ if(tb === 'quests') renderQuests(); else if(tb === 'atlas') renderAtlas(); else if(tb === 'rank') renderRank(); }
 function renderPanelIfOpen(tb){ if(S.tab === tb) renderPanel(tb); }
-function setMode(m){ if(m !== S.mode) AN.track('map_mode', { mode:m }); S.mode = m; renderMap(); }
 function openSheet(id){ closeSheets(); $('#' + id).classList.add('open'); $('#scrim').classList.add('on'); }
 function closeSheets(){ ['card','form','profile'].forEach(i => $('#' + i).classList.remove('open')); $('#scrim').classList.remove('on'); }
 
@@ -1632,9 +1805,11 @@ async function openCard(id){
   const when = new Date(s.seen_at);
   let action;
   if(s.source) action = `<div class="tip">${ICON.globe || ''}<div>${esc(t('src_note'))}</div></div>${s.source_url ? `<a class="btn ghost block" href="${esc(s.source_url)}" target="_blank" rel="noopener">${esc(t('src_link'))}</a>` : ''}`;
-  else if(s.is_mine) action = `<button class="btn block" disabled>${esc(t('your_sighting'))}</button>`;
+  else if(s.is_mine) action = `${s.photo_status === 'pending' ? `<div class="tip">${ICON.clock}<div>${esc(t('photo_pending'))}</div></div>` : ''}
+      <button class="btn primary block" id="shareBtn">${small(ICON.users, 18)} ${esc(t('share_btn'))}</button>`;
   else if(s.confirmed_by_me) action = `<button class="btn moss block" disabled>${ICON.check} ${esc(t('confirmed'))}</button>`;
   else action = `<button class="btn primary block" id="confirmBtn">${ICON.check} ${esc(t('confirm_btn'))} · +${XP.confirmGiven} XP</button>`;
+  if(!s.source && !s.is_mine && !API.account().demo) action += `<div class="cardlinks"><button class="linkbtn" id="shareBtn">${small(ICON.users, 16)} ${esc(t('share_btn'))}</button>${s.has_photo ? `<button class="linkbtn" id="reportBtn">${small(ICON.flag, 16)} ${esc(t('report_photo'))}</button>` : ''}</div>`;
   const tip = SP_TIPS[LANG][sp.name_pl];
   $('#cardBody').innerHTML = `
     <div class="sc-head"><div class="sc-ico d${sp.danger_level}">${esc(spIcon(sp))}</div>
@@ -1654,6 +1829,8 @@ async function openCard(id){
     const job = s.taxon_inat ? inatDetail(s.taxon_inat) : s.taxon_sci ? inatByLatin(s.taxon_sci) : latin ? inatByLatin(latin) : null;
     if(job){ eduLoading(box); job.then(tx => renderEdu(box, tx)).catch(() => { box.innerHTML = ''; box.className = 'edu'; }); } }
   placeName(s.lat, s.lng).then(n => { const el = $('#placeLbl'); if(el) n ? el.innerHTML = ICON.pin + esc(n) : el.remove(); });
+  if($('#shareBtn')) $('#shareBtn').onclick = () => { closeSheets(); shareSighting(s.id, s.is_mine ? 'card_own' : 'card'); };
+  if($('#reportBtn')) $('#reportBtn').onclick = () => reportPhotoFlow(s);
   const cb = $('#confirmBtn');
   if(cb) cb.onclick = async () => {
     cb.disabled = true; cb.textContent = t('saving');
@@ -1670,26 +1847,24 @@ async function openCard(id){
   }
 }
 
-/* ---------- karta kwadratu ---------- */
-function openCell(c){
-  const mine = S.mine.some(s => cellOf(s.lat, s.lng).id === c.id);
-  const inC = S.area.filter(s => cellOf(s.lat, s.lng).id === c.id);
-  const counts = {}; inC.forEach(s => counts[s.species_id] = (counts[s.species_id] || 0) + 1);
-  const last = inC[0];
-  $('#cardBody').innerHTML = `
-    <div><div class="eyebrow">${esc(mine ? t('cell_found') : t('cell_new'))} · 1 km</div><h2 style="font-size:24px;margin-top:4px" id="cellName">${esc(t('cell'))} ${esc(c.id)}</h2></div>
-    <dl class="kv"><dt>${esc(t('sightings'))}</dt><dd class="mono">${inC.length}</dd>${last ? `<dt>${esc(t('last'))}</dt><dd>${ago(last.seen_at)}</dd>` : ''}</dl>
-    ${inC.length ? `<div class="xprev">${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<span>${esc(spIcon(S.spById[id]))} ${esc(spName(S.spById[id]))} × ${n}</span>`).join('')}</div>` : ''}
-    <div class="tip">${ICON.grid}<div>${esc(mine ? t('cell_tip_found') : t('cell_tip_new'))}</div></div>
-    <button class="btn primary block" id="cellAdd">${ICON.plus} ${esc(t('report_here'))}</button>`;
-  openSheet('card');
-  placeName(c.lat, c.lng).then(n => { const el = $('#cellName'); if(el && n) el.textContent = n; });
-  $('#cellAdd').onclick = () => startAdd([c.lat, c.lng]);
+function reportPhotoFlow(s){
+  const reasons = [['not_animal', t('rp_not_animal')], ['person', t('rp_person')], ['bad', t('rp_bad')]];
+  $('#mcard').innerHTML = `<div class="rw" style="text-align:left;align-items:stretch">
+    <h2 style="font-size:22px">${esc(t('report_q'))}</h2>
+    ${reasons.map(([k, l]) => `<button class="btn ghost block" data-rp="${k}">${esc(l)}</button>`).join('')}
+    <button class="btn block" id="rpCancel">${esc(t('cancel'))}</button></div>`;
+  $('#modal').hidden = false;
+  $('#rpCancel').onclick = () => { $('#modal').hidden = true; };
+  $$('#mcard [data-rp]').forEach(b => b.onclick = async () => {
+    $('#modal').hidden = true;
+    try{ await API.reportPhoto(s.id, b.dataset.rp); AN.track('photo_report', { reason:b.dataset.rp }); toast(t('rp_thanks')); }
+    catch(e){ toast(t('acct_err') + ': ' + (e.message || e)); }
+  });
 }
 
 /* ---------- dodawanie ---------- */
 function startAdd(center){
-  AN.track('report_start', { via:center ? 'square' : 'button' });
+  AN.track('report_start', { via:center ? 'center' : 'button' });
   closeSheets(); setTab('map'); removeGhost();
   S.adding = true; document.body.classList.add('adding');
   if(center) map.setView(center, Math.max(map.getZoom(), 16));
@@ -1697,23 +1872,22 @@ function startAdd(center){
   updatePickHint();
 }
 function stopAdd(){ S.adding = false; document.body.classList.remove('adding'); }
-function updatePickHint(){
-  const c = map.getCenter(), cell = cellOf(c.lat, c.lng), st = myStats(), el = $('#pickHint');
-  const f = st.cells.has(cell.id);
-  el.className = 'zone' + (f ? '' : ' new');
-  el.innerHTML = f ? `${ICON.check}${esc(t('pick_known'))}` : `${ICON.grid}${esc(t('pick_new'))}`;
-}
+function updatePickHint(){ /* dawniej: kwadraty mapy — usunięte w v11 */ }
 
-const F = { species:null, behaviors:new Set(), photo:null };
+const F = { species:null, behaviors:new Set(), photo:null, evidence:'seen' };
 function openForm(){
-  F.species = null; F.behaviors = new Set(); F.photo = null; F.tx = null; F.offline = false; F.t0 = Date.now(); F.searches = 0;
+  F.species = null; F.behaviors = new Set(); F.photo = null; F.tx = null; F.offline = false; F.t0 = Date.now(); F.searches = 0; F.evidence = 'seen';
   AN.track('report_form');
   const st = myStats(), now = new Date(), min = new Date(Date.now() - 7*864e5);
   const opt = `<span class="muted" style="font-weight:500">${esc(t('optional'))}</span>`;
   $('#formBody').innerHTML = `
+    <div class="field"><label>${esc(t('ev_q'))}</label><div class="evseg" id="evSeg">
+      <button class="on" data-ev="seen"><span>👀</span>${esc(t('ev_seen'))}</button><button data-ev="traces"><span>🐾</span>${esc(t('ev_traces'))}</button></div>
+      <p class="muted evnote" id="evNote" hidden>${esc(t('ev_traces_p'))}</p></div>
     <div class="field"><label>${esc(t('f_species'))}</label><div class="spgrid" id="spGrid">
-      ${S.species.map(s => `<button class="spbtn${s.name_pl === 'Ptak' ? ' hot' : ''}" data-id="${esc(s.id)}"><span class="e">${esc(spIcon(s))}</span>${esc(spName(s))}${(RARE_SP[s.name_pl] || 0) >= 10 ? `<span class="new">💎 +${RARE_SP[s.name_pl]}</span>` : ''}</button>`).join('')}
+      ${S.species.map(s => `<button class="spbtn${s.name_pl === 'Ptak' ? ' hot' : ''}" data-id="${esc(s.id)}"><span class="e">${esc(spIcon(s))}</span>${esc(spName(s))}</button>`).join('')}
     </div></div>
+    <div class="tip warn" id="safeTip" hidden>${ICON.shield}<div><b>${esc(t('safe_t'))}</b><br>${esc(t('safe_p').replace('{xp}', XP.sighting + XP.photo))}</div></div>
     <div class="field" id="taxonField" hidden><label for="fTaxon" id="fTaxonL"></label>
       <input class="input" id="fTaxon" maxlength="60" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="taxSugg">
       <div class="picked" id="taxPicked" hidden></div>
@@ -1721,10 +1895,9 @@ function openForm(){
       <div class="popular" id="taxPopular"></div></div>
     <div class="edu" id="spEdu"></div>
     <div class="field"><label for="fWhen">${esc(t('f_when'))}</label><input class="input mono" type="datetime-local" id="fWhen" value="${toLocalInput(now)}" min="${toLocalInput(min)}" max="${toLocalInput(now)}"></div>
-    <div class="field"><label>${esc(t('f_behavior'))} ${opt}</label><div class="bchips" id="bChips">
-      ${BEHAVIORS.map(b => `<button class="chip" data-b="${esc(b)}">${esc(behName(b))}</button>`).join('')}</div></div>
+    <div class="field"><label id="bLabel">${esc(t('f_behavior'))} ${opt}</label><div class="bchips" id="bChips"></div></div>
     <div class="field"><label for="fNote">${esc(t('f_note'))} ${opt}</label><input class="input" id="fNote" maxlength="140" placeholder="${esc(t('f_note_ph'))}"></div>
-    <div class="field"><label>${esc(t('f_photo'))} <span class="muted" style="font-weight:500">(+${XP.photo} XP)</span></label>
+    <div class="field"><label>${esc(t('f_photo'))} <span class="muted" style="font-weight:500" id="photoXpL">(+${XP.photo} XP)</span></label>
       <div class="photo-pick"><img id="fPrev" alt="" hidden><label for="fPhoto">${ICON.camera}<span id="fPhotoTxt">${esc(t('add_photo'))}</span></label><input type="file" id="fPhoto" accept="image/*"></div></div>
     <div class="field"><label>${esc(t('f_reward'))}</label><div class="xprev" id="xPrev"></div></div>
     <button class="btn primary block" id="fSubmit">${esc(t('submit'))}</button>`;
@@ -1733,6 +1906,9 @@ function openForm(){
     const sp = S.spById[F.species], need = needsTaxon(sp), bird = sp?.name_pl === 'Ptak';
     AN.track('report_species', { species:sp?.name_pl, needs_name:need });
     $('#taxonField').hidden = !need;
+    const away = KEEP_AWAY.includes(sp?.name_pl);
+    $('#safeTip').hidden = !away;
+    $('#photoXpL').textContent = away ? `(${t('photo_not_needed')})` : `(+${XP.photo} XP)`;
     F.tx = null; F.offline = false;
     const edu = $('#spEdu'); edu.innerHTML = ''; edu.className = 'edu';
     if(need){
@@ -1752,7 +1928,21 @@ function openForm(){
     }
     xpPreview();
   });
-  $$('#bChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.b; F.behaviors.has(v) ? F.behaviors.delete(v) : F.behaviors.add(v); b.classList.toggle('on'); });
+  const drawChips = () => {
+    const list = F.evidence === 'traces' ? TRACES : BEHAVIORS;
+    $('#bLabel').innerHTML = `${esc(t(F.evidence === 'traces' ? 'tr_label' : 'f_behavior'))} ${opt}`;
+    $('#bChips').innerHTML = list.map(b => `<button class="chip" data-b="${esc(b)}">${esc(behName(b))}</button>`).join('');
+    $$('#bChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.b; F.behaviors.has(v) ? F.behaviors.delete(v) : F.behaviors.add(v); b.classList.toggle('on'); });
+  };
+  drawChips();
+  $$('#evSeg [data-ev]').forEach(b => b.onclick = () => {
+    if(F.evidence === b.dataset.ev) return;
+    F.evidence = b.dataset.ev; F.behaviors = new Set();
+    $$('#evSeg [data-ev]').forEach(x => x.classList.toggle('on', x === b));
+    $('#evNote').hidden = F.evidence !== 'traces';
+    AN.track('report_evidence', { evidence:F.evidence });
+    drawChips(); xpPreview();
+  });
   $('#fPhoto').onchange = async e => {
     const file = e.target.files[0]; if(!file) return;
     $('#fPhotoTxt').textContent = t('compressing');
@@ -1791,15 +1981,12 @@ function pickTaxon(x, pos){
   inatDetail(x.id).then(d => renderEdu(edu, d)).catch(() => renderEdu(edu, x));
 }
 function xpPreview(){
-  const st = myStats(), parts = [`${t('x_sighting')} +${XP.sighting}`];
-  const sp = S.spById[F.species], sci = F.tx?.sci || LATIN[sp?.name_pl] || '', newTx = F.species && !st.taxa.has(`${F.species}|${String(F.tx?.sci || F.tx?.name || '').trim().toLowerCase()}`);
-  const rr = F.species ? rarity(sp?.name_pl, sci) : 0;
+  const sp = S.spById[F.species], away = KEEP_AWAY.includes(sp?.name_pl);
+  const parts = [`${t(F.evidence === 'traces' ? 'x_traces' : 'x_sighting')} +${XP.sighting}`];
   if(F.photo) parts.push(`${t('x_photo')} +${XP.photo}`);
-  if(newTx) parts.push(`${t('x_species')} +${XP.newSpecies}`);
-  if(rr) parts.push(`💎 ${t('x_rare')} +${rr}`);
-  if(S.pick && !st.cells.has(cellOf(S.pick.lat, S.pick.lng).id)) parts.push(t('x_cell'));
+  else if(away) parts.push(`🛡️ ${t('x_safe')} +${XP.photo}`);
   $('#xPrev').innerHTML = parts.map(p => `<span>${esc(p)}</span>`).join('');
-  const total = XP.sighting + (F.photo ? XP.photo : 0) + (newTx ? XP.newSpecies : 0) + rr;
+  const total = XP.sighting + (F.photo || away ? XP.photo : 0);
   $('#fSubmit').textContent = `${t('submit')} · +${total} XP`;
 }
 function compress(file, max, q){
@@ -1828,16 +2015,17 @@ async function submitForm(){
   const behavior = [[...F.behaviors].join(', '), note].filter(Boolean).join(' — ') || null;
   const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = t('saving');
   const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.taxa.has(`${F.species}|${String(taxon_sci || taxon || '').trim().toLowerCase()}`);
-  try{ await API.add({ species_id:F.species, taxon:taxon || null, taxon_sci, taxon_inat, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
+  let newId;
+  try{ newId = await API.add({ species_id:F.species, taxon:taxon || null, taxon_sci, taxon_inat, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString(), evidence:F.evidence }); }
   catch(e){ AN.track('report_fail', { species:spSel?.name_pl, error:String(e.message || e).slice(0, 120) }); toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
-  AN.track('report_submit', { species:spSel?.name_pl, sci:taxon_sci || null, photo:hadPhoto, new_species:newSp, behaviors:F.behaviors.size, note:!!note,
+  AN.track('report_submit', { species:spSel?.name_pl, sci:taxon_sci || null, photo:hadPhoto, new_species:newSp, behaviors:F.behaviors.size, note:!!note, evidence:F.evidence,
     secs:Math.round((Date.now() - (F.t0 || Date.now())) / 1000), searches:F.searches || 0, first:before.xp === 0 });
   closeSheets();
   if(S.spFilter.size && !S.spFilter.has(F.species)) S.spFilter.clear();
   if(S.time !== 'all' && Date.now() - when > (+S.time) * 864e5) S.time = '30';
-  renderChips(); setMode('auto');
+  renderChips(); renderMap();
   await reload();
-  reward(before, 'add', { species:F.species, photo:hadPhoto, newSpecies:newSp ? F.species : null, rare:rarity(spSel?.name_pl, taxon_sci) });
+  reward(before, 'add', { species:F.species, photo:hadPhoto, away:KEEP_AWAY.includes(spSel?.name_pl), evidence:F.evidence, id:newId });
 }
 
 /* ---------- nagroda ---------- */
@@ -1847,29 +2035,31 @@ function reward(before, kind, extra = {}){
   const gained = after.xp - before.xp;
   const newBadges = BADGES.filter(b => after.badges.has(b.id) && !before.badges.has(b.id));
   const qs = weeklyQuests().filter(q => after.quests.has(q.id) && !before.quests.has(q.id));
-  const newCells = [...after.cells].filter(c => !before.cells.has(c)).length;
   const lvUp = after.level > before.level;
-  AN.track('reward', { kind, xp:gained, level_up:lvUp, badges:newBadges.length, quests:qs.length, new_squares:newCells });
+  AN.track('reward', { kind, xp:gained, level_up:lvUp, badges:newBadges.length, quests:qs.length });
   if(lvUp) AN.track('level_up', { level:after.level + 1 });
   newBadges.forEach(b => AN.track('badge_unlocked', { badge:b.id }));
   qs.forEach(q => AN.track('quest_complete', { quest:q.id }));
   renderAll();
-  if(kind === 'confirm' && !newBadges.length && !lvUp && !qs.length){ toast(`+${gained} XP`, 'xp'); return; }
+  if(['confirm','share','quiz','checkin'].includes(kind) && !newBadges.length && !lvUp && !qs.length){ toast(`+${gained} XP`, 'xp'); return; }
 
   const chips = [];
   if(kind === 'add'){
-    chips.push([spIcon(S.spById[extra.species]), `+${XP.sighting}`]);
+    chips.push([(extra.evidence === 'traces' ? '🐾' : '') + spIcon(S.spById[extra.species]), `+${XP.sighting}`]);
     if(extra.photo) chips.push(['📷', `+${XP.photo}`]);
-    if(extra.newSpecies) chips.push(['🆕', `+${XP.newSpecies}`]);
-    if(extra.rare) chips.push(['💎', `+${extra.rare}`]);
-  } else if(kind === 'checkin') chips.push(['📅', `+${XP.checkin}`]);
+    else if(extra.away) chips.push(['🛡️', `+${XP.photo}`]);
+  } else if(kind === 'checkin' || kind === 'checkin7'){ chips.push(['📅', `+${XP.checkin}`]); if(kind === 'checkin7') chips.push(['🔥', `+${XP.streak7}`]); }
+  else if(kind === 'quiz') chips.push(['🦉', `+${gained}`]);
+  else if(kind === 'share') chips.push(['📣', `+${XP.share}`]);
+  else if(kind === 'welcome') chips.push(['🎁', `+${XP.welcome}`]);
   else chips.push(['🤝', `+${XP.confirmGiven}`]);
-  if(newCells) chips.push(['🗺️', `${after.cells.size}`]);
   qs.forEach(() => chips.push(['🏁', '✓']));
 
   const lb = levelOf(before.xp), la = levelOf(after.xp);
   const from = lvUp ? 0 : lb.pct, R = 66, C = 2 * Math.PI * R;
   const perkNow = lvUp ? perkFor(la.idx) : null, perkNext = perkFor(la.idx + 1);
+  const canShare = kind === 'add' && extra.id && !API.account().demo;
+  const sharedToday = (S.rewards?.bonus || []).some(b => b.kind === 'share' && b.day === localDay());
   $('#mcard').innerHTML = `<div class="rw">
     <div class="rw-ring"><svg viewBox="0 0 148 148" aria-hidden="true">
         <circle cx="74" cy="74" r="${R}" fill="none" stroke="var(--line)" stroke-width="10"/>
@@ -1879,11 +2069,13 @@ function reward(before, kind, extra = {}){
     <div class="rw-chips">${chips.map(([e, v]) => `<span><span class="e">${esc(e)}</span>${esc(v)}</span>`).join('')}</div>
     ${lvUp ? `<div class="rw-up"><b>${esc(la.name)}!</b>${perkNow ? `<small>${esc(t('unlocks'))}: ${esc(perkNow[LANG][0])}</small>` : ''}</div>`
            : `<div class="rw-lv"><b>${esc(la.name)}</b>${la.next ? ` · ${la.toNext} XP → ${esc(perkNext ? '🎁 ' + perkNext[LANG][0] : la.next.name)}` : ''}</div>`}
-    ${newBadges.length ? `<div class="newbadges">${newBadges.map(b => `<div class="badge"><div class="medal">${ICON[b.icon]}</div><b>${esc(bName(b))}</b></div>`).join('')}</div>` : ''}
-    <button class="btn moss block" id="mOk">${esc(t('next'))}</button></div>`;
+    ${newBadges.length ? `<div class="newbadges">${newBadges.map(b => `<div class="badge pop">${medalHtml(b, true, 1, 'lg')}<b>${esc(bName(b))}</b><small>${esc(bDesc(b))}</small></div>`).join('')}</div>` : ''}
+    ${canShare ? `<button class="btn primary block" id="mShare">${small(ICON.users, 18)} ${esc(t(sharedToday ? 'share_btn' : 'share_btn_xp'))}</button>` : ''}
+    <button class="btn ${canShare ? 'ghost' : 'moss'} block" id="mOk">${esc(t('next'))}</button></div>`;
   $('#modal').hidden = false;
   $('#mOk').focus();
   $('#mOk').onclick = () => { $('#modal').hidden = true; if(kind === 'add') afterReward(); };
+  if($('#mShare')) $('#mShare').onclick = () => { $('#modal').hidden = true; shareSighting(extra.id, 'reward'); };
   requestAnimationFrame(() => requestAnimationFrame(() => { const a = $('#rwArc'); if(a) a.style.strokeDashoffset = (C * (1 - la.pct)).toFixed(1); }));
   const t0 = performance.now(), el = $('#gainNum');
   const step = ts => { const k = Math.min(1, (ts - t0) / 800); el.textContent = '+' + Math.round(gained * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(step); };
@@ -1891,17 +2083,60 @@ function reward(before, kind, extra = {}){
 }
 
 /* ---------- panele ---------- */
+function quizToday(){
+  const day = localDay(), bank = QUIZ[LANG] || QUIZ.pl, n = bank.length;
+  const dayNum = Math.floor(Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)) / 864e5);
+  const r = rng('quiz-order-v1'), perm = [...Array(n).keys()];
+  for(let i = n - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  const idx = perm[((dayNum % n) + n) % n], [q, opts, okI, why] = bank[idx];
+  const r2 = rng('quiz' + day), order = opts.map((_, i) => i);
+  for(let i = order.length - 1; i > 0; i--){ const j = Math.floor(r2() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  const saved = LS.get('dk_quiz', null), mine = saved?.day === day ? saved : null;
+  const claimed = (S.rewards?.bonus || []).find(b => b.kind === 'quiz' && b.day === day);
+  return { day, idx, q, opts:order.map(i => opts[i]), okIdx:order.indexOf(okI), why, pick:mine?.pick ?? null, done:!!(mine || claimed), xp:claimed?.xp };
+}
+function quizHtml(){
+  const z = quizToday();
+  const btns = z.opts.map((o, i) => {
+    const cls = !z.done ? '' : i === z.okIdx ? ' right' : i === z.pick ? ' wrong' : ' dim';
+    return `<button class="qopt${cls}" data-qi="${i}"${z.done ? ' disabled' : ''}>${esc(o)}</button>`; }).join('');
+  const res = z.done ? `<div class="qwhy"><b>${esc(z.pick == null ? t('quiz_done') : z.pick === z.okIdx ? t('quiz_ok') : t('quiz_bad'))}</b> ${esc(z.why)}
+      <div class="mono">${z.xp ? esc(t('quiz_xp').replace('{xp}', z.xp)) + ' · ' : ''}${esc(t('quiz_done'))}</div></div>` : '';
+  return `<div class="quizcard" id="quizCard"><div class="sec-h"><h3>🦉 ${esc(t('quiz_h'))}</h3><span class="mono">+${XP.quizOk} XP</span></div>
+    <p class="qq">${esc(z.q)}</p><div class="qopts">${btns}</div>${res}</div>`;
+}
+function bindQuiz(){
+  $$('#quizCard [data-qi]').forEach(b => b.onclick = async () => {
+    const z = quizToday(); if(z.done) return;
+    const pick = +b.dataset.qi, right = pick === z.okIdx;
+    LS.set('dk_quiz', { day:z.day, pick, ok:right });
+    AN.track('quiz_answer', { q:z.idx, ok:right });
+    const before = snapshot();
+    const xp = await API.bonus('quiz', z.day, right);
+    if(xp){ await loadRewards(); }
+    renderPanelIfOpen('quests');
+    if(xp) reward(before, 'quiz');
+  });
+}
+function inviteHtml(st){
+  return `<div class="invcard"><div class="inv-top"><span class="e">🦊</span><div><b>${esc(t('inv_h'))}</b>
+      <small>${esc(t('inv_p').replace('{xp}', XP.invite))}</small></div></div>
+    ${st.invitedTotal ? `<div class="mono inv-stat">${esc(t('inv_stat').replace('{n}', st.invitedTotal).replace('{ok}', st.invited))}</div>` : ''}
+    <button class="btn primary block" data-invite>${small(ICON.users, 18)} ${esc(t('inv_btn'))}</button></div>`;
+}
 function renderQuests(){
   const st = myStats(), c = questCtx(st), qs = weeklyQuests();
   const ws = weekStart(), daysLeft = Math.ceil((ws.getTime() + 7*864e5 - Date.now()) / 864e5);
   const active = new Set([...st.my.map(s => dayKey(s.seen_at)), ...S.checkins.map(d => dayKey(d + 'T12:00:00'))]);
   const names = t('days'), today = dayKey(new Date());
-  const doneToday = active.has(today);
+  const doneToday = active.has(today), toWeek = 7 - (st.streak % 7 || 7);
   $('#questsBody').innerHTML = `
     <div class="streakcard">
       <div class="big">${ICON.flame}<div><b>${st.streak}</b></div><div><div style="font-weight:700">${pw(st.streak, 'day')} ${esc(t('q_in_row'))}</div><div class="muted" style="font-size:13px">${esc(doneToday ? t('q_today_done') : st.streak ? t('q_keep') : t('q_start'))}</div></div></div>
       <div class="days">${names.map((n, i) => { const d = new Date(ws); d.setDate(d.getDate() + i); const k = dayKey(d); return `<div class="${active.has(k) ? 'on' : ''}${k === today ? ' today' : ''}"><i></i>${n}</div>`; }).join('')}</div>
+      <div class="muted" style="font-size:12.5px">📅 +${XP.checkin} XP / ${esc(LANG === 'pl' ? 'dzień' : 'day')} · 🔥 +${XP.streak7} XP ${esc(LANG === 'pl' ? 'co 7 dni' : 'every 7 days')}${toWeek && st.streak ? ` · ${esc(LANG === 'pl' ? 'jeszcze' : 'in')} ${toWeek} ${pw(toWeek, 'day')}` : ''}</div>
     </div>
+    ${quizHtml()}
     <div class="sec">
       <div class="sec-h"><h3>${esc(t('q_weekly'))}</h3><span class="mono">${esc(t('q_new_in'))} ${daysLeft} ${pw(daysLeft, 'day')}</span></div>
       ${qs.map(q => { const p = Math.min(q.p(c), q.target), d = p >= q.target; return `
@@ -1910,7 +2145,10 @@ function renderQuests(){
           <span class="mono">${p}/${q.target}</span></div>`; }).join('')}
       <p class="muted" style="margin:0;font-size:13px">${esc(t('q_all3'))}</p>
     </div>
+    ${API.account().demo ? '' : inviteHtml(st)}
     ${PUSH.status() === 'off' ? `<div class="pushcard">${ICON.bell}<span>${esc(t('push_card'))}</span><button class="btn moss" style="height:40px;padding:0 14px" id="qPush">${esc(t('push_yes'))}</button></div>` : ''}`;
+  bindQuiz();
+  $$('#questsBody [data-invite]').forEach(b => b.onclick = () => invite('quests'));
   if($('#qPush')) $('#qPush').onclick = async () => { if(await PUSH.enable('quests')){ toast(t('notif_on')); renderQuests(); } };
 }
 function renderAtlas(){
@@ -1936,21 +2174,24 @@ function renderAtlas(){
         <button class="btn ghost" id="certBtn"${lv.idx >= 3 ? '' : ' disabled'}>${small(ICON.book, 18)} ${esc(t('cert_btn'))}</button>
       </div></div>
     <div class="sec"><div class="sec-h"><h3>${esc(t('species_h'))}</h3><span class="mono">${atlasSp.filter(s => st.species.has(s.id)).length}/${atlasSp.length}</span></div>
-      <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(spIcon(s))}</span><b>${n ? esc(spName(s)) : '???'}</b><span class="mono">${n ? n + ' × ' : `+${XP.newSpecies} XP`}</span></div>`; }).join('')}</div></div>
+      <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(spIcon(s))}</span><b>${n ? esc(spName(s)) : '???'}</b><span class="mono">${n ? n + ' ×' : '—'}</span></div>`; }).join('')}</div></div>
     <div class="sec"><div class="sec-h"><h3>🐦 ${esc(t('birds_h'))}</h3><span class="mono">${st.birds.size}</span></div>
       ${st.birds.size ? `<div class="birdlist">${[...st.birds].map(b => `<span>${esc(b.charAt(0).toUpperCase() + b.slice(1))}</span>`).join('')}</div>` : `<p class="muted" style="margin:0;font-size:13px">${esc(t('birds_none'))}</p>`}</div>
-    <div class="sec"><div class="sec-h"><h3>${esc(t('cells_h'))}</h3><span class="mono">${st.cells.size} × 1 km²</span></div>
-      <button class="btn ghost" id="showCells">${ICON.grid} ${esc(t('show_on_map'))}</button></div>
     <div class="sec"><div class="sec-h"><h3>${esc(t('badges_h'))}</h3><span class="mono">${ul.size}/${BADGES.length}</span></div>
-      <div class="badges">${BADGES.map(b => { const [a, n] = b.prog(st), on = ul.has(b.id); return `<div class="badge${on ? '' : ' locked'}"><div class="medal">${ICON[b.icon]}</div><b>${esc(bName(b))}</b><small>${on ? esc(bDesc(b)) : `${esc(bDesc(b))} · ${Math.min(a, n)}/${n}`}</small></div>`; }).join('')}</div></div>
+      <div class="badges">${[...BADGES].sort((x, y) => ul.has(y.id) - ul.has(x.id)).map(b => { const [a, n] = b.prog(st), on = ul.has(b.id); return `<div class="badge${on ? '' : ' locked'}">${medalHtml(b, on, Math.min(a, n) / n)}<b>${esc(bName(b))}</b><small>${on ? esc(bDesc(b)) : `${esc(bDesc(b))} · ${Math.min(a, n)}/${n}`}</small></div>`; }).join('')}</div></div>
     <div class="sec"><h3>${esc(t('points_h'))}</h3><div class="rules">
       <span>${esc(t('p_each'))}</span><span>+${XP.sighting}</span>
+      <span>${esc(t('p_traces'))}</span><span>+${XP.sighting}</span>
       <span>${esc(t('p_photo'))}</span><span>+${XP.photo}</span>
-      <span>${esc(t('p_species'))}</span><span>+${XP.newSpecies}</span>
+      <span>${esc(t('p_safe'))}</span><span>+${XP.photo}</span>
+      <span>${esc(t('p_day'))}</span><span>+${XP.checkin}</span>
+      <span>${esc(t('p_streak7'))}</span><span>+${XP.streak7}</span>
+      <span>${esc(t('p_quiz'))}</span><span>+${XP.quizOk} / ${XP.quizTry}</span>
       <span>${esc(t('p_give'))}</span><span>+${XP.confirmGiven}</span>
       <span>${esc(t('p_get'))}</span><span>+${XP.confirmReceived}</span>
-      <span>${esc(t('p_rare'))}</span><span>+5…30</span>
-      <span>${esc(t('p_day'))}</span><span>+${XP.checkin}</span></div></div>
+      <span>${esc(t('p_share'))}</span><span>+${XP.share}</span>
+      <span>${esc(t('p_invite'))}</span><span>+${XP.invite}</span>
+      <span>${esc(t('p_welcome'))}</span><span>+${XP.welcome}</span></div></div>
     <div class="sec settings"><h3>${esc(t('settings_h'))}</h3>
       <div class="field"><label>${esc(t('lang_l'))}</label><div class="bchips">
         ${[['auto', t('lang_auto')], ['pl', 'Polski'], ['en', 'English']].map(([v, l]) => `<button class="chip${langSaved === v ? ' on' : ''}" data-lang="${v}">${esc(l)}</button>`).join('')}</div></div>
@@ -1963,10 +2204,6 @@ function renderAtlas(){
   if($('#saveNudge')) $('#saveNudge').onclick = () => openProfile('atlas_nudge');
   $('#cardBtn').onclick = () => shareImage('card');
   $('#certBtn').onclick = () => shareImage('cert');
-  $('#showCells').onclick = () => {
-    setTab('map'); setMode('zones');
-    if(st.my.length){ const b = L.latLngBounds(st.my.map(s => [s.lat, s.lng])); map.fitBounds(b.pad(.3), { maxZoom:14 }); }
-  };
   $$('#atlasBody [data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
   $$('#atlasBody [data-style]').forEach(b => b.onclick = () => { AN.track('map_style', { style:b.dataset.style }); LS.set('dk_style_v2', b.dataset.style); setBase(b.dataset.style); renderAtlas(); });
 }
@@ -2017,7 +2254,7 @@ async function shareImage(kind){
     const g = c.getContext('2d'), F = (w, s) => `${Math.min(+w, 700)} ${s}px 'Fredoka', 'Nunito', system-ui, sans-serif`;
     const url = location.origin + location.pathname.replace(/index\.html$/, '');
     const spIcons = S.species.filter(s => st.species.has(s.id)).map(spIcon).join(' ');
-    const stats = [[st.my.length, pw(st.my.length, 'sighting')], [st.species.size, pw(st.species.size, 'species')], [st.cells.size, 'km²'], [unlocked(st).length, t('badges_h').toLowerCase()]];
+    const stats = [[st.my.length, pw(st.my.length, 'sighting')], [st.species.size, pw(st.species.size, 'species')], [st.days, pw(st.days, 'day') + (LANG === 'pl' ? ' z Tropami' : ' with Tropami')], [unlocked(st).length, t('badges_h').toLowerCase()]];
     if(card){
       g.fillStyle = '#2D5843'; g.fillRect(0, 0, W, H);
       g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 3;
@@ -2044,8 +2281,8 @@ async function shareImage(kind){
       g.fillText(name, W / 2, 600);
       g.fillStyle = '#14221A'; g.font = F(500, 42);
       const line = LANG === 'pl'
-        ? `za ${st.my.length} ${pw(st.my.length, 'sighting')} dzikich zwierząt, ${st.species.size} ${pw(st.species.size, 'species')} i ${st.cells.size} km² zbadanego terenu`
-        : `for ${st.my.length} ${pw(st.my.length, 'sighting')} of wild animals, ${st.species.size} species and ${st.cells.size} km² of surveyed area`;
+        ? `za ${st.my.length} ${pw(st.my.length, 'sighting')} dzikich zwierząt i ${st.species.size} ${pw(st.species.size, 'species')} w ciągu ${st.days} ${pw(st.days, 'day')} z Tropami`
+        : `for ${st.my.length} ${pw(st.my.length, 'sighting')} of wild animals and ${st.species.size} species over ${st.days} ${pw(st.days, 'day')} with Tropami`;
       g.fillText(line, W / 2, 720);
       g.fillText((LANG === 'pl' ? 'Poziom: ' : 'Level: ') + lv.name + ` · ${st.xp} XP`, W / 2, 790);
       g.font = '80px sans-serif'; g.fillText(spIcons, W / 2, 940);
@@ -2053,11 +2290,139 @@ async function shareImage(kind){
       g.fillText(new Date().toLocaleDateString(LOCALE(), { day:'numeric', month:'long', year:'numeric' }) + '  ·  ' + url, W / 2, 1090);
     }
     const blob = await new Promise(r => c.toBlob(r, 'image/png'));
-    const file = new File([blob], (card ? 'tracker-card' : 'certificate') + '.png', { type:'image/png' });
-    if(navigator.canShare?.({ files:[file] })){ try{ await navigator.share({ files:[file], title:appName() }); AN.track('share_image', { kind, method:'share' }); return; }catch(e){ if(e.name === 'AbortError') return; } }
-    AN.track('share_image', { kind, method:'download' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
-    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    const code = await myRefCode();
+    await shareOut({ blob, name:(card ? 'tracker-card' : 'certificate') + '.png', text:t('inv_text'), url:inviteUrl(code, card ? 'card' : 'cert'), kind });
+  }catch(e){ console.error(e); toast(t('share_fail')); }
+}
+
+/* ---------- udostępnianie: telefon (Web Share / aplikacja), zapasowo podgląd z „Zapisz” i „Skopiuj link” ---------- */
+const APP_URL = () => /tropami\.com$/.test(location.hostname) ? 'https://tropami.com/app/' : location.origin + location.pathname.replace(/index\.html$/, '');
+const inviteUrl = (code, src = 'share') => APP_URL() + '?' + new URLSearchParams({ ...(code ? { ref:code } : {}), src }).toString();
+async function myRefCode(){
+  if(S.rewards?.ref_code) return S.rewards.ref_code;
+  const c = API.refCode ? await API.refCode() : null;
+  if(c) S.rewards = { ...(S.rewards || {}), ref_code:c };
+  return c;
+}
+const blobToB64 = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(b); });
+async function shareOut({ blob, name, text, url, kind }){
+  const title = appName(), body = url ? `${text} ${url}` : text;
+  // 1) aplikacja Android/iOS (wtyczki Share + Filesystem)
+  const P = window.Capacitor?.Plugins;
+  if(inNativeApp() && P?.Share){
+    try{
+      let files;
+      if(blob && P.Filesystem){ const w = await P.Filesystem.writeFile({ path:name, data:await blobToB64(blob), directory:'CACHE' }); files = [w.uri]; }
+      await P.Share.share({ title, text:body, ...(files ? { files } : { url }), dialogTitle:title });
+      AN.track('share', { kind, method:'native' }); await shareBonus(kind); return true;
+    }catch(e){ if(/cancel/i.test(String(e?.message || e))) return false; console.warn('native share', e); }
+  }
+  // 2) przeglądarka z Web Share
+  const file = blob && new File([blob], name, { type:blob.type || 'image/png' });
+  if(file && navigator.canShare?.({ files:[file] })){
+    try{ await navigator.share({ files:[file], title, text:body }); AN.track('share', { kind, method:'web_files' }); await shareBonus(kind); return true; }
+    catch(e){ if(e.name === 'AbortError') return false; }
+  } else if(!blob && navigator.share){
+    try{ await navigator.share({ title, text, url }); AN.track('share', { kind, method:'web' }); await shareBonus(kind); return true; }
+    catch(e){ if(e.name === 'AbortError') return false; }
+  }
+  // 3) podgląd: zapisz obrazek / skopiuj link
+  AN.track('share', { kind, method:'fallback' });
+  const img = blob ? URL.createObjectURL(blob) : null;
+  $('#mcard').innerHTML = `<div class="rw shareprev">
+    ${img ? `<img src="${img}" alt="" class="sp-img">` : ''}
+    ${img ? `<p class="muted" style="margin:0;font-size:13px">${esc(t('share_hold'))}</p><a class="btn primary block" id="spSave" href="${img}" download="${esc(name)}">${esc(t('share_save'))}</a>` : ''}
+    ${url ? `<button class="btn ${img ? 'ghost' : 'primary'} block" id="spCopy">${esc(t('share_copy'))}</button>` : ''}
+    <button class="btn ghost block" id="spClose">${esc(t('close'))}</button></div>`;
+  $('#modal').hidden = false;
+  const done = () => shareBonus(kind);
+  if($('#spSave')) $('#spSave').onclick = () => setTimeout(done, 300);
+  if($('#spCopy')) $('#spCopy').onclick = async () => { try{ await navigator.clipboard.writeText(body); toast(t('inv_copied')); }catch(e){ prompt(t('share_copy'), body); } done(); };
+  $('#spClose').onclick = () => { $('#modal').hidden = true; if(img) setTimeout(() => URL.revokeObjectURL(img), 1000); };
+  return false;
+}
+async function shareBonus(kind){
+  if(!API.bonus) return;
+  const before = snapshot(), xp = await API.bonus('share', localDay());
+  if(!xp) return;
+  await loadRewards();
+  AN.track('share_bonus', { kind });
+  if($('#modal').hidden) reward(before, 'share'); else { renderAll(); toast(t('share_done'), 'xp'); }
+}
+async function invite(via){
+  const code = await myRefCode();
+  AN.track('invite_open', { via, has_code:!!code });
+  await shareOut({ text:t('inv_text'), url:inviteUrl(code, 'invite'), kind:'invite' });
+}
+
+/* Karta „story” 1080×1920 z obserwacją — do Instagrama, WhatsAppa, Messengera */
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function rr(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function fitText(g, text, max, w, size, min = 40){ let fs = size; g.font = w(fs); while(g.measureText(text).width > max && fs > min){ fs -= 4; g.font = w(fs); } return fs; }
+async function storyBlob(s){
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), F = (w, px) => `${w} ${px}px 'Fredoka', 'Nunito', system-ui, sans-serif`;
+  try{ await Promise.all([document.fonts?.load(F(600, 80)), document.fonts?.load(F(500, 40))]); }catch(e){}
+  const code = await myRefCode(), url = inviteUrl(code, 'story');
+  const qrP = loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js').catch(() => null);
+  let photo = null;
+  if(s.has_photo){ try{ const u = await API.photo(s.id); if(u) photo = await loadImg(u); }catch(e){ photo = null; } }
+  const place = await Promise.race([placeName(s.lat, s.lng), new Promise(r => setTimeout(() => r(''), 2500))]);
+  // tło
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#2D5843'); bg.addColorStop(1, '#173426');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 3;
+  for(let i = 0; i < 10; i++){ g.beginPath(); g.ellipse(900, 210, 80 + i * 75, 60 + i * 58, -.35, 0, Math.PI * 2); g.stroke(); }
+  g.fillStyle = '#fff'; g.font = F(600, 52); g.fillText('Tropami', 80, 140);
+  g.globalAlpha = .7; g.font = F(500, 32); g.fillText(LANG === 'pl' ? 'mapa dzikich zwierząt w mieście' : 'a map of wild animals in the city', 80, 188); g.globalAlpha = 1;
+  // zdjęcie albo duża ikona
+  const X = 80, Y = 250, S2 = 920;
+  g.save(); rr(g, X, Y, S2, S2, 56); g.clip();
+  if(photo){
+    const k = Math.max(S2 / photo.width, S2 / photo.height), w = photo.width * k, h = photo.height * k;
+    g.drawImage(photo, X + (S2 - w) / 2, Y + (S2 - h) / 2, w, h);
+  } else {
+    const pg = g.createRadialGradient(X + S2 / 2, Y + S2 / 2, 60, X + S2 / 2, Y + S2 / 2, S2 * .7); pg.addColorStop(0, '#FBF3E6'); pg.addColorStop(1, '#EAD9BE');
+    g.fillStyle = pg; g.fillRect(X, Y, S2, S2);
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '380px sans-serif';
+    g.fillText(spIcon(S.spById[s.species_id]), X + S2 / 2, Y + S2 / 2 + 20);
+    g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  }
+  g.restore();
+  if(s.evidence === 'traces'){ g.font = F(600, 38); const lw = g.measureText('🐾 ' + t('ev_traces')).width + 56;
+    g.fillStyle = 'rgba(20,34,26,.72)'; rr(g, X + 32, Y + S2 - 104, lw, 72, 36); g.fill(); g.fillStyle = '#fff'; g.fillText('🐾 ' + t('ev_traces'), X + 60, Y + S2 - 54); }
+  // podpis
+  const title = taxonTitle(s);
+  g.fillStyle = '#fff'; fitText(g, title, W - 160, px => F(600, px), 92); g.fillText(title, 80, 1290);
+  const when = new Date(s.seen_at).toLocaleDateString(LOCALE(), { day:'numeric', month:'long' });
+  g.globalAlpha = .85; g.font = F(500, 40); const meta = [when, place].filter(Boolean).join(' · ');
+  fitText(g, meta, W - 160, px => F(500, px), 40, 28); g.fillText(meta, 80, 1356); g.globalAlpha = 1;
+  const who = s.is_mine ? (S.nickname || t('you')) + ' · ' + levelOf(myStats().xp).name : (s.nickname || t('anon'));
+  g.fillStyle = '#F29C4B'; fitText(g, `${t('share_seen_by')}: ${who}`, W - 160, px => F(600, px), 40, 28); g.fillText(`${t('share_seen_by')}: ${who}`, 80, 1420);
+  // zaproszenie + kod QR
+  g.fillStyle = '#F7F1E6'; rr(g, 60, 1500, 960, 340, 44); g.fill();
+  g.fillStyle = '#14221A'; fitText(g, t('share_story_cta'), 600, px => F(600, px), 46, 32); g.fillText(t('share_story_cta'), 104, 1588);
+  g.fillStyle = '#55665B'; g.font = F(500, 38); g.fillText(t('share_story_cta2'), 104, 1642);
+  g.fillStyle = '#E2832B'; g.font = F(600, 58); g.fillText('tropami.com', 104, 1740);
+  if(code){ g.fillStyle = '#55665B'; g.font = F(500, 32); g.fillText(`${t('share_code')}: ${code.toUpperCase()} · +${XP.welcome} XP`, 104, 1792); }
+  const QR = await qrP && window.qrcode;
+  if(QR){
+    const q = QR(0, 'M'); q.addData(url); q.make();
+    const n = q.getModuleCount(), size = 260, cell = size / n, qx = 1000 - size - 20, qy = 1540;
+    g.fillStyle = '#fff'; rr(g, qx - 16, qy - 16, size + 32, size + 32, 20); g.fill();
+    g.fillStyle = '#14221A';
+    for(let r = 0; r < n; r++) for(let k = 0; k < n; k++) if(q.isDark(r, k)) g.fillRect(qx + k * cell, qy + r * cell, Math.ceil(cell), Math.ceil(cell));
+  }
+  return new Promise(r => c.toBlob(r, 'image/png'));
+}
+async function shareSighting(id, via){
+  const s = findSighting(id) || S.mine.find(x => x.id === id);
+  if(!s){ toast(t('share_fail')); return; }
+  toast(t('compressing'));
+  try{
+    const blob = await storyBlob(s), code = await myRefCode();
+    AN.track('share_sighting', { via, own:!!s.is_mine, photo:!!s.has_photo, evidence:s.evidence || 'seen' });
+    await shareOut({ blob, name:'tropami-story.png', text:t('inv_text'), url:inviteUrl(code, 'story'), kind:'sighting' });
   }catch(e){ console.error(e); toast(t('share_fail')); }
 }
 
@@ -2279,16 +2644,18 @@ const PUSH = {
 /* Codzienne wejście: +3 XP i seria dni (raz dziennie, data lokalna) */
 async function dailyCheckin(){
   if(!API?.checkin) return;
-  const d = new Date(), day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const day = localDay();
   if(S.checkins.includes(day)) return;
   const before = snapshot();
   if(!(await API.checkin(day))) return;
   S.checkins.unshift(day);
-  AN.track('checkin', { streak:myStats().streak });
+  await loadRewards();
+  const st = myStats(), wk = (S.rewards?.bonus || []).some(b => b.kind === 'streak7' && b.day === day);
+  AN.track('checkin', { streak:st.streak, week_bonus:wk });
   const after = snapshot();
   renderHud(); renderPanelIfOpen('quests'); renderPanelIfOpen('atlas');
-  if(after.level > before.level || [...after.badges].some(b => !before.badges.has(b))) reward(before, 'checkin');
-  else toast(t('checkin_toast').replace('{n}', myStats().streak), 'xp');
+  if(wk || after.level > before.level || [...after.badges].some(b => !before.badges.has(b))) reward(before, wk ? 'checkin7' : 'checkin');
+  else toast(t('checkin_toast').replace('{n}', st.streak), 'xp');
 }
 
 /* Pseudonim wymyślony za użytkownika: „Szybki Lis 27” / „Swift Fox 27” */
@@ -2685,7 +3052,11 @@ function renderOnb(){
 /* =====================================================================
    START
    ===================================================================== */
-async function loadMine(){ const m = await API.mine(); S.mine = m.list; S.myConf = m.conf; S.checkins = m.days || []; }
+async function loadMine(){
+  const [m, r] = await Promise.all([API.mine(), API.rewards ? API.rewards() : { bonus:[] }]);
+  S.mine = m.list; S.myConf = m.conf; S.checkins = m.days || []; S.rewards = r || { bonus:[] };
+}
+async function loadRewards(){ if(API.rewards) S.rewards = await API.rewards() || { bonus:[] }; }
 async function reload(){ await Promise.all([loadMine(), loadArea()]); }
 
 function bindStatic(){
@@ -2704,7 +3075,6 @@ function bindStatic(){
   $('#addBtn').onclick = () => startAdd();
   $('#addCancel').onclick = stopAdd;
   $('#addOk').onclick = () => { const c = map.getCenter(); S.pick = { lat:c.lat, lng:wrap(c.lng) }; stopAdd(); openForm(); };
-  $('#zonesBar').onclick = () => setMode('auto');
   $('#modal').onclick = e => { if(e.target.id === 'modal') $('#modal').hidden = true; };
   document.addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(!$('#modal').hidden) $('#modal').hidden = true; else if(S.adding) stopAdd(); else if($('.sheet.open:not(.panel)')) closeSheets(); else setTab('map'); });
   initSearch();
@@ -2750,6 +3120,17 @@ async function boot(){
   setTimeout(() => AN.track('app_open', { ...userProps(), first:firstOpen, standalone:isStandalone(),
     days_away:lastOpen ? Math.floor((Date.now() - lastOpen) / 864e5) : null, ref:document.referrer ? new URL(document.referrer).hostname.slice(0, 40) : '', src:srcNow || LS.get('dk_src', '') }), 2500);
   PUSH.listen(); PUSH.sync();
+  // zaproszenie: ?ref=KOD — zapamiętujemy i zgłaszamy raz (tylko nowe konto bez obserwacji)
+  const refNow = (qp.get('ref') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
+  if(refNow && !LS.get('dk_ref_done', false)) LS.set('dk_ref', refNow);
+  if(!DEMO && LS.get('dk_ref', '') && !LS.get('dk_ref_done', false) && API.refClaim){
+    const code = LS.get('dk_ref', '');
+    API.refClaim(code).then(async okRef => {
+      LS.set('dk_ref_done', true);
+      AN.track('referral_claim', { ok:okRef });
+      if(okRef){ await loadRewards(); renderAll(); toast(t('ref_welcome'), 'xp'); }
+    }).catch(() => {});
+  }
   dailyCheckin();
   // logowanie: dostępni dostawcy, powrót z Google/Apple (strona) i z przeglądarki (aplikacja Android)
   oauthErrorFromUrl();
