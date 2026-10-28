@@ -267,6 +267,9 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 /* karta obserwacji: linki pomocnicze; podgląd udostępniania */
 .cardlinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
 .linkbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--ink-2);font:500 13.5px var(--f-body);padding:6px 2px;text-decoration:underline;text-underline-offset:3px}
+.supportcard{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:var(--fox-soft);color:var(--ink);text-decoration:none}
+.supportcard .e{font-size:30px}.supportcard b{display:block;font:600 16px var(--f-display)}.supportcard small{font-size:12.5px;color:var(--ink-2);line-height:1.3}
+.supportcard .go{margin-left:auto;flex:none;background:var(--fox);color:var(--fox-ink);border-radius:12px;padding:9px 12px;font:600 14px var(--f-display)}
 .shareprev .sp-img{max-height:52vh;max-width:100%;border-radius:16px;box-shadow:var(--shadow)}
 .rules{display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:14px}
 .rules span:nth-child(even){font:700 13px var(--f-mono);color:var(--moss);text-align:right}
@@ -532,6 +535,9 @@ const CONFIG = {
   // E-mail z kodem: ustaw true dopiero po skonfigurowaniu SMTP w Supabase (supabase/SETUP_v8.md).
   AUTH_EMAIL: false,
   AUTH_REDIRECT_APP: 'com.tropami.app://auth',
+  // Wsparcie (napiwki/darowizny): link do BuyCoffee.to / Patronite / Buy Me a Coffee. Pusty = przycisk ukryty.
+  // W aplikacji z App Store przycisk jest zawsze ukryty (zasady Apple), w APK i w przeglądarce działa.
+  SUPPORT_URL: '',
 };
 const APP_VERSION = '1.6.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
@@ -604,7 +610,7 @@ const STR = {
     db_fallback:'Baza nie odpowiada albo brakuje w niej migracji supabase_v4.sql. Na razie działa tryb demo — zapis tylko w tej przeglądarce.',
     start_fail:'Nie udało się uruchomić aplikacji',
     onb1_e:'', onb1_t:'Miasto dzielimy z dzikimi zwierzętami',
-    onb1_p:'Dziki, lisy i sarny korzystają z tych samych parków i ulic co my — w każdym mieście. Zaznaczaj, gdzie je widzisz, a razem stworzymy mapę dzikich korytarzy.',
+    onb1_p:'Dziki, lisy, jeże i zające korzystają z tych samych parków i ulic co my — w każdym mieście. Zaznaczaj, gdzie je widzisz, a razem stworzymy mapę dzikich korytarzy.',
     onb2_e:'Zgłoszenie w 20 sekund', onb2_t:'Zobaczyłeś zwierzę? Postaw pinezkę',
     onb2_p:'Stuknij w mapę tam, gdzie było zwierzę, albo użyj pomarańczowego przycisku. Wybierz gatunek — ssaka albo ptaka. Zdjęcie jest mile widziane.',
     onb3_e:'Gra w tropiciela', onb3_t:'Zbieraj XP i odznaki — nawet bez spotkania zwierzęcia',
@@ -676,7 +682,7 @@ const STR = {
     db_fallback:'The database is not responding or is missing the supabase_v4.sql migration. Running in demo mode for now — saved in this browser only.',
     start_fail:'Could not start the app',
     onb1_e:'', onb1_t:'We share our cities with wild animals',
-    onb1_p:'Wild boars, foxes and deer use the same parks and streets as we do — in every city. Mark where you see them and together we will map the wild corridors.',
+    onb1_p:'Wild boars, foxes, hedgehogs and hares use the same parks and streets as we do — in every city. Mark where you see them and together we will map the wild corridors.',
     onb2_e:'Report in 20 seconds', onb2_t:'Saw an animal? Drop a pin',
     onb2_p:'Tap the map where the animal was, or use the orange button. Choose the species — a mammal or a bird. A photo is welcome.',
     onb3_e:'The tracker game', onb3_t:'Collect XP and badges — even on days without animals',
@@ -786,6 +792,7 @@ Object.assign(STR.pl, {
   report_photo:'Zgłoś zdjęcie', report_q:'Co jest nie tak ze zdjęciem?', rp_not_animal:'Nie ma na nim zwierzęcia', rp_person:'Widać osobę lub tablicę rejestracyjną',
   rp_bad:'Nieodpowiednie treści', rp_thanks:'Dziękujemy — sprawdzimy to zdjęcie', photo_pending:'Zdjęcie czeka na sprawdzenie — inni zobaczą je po akceptacji.',
   streak7_toast:'Tydzień z rzędu! +15 XP',
+  support_t:'Wesprzyj Tropami', support_p:'Robimy mapę po godzinach. Kawa pomaga utrzymać serwery i dodawać nowe funkcje.', support_btn:'Postaw kawę',
   b_rare_none:'', groups_h:'Grupy zwierząt',
 });
 Object.assign(STR.en, {
@@ -805,6 +812,7 @@ Object.assign(STR.en, {
   report_photo:'Report photo', report_q:'What is wrong with the photo?', rp_not_animal:'There is no animal in it', rp_person:'A person or a number plate is visible',
   rp_bad:'Inappropriate content', rp_thanks:'Thank you — we will check this photo', photo_pending:'Your photo is waiting for review — others will see it once approved.',
   streak7_toast:'A full week in a row! +15 XP',
+  support_t:'Support Tropami', support_p:'We build the map after hours. A coffee helps keep the servers running and add new features.', support_btn:'Buy a coffee',
   b_rare_none:'', groups_h:'Animal groups',
 });
 const t = k => STR[LANG][k] ?? STR.pl[k] ?? k;
@@ -2151,6 +2159,12 @@ function renderQuests(){
   $$('#questsBody [data-invite]').forEach(b => b.onclick = () => invite('quests'));
   if($('#qPush')) $('#qPush').onclick = async () => { if(await PUSH.enable('quests')){ toast(t('notif_on')); renderQuests(); } };
 }
+const supportOn = () => !!CONFIG.SUPPORT_URL && !(inNativeApp() && window.Capacitor?.getPlatform?.() === 'ios');
+function supportHtml(){
+  if(!supportOn()) return '';
+  return `<a class="supportcard" href="${esc(CONFIG.SUPPORT_URL)}" target="_blank" rel="noopener" data-support>
+    <span class="e">☕</span><span><b>${esc(t('support_t'))}</b><small>${esc(t('support_p'))}</small></span><span class="go">${esc(t('support_btn'))}</span></a>`;
+}
 function renderAtlas(){
   const st = myStats(), lv = levelOf(st.xp), ul = new Set(unlocked(st));
   const counts = {}; st.my.forEach(s => counts[s.species_id] = (counts[s.species_id] || 0) + 1);
@@ -2177,6 +2191,7 @@ function renderAtlas(){
       <div class="atlas">${S.species.map(s => { const n = counts[s.id] || 0; return `<div class="atl${n ? '' : ' locked'}"><span class="e">${esc(spIcon(s))}</span><b>${n ? esc(spName(s)) : '???'}</b><span class="mono">${n ? n + ' ×' : '—'}</span></div>`; }).join('')}</div></div>
     <div class="sec"><div class="sec-h"><h3>🐦 ${esc(t('birds_h'))}</h3><span class="mono">${st.birds.size}</span></div>
       ${st.birds.size ? `<div class="birdlist">${[...st.birds].map(b => `<span>${esc(b.charAt(0).toUpperCase() + b.slice(1))}</span>`).join('')}</div>` : `<p class="muted" style="margin:0;font-size:13px">${esc(t('birds_none'))}</p>`}</div>
+    ${supportHtml()}
     <div class="sec"><div class="sec-h"><h3>${esc(t('badges_h'))}</h3><span class="mono">${ul.size}/${BADGES.length}</span></div>
       <div class="badges">${[...BADGES].sort((x, y) => ul.has(y.id) - ul.has(x.id)).map(b => { const [a, n] = b.prog(st), on = ul.has(b.id); return `<div class="badge${on ? '' : ' locked'}">${medalHtml(b, on, Math.min(a, n) / n)}<b>${esc(bName(b))}</b><small>${on ? esc(bDesc(b)) : `${esc(bDesc(b))} · ${Math.min(a, n)}/${n}`}</small></div>`; }).join('')}</div></div>
     <div class="sec"><h3>${esc(t('points_h'))}</h3><div class="rules">
@@ -2199,6 +2214,7 @@ function renderAtlas(){
         ${STYLES.map(s => { const av = styleAvailable(s); return `<button class="chip${styleId === s.id ? ' on' : ''}" data-style="${s.id}"${av ? '' : ' disabled'}>${esc(s.name)}${av ? '' : ` <small>· ${esc(t('needs_key'))}</small>`}</button>`; }).join('')}</div>
         <p class="muted" style="margin:0;font-size:12.5px">${esc(t('style_note'))}</p></div>
     </div>`;
+  $$('#atlasBody [data-support]').forEach(a => a.onclick = () => AN.track('support_click', { via:'atlas' }));
   $('#profBtn').onclick = () => openProfile('atlas');
   $('#lvName').onclick = () => openProfile('atlas_name');
   if($('#saveNudge')) $('#saveNudge').onclick = () => openProfile('atlas_nudge');

@@ -66,21 +66,36 @@ export async function vernacular(key, fallback){
   return vnCache.get(key);
 }
 
+// Ptaki widać codziennie, ssaki rzadko — dlatego:
+//  • zwierzęta (ssaki, gady, płazy) bierzemy z ostatnich ANIMAL_DAYS dni (domyślnie rok; daty zostają prawdziwe),
+//  • ptaki z ostatnich DAYS dni i najwyżej BIRD_SHARE miejsc w mieście,
+//  • max 3 obserwacje tego samego gatunku zwierzęcia i 2 tego samego ptaka.
+const ANIMAL_DAYS = +env.ANIMAL_DAYS || 365, BIRD_SHARE = +env.BIRD_SHARE || .5;
+async function search(lat, lng, km, days, classes){
+  const to = new Date(), from = new Date(Date.now() - days * 864e5), d = x => x.toISOString().slice(0, 10);
+  const q = new URLSearchParams({ geoDistance:`${lat},${lng},${km}km`, eventDate:`${d(from)},${d(to)}`, hasCoordinate:'true',
+    occurrenceStatus:'PRESENT', basisOfRecord:'HUMAN_OBSERVATION', limit:'300' });
+  classes.forEach(c => q.append('classKey', c));
+  ['CC0_1_0', 'CC_BY_4_0'].forEach(l => q.append('license', l));
+  return ((await get(`${GBIF}/occurrence/search?${q}`)).results || [])
+    .filter(o => o.decimalLatitude && o.eventDate && !SKIP.test(o.species || o.scientificName || '') && licenseLabel(o.license))
+    .sort((x, y) => String(y.eventDate).localeCompare(String(x.eventDate)));
+}
 export async function cityRows([name, lat, lng], { days = DAYS, perCity = PER_CITY } = {}){
   const focus = FOCUS.has(name); if(focus) perCity *= 3;
-  const to = new Date(), from = new Date(Date.now() - days * 864e5), d = x => x.toISOString().slice(0, 10);
-  const q = new URLSearchParams({ geoDistance:`${lat},${lng},${focus ? 15 : 12}km`, eventDate:`${d(from)},${d(to)}`, hasCoordinate:'true',
-    occurrenceStatus:'PRESENT', basisOfRecord:'HUMAN_OBSERVATION', limit:'300' });
-  CLASSES.forEach(c => q.append('classKey', c));
-  ['CC0_1_0', 'CC_BY_4_0'].forEach(l => q.append('license', l));
-  const res = (await get(`${GBIF}/occurrence/search?${q}`)).results || [];
-  // różnorodność: najpierw ssaki/gady/płazy, max 2 obserwacje tego samego gatunku na miasto
-  const per = new Map(), rows = [];
-  const sorted = res.filter(o => o.decimalLatitude && o.eventDate && !SKIP.test(o.species || o.scientificName || '') && licenseLabel(o.license))
-    .sort((a, b) => (a.classKey === 212) - (b.classKey === 212) || String(b.eventDate).localeCompare(String(a.eventDate)));
-  for(const o of sorted){
-    const k = o.speciesKey || o.taxonKey; if((per.get(k) || 0) >= 2) continue;
-    per.set(k, (per.get(k) || 0) + 1);
+  const km = focus ? 15 : 12;
+  const [animals, birds] = await Promise.all([search(lat, lng, km, Math.max(days, ANIMAL_DAYS), [359, 358, 131]), search(lat, lng, km, days, [212])]);
+  const per = new Map(), picked = [];
+  const take = (list, cap, limit) => { let n = 0;
+    for(const o of list){
+      if(picked.length >= perCity || n >= limit) break;
+      const k = o.speciesKey || o.taxonKey; if((per.get(k) || 0) >= cap) continue;
+      per.set(k, (per.get(k) || 0) + 1); picked.push(o); n++;
+    } };
+  take(animals, 3, perCity);
+  take(birds, 2, Math.ceil(perCity * BIRD_SHARE));
+  const rows = [];
+  for(const o of picked){
     const species = speciesFor(o), sci = o.species || o.scientificName;
     const fixed = ['Dzik', 'Lis', 'Sarna', 'Wilk', 'Borsuk'].includes(species);
     const ds = String(o.eventDate);
@@ -94,7 +109,6 @@ export async function cityRows([name, lat, lng], { days = DAYS, perCity = PER_CI
       seen_at: ds.length > 10 ? new Date(ds.length === 16 ? ds + ':00Z' : ds).toISOString() : `${ds.slice(0, 10)}T12:00:00Z`,
       city: name,
     });
-    if(rows.length >= perCity) break;
   }
   return rows;
 }
@@ -116,7 +130,7 @@ async function main(){
     catch(e){ stats[c[0]] = 'błąd'; console.warn(c[0], e.message); }
   }
   const bySp = {}; all.forEach(r => bySp[r.species] = (bySp[r.species] || 0) + 1);
-  console.log('Miasta:', JSON.stringify(stats)); console.log('Gatunki:', JSON.stringify(bySp)); console.log('Razem:', all.length);
+  console.log('Miasta:', JSON.stringify(stats)); console.log('Zwierzęta (bez ptaków) w miastach:', JSON.stringify(Object.fromEntries(Object.keys(stats).map(c => [c, all.filter(r => r.city === c && r.species !== 'Ptak').length])))); console.log('Gatunki:', JSON.stringify(bySp)); console.log('Razem:', all.length);
   if(DRY){ all.slice(0, 15).forEach(r => console.log(`  ${r.city} · ${r.species} · ${r.taxon || ''} (${r.taxon_sci}) · ${r.seen_at.slice(0, 10)} · ${r.observer} · ${r.license}`)); return; }
   let added = 0;
   for(let i = 0; i < all.length; i += 200) added += await rpc('dk_import_sightings', { p: all.slice(i, i + 200).map(({ city, ...r }) => r) });
