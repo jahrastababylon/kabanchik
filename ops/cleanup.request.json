@@ -1,6 +1,7 @@
 {
   "note": "Testowe obserwacje z 2026-07 i 2026-10 (konta Tropiciel #889a i #c7a8). Zmiana tego pliku uruchamia workflow Cleanup.",
   "dry_run": false,
+  "attempt": 2,
   "sighting_ids": [
     "292741e2-a436-4019-a244-ffec74d39e10",
     "8ec13897-46ea-4b89-88a7-d4b1bee089f4",

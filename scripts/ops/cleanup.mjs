@@ -18,6 +18,7 @@ async function call(method, path, body, extra = {}){
 if(!U || !K){ console.log('::error::Brak SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY'); process.exit(1); }
 if(!ids.length){ say('Brak sighting_ids — nic do zrobienia.'); process.exit(0); }
 
+async function main(){
 const inList = `(${ids.join(',')})`;
 const rows = await call('GET', `/rest/v1/sightings?id=in.${inList}&select=id,photo_url,created_by`);
 say(`Obserwacje do usunięcia: ${rows.length} z ${ids.length} podanych`);
@@ -43,4 +44,7 @@ else {
     say(`Usunięto plików: ${(out || []).length}`);
   }
 }
+}
+try{ await main(); }
+catch(e){ say('BŁĄD: ' + e.message); console.log(`::error title=Cleanup::${String(e.message).replace(/\n/g, ' ').slice(0, 400)}`); process.exitCode = 1; }
 if(SUM) appendFileSync(SUM, '### Czyszczenie danych testowych\n\n' + log.map(l => '- ' + l).join('\n') + '\n');
