@@ -22,7 +22,7 @@
 <title>Tropami</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..900&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <style>
 /* Layout: pełnoekranowa mapa, HUD u góry, pasek zakładek z przyciskiem „Zgłoś”, panele jako arkusze od dołu */
@@ -32,7 +32,7 @@
   --fox:#E2832B; --fox-ink:#211204; --fox-soft:#FBE7D3;
   --danger:#BE3F2C; --danger-soft:#F8DED8; --ok:#3B8A5A;
   --scrim:rgba(10,20,14,.38); --shadow:0 10px 30px rgba(20,34,26,.16);
-  --f-display:'Nunito',ui-rounded,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-display:'Fredoka',ui-rounded,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
   --f-body:'Nunito',ui-rounded,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
   --f-mono:'Nunito',ui-rounded,ui-sans-serif,system-ui,sans-serif;
   color-scheme:light;
@@ -143,7 +143,7 @@ body:not(.adding) .cross, body:not(.adding) .addbar{display:none}
 body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .top .chips, body.adding .empty-note{display:none}
 
 /* ---------- BUTTONS ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:15px;border:0;font-weight:700;font-size:15px;background:var(--surface-2);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:15px;border:0;font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:.01em;background:var(--surface-2);color:var(--ink)}
 .btn.primary{background:var(--fox);color:var(--fox-ink)}
 .btn.moss{background:var(--moss);color:var(--moss-ink)}
 .btn.ghost{background:transparent;border:1px solid var(--line)}
@@ -310,6 +310,11 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .consent input{width:22px;height:22px;flex:none;accent-color:var(--moss);margin:0}
 
 .stylelist{display:flex;flex-wrap:wrap;gap:6px}
+.pin.ext{border-style:dashed;opacity:.88;width:34px;height:34px;font-size:17px}
+.spbtn.hot{border-color:var(--fox);background:var(--fox-soft)}
+.zonesbar{position:fixed;z-index:600;left:50%;transform:translateX(-50%);bottom:calc(98px + env(safe-area-inset-bottom,0px));display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 14px;background:var(--moss);color:var(--moss-ink);font:600 14px var(--f-display);box-shadow:var(--shadow);white-space:nowrap}
+.tab span:last-child,.fab span:last-child,.chip,.seg button{font-family:var(--f-display);font-weight:500}
+.levelcard h3,.streakcard .big b,.rw-ring b,.gain b{font-family:var(--f-display)}
 .pin.gold{border-color:#D9A520;box-shadow:0 0 0 3px rgba(217,165,32,.35),0 4px 10px rgba(0,0,0,.28)}
 .tapghost{transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:auto}
 .tapghost button{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border:0;border-radius:13px;background:var(--fox);color:var(--fox-ink);font:800 14px var(--f-body);box-shadow:0 8px 18px rgba(0,0,0,.25);white-space:nowrap;cursor:pointer}
@@ -435,19 +440,13 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
     </div>
     <button class="me" id="meChip"></button>
   </div>
-  <div class="row row2">
-    <div class="seg" role="tablist" id="modeSeg">
-      <button data-mode="pins" class="on" data-i18n="mode_pins"></button>
-      <button data-mode="heat" data-i18n="mode_heat"></button>
-      <button data-mode="zones" data-i18n="mode_cells"></button>
-    </div>
-  </div>
   <div class="chips" id="chips"></div>
   <div class="notice" id="notice" hidden><span id="noticeText"></span><button id="noticeClose"></button></div>
 </header>
 
 <button class="float" id="locate"></button>
 <div class="empty-note" id="emptyNote" hidden></div>
+<button class="zonesbar" id="zonesBar" hidden></button>
 
 <nav class="tabbar" id="tabbar">
   <button class="tab on" data-tab="map"><span class="ic"></span><span data-i18n="tab_map"></span></button>
@@ -504,7 +503,7 @@ const CONFIG = {
   AUTH_EMAIL: false,
   AUTH_REDIRECT_APP: 'com.tropami.app://auth',
 };
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.5.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
 
 /* =====================================================================
@@ -551,12 +550,13 @@ const STR = {
     r_saved:'Obserwacja zapisana', r_thanks:'Dzięki za potwierdzenie', r_confirm:'Potwierdzenie obserwacji',
     r_new_species:'Nowy gatunek w atlasie', r_new_cell:'Odkryty nowy kwadrat mapy', r_total:'razem', r_quest:'Wyzwanie', r_done:'ukończone',
     r_new_level:'Nowy poziom', r_to:'do', r_max:'Najwyższy poziom', r_badge:'Nowa odznaka', r_badges:'Nowe odznaki', next:'Dalej',
-    q_today_done:'Dzisiejszy dzień zaliczony.', q_keep:'Zgłoś coś dziś, żeby nie przerwać serii.', q_start:'Zgłoś obserwację, żeby zacząć serię.',
+    q_today_done:'Dzisiejszy dzień zaliczony — wróć jutro.', q_keep:'Zajrzyj dziś do aplikacji, żeby nie przerwać serii.', q_start:'Wracaj codziennie — każdy dzień to +3 XP.',
     q_in_row:'z rzędu', q_weekly:'Wyzwania tygodnia', q_new_in:'nowe za', q_all3:'Ukończ wszystkie trzy, żeby zdobyć odznakę Zadaniowiec.',
     days:['Pn','Wt','Śr','Cz','Pt','So','Nd'],
     your_level:'Twój poziom', species_h:'Gatunki', cells_h:'Odkryte kwadraty', show_on_map:'Pokaż na mapie', badges_h:'Odznaki',
     points_h:'Za co są punkty', p_each:'Każda obserwacja', p_photo:'Obserwacja ze zdjęciem', p_species:'Pierwszy raz nowy gatunek',
-    p_give:'Potwierdzasz cudzą obserwację', p_get:'Ktoś potwierdza Twoją',
+    p_give:'Potwierdzasz cudzą obserwację', p_get:'Ktoś potwierdza Twoją', p_rare:'Rzadki gatunek (np. sowa, borsuk, wilk)', p_day:'Każdy dzień z aplikacją', x_rare:'Rzadki gatunek', checkin_toast:'+3 XP za dziś · seria {n}',
+    src_label:'Źródło', src_link:'Zobacz oryginalną obserwację', src_note:'Prawdziwa obserwacja z otwartych danych (iNaturalist przez GBIF). Pokazujemy ją, żeby było widać, co żyje w okolicy — nie liczy się do rankingu.', cells_bar:'Twoje odkryte kwadraty — wróć do mapy',
     settings_h:'Ustawienia', lang_l:'Język', lang_auto:'Automatycznie', map_style_l:'Styl mapy', needs_key:'wymaga klucza CARTO',
     style_note:'Styl zapisuje się w tej przeglądarce. Wybierz, który podoba Ci się najbardziej.',
     near:'Okolica', world:'Świat', week:'Tydzień', all_time:'Cały czas', rank_loading:'Ładuję ranking…',
@@ -622,12 +622,13 @@ const STR = {
     r_saved:'Sighting saved', r_thanks:'Thanks for confirming', r_confirm:'Confirmed a sighting',
     r_new_species:'New species in your atlas', r_new_cell:'New map square discovered', r_total:'total', r_quest:'Quest', r_done:'done',
     r_new_level:'New level', r_to:'to', r_max:'Top level', r_badge:'New badge', r_badges:'New badges', next:'Continue',
-    q_today_done:'Today is done.', q_keep:'Report something today to keep your streak.', q_start:'Report a sighting to start a streak.',
+    q_today_done:'Today is done — come back tomorrow.', q_keep:'Open the app today to keep your streak.', q_start:'Come back daily — each day is +3 XP.',
     q_in_row:'in a row', q_weekly:'Weekly quests', q_new_in:'new in', q_all3:'Complete all three to earn the Taskmaster badge.',
     days:['Mo','Tu','We','Th','Fr','Sa','Su'],
     your_level:'Your level', species_h:'Species', cells_h:'Discovered squares', show_on_map:'Show on map', badges_h:'Badges',
     points_h:'How to earn points', p_each:'Each sighting', p_photo:'Sighting with a photo', p_species:'First time a new species',
-    p_give:'You confirm someone’s sighting', p_get:'Someone confirms yours',
+    p_give:'You confirm someone’s sighting', p_get:'Someone confirms yours', p_rare:'Rare species (e.g. an owl, a badger, a wolf)', p_day:'Every day with the app', x_rare:'Rare species', checkin_toast:'+3 XP for today · streak {n}',
+    src_label:'Source', src_link:'See the original observation', src_note:'A real observation from open data (iNaturalist via GBIF). We show it so you can see what lives nearby — it does not count towards the ranking.', cells_bar:'Your discovered squares — back to the map',
     settings_h:'Settings', lang_l:'Language', lang_auto:'Automatic', map_style_l:'Map style', needs_key:'needs a CARTO key',
     style_note:'The style is saved in this browser. Pick the one you like best.',
     near:'Nearby', world:'World', week:'Week', all_time:'All time', rank_loading:'Loading ranking…',
@@ -753,8 +754,8 @@ const P = {
 const pw = (n, k) => plural(n, P[k][0], P[k][1]);
 
 /* Nazwy gatunków i zachowań: w bazie po polsku, wyświetlane w wybranym języku */
-const SP_EN = { 'Dzik':'Wild boar', 'Lis':'Red fox', 'Sarna':'Roe deer', 'Wilk':'Wolf', 'Borsuk':'Badger', 'Ptak':'Bird', 'Inne':'Other animal' };
-const SP_ICON = { 'Inne':'🐾', 'Ptak':'🐦' };                 // ikona z bazy może być stara — tu ją nadpisujemy
+const SP_EN = { 'Dzik':'Wild boar', 'Lis':'Red fox', 'Sarna':'Roe deer', 'Wilk':'Wolf', 'Borsuk':'Badger', 'Ptak':'Bird', 'Inne':'Other animal', 'Wiewiórka':'Squirrel', 'Jeż':'Hedgehog' };
+const SP_ICON = { 'Inne':'🐾', 'Ptak':'🐦', 'Wiewiórka':'🐿️', 'Jeż':'🦔' };                 // ikona z bazy może być stara — tu ją nadpisujemy
 const spIcon = sp => sp ? (SP_ICON[sp.name_pl] || sp.icon || '🐾') : '🐾';
 const needsTaxon = sp => !!sp && (sp.name_pl === 'Ptak' || sp.name_pl === 'Inne');
 /* Podpowiedzi gatunków ptaków (wpisać można dowolny) */
@@ -775,7 +776,7 @@ const OTHERS = [
 ];
 /* ---------- wiedza o gatunkach: iNaturalist (zdjęcia, nazwy) + Wikipedia (opis) ---------- */
 const INAT = 'https://api.inaturalist.org/v1';
-const LATIN = { 'Dzik':'Sus scrofa', 'Lis':'Vulpes vulpes', 'Sarna':'Capreolus capreolus', 'Wilk':'Canis lupus', 'Borsuk':'Meles meles' };
+const LATIN = { 'Dzik':'Sus scrofa', 'Lis':'Vulpes vulpes', 'Sarna':'Capreolus capreolus', 'Wilk':'Canis lupus', 'Borsuk':'Meles meles', 'Wiewiórka':'Sciurus vulgaris', 'Jeż':'Erinaceus europaeus' };
 const iCache = new Map();
 const cached = (k, fn) => { if(!iCache.has(k)) iCache.set(k, fn().catch(e => { iCache.delete(k); throw e; })); return iCache.get(k); };
 // Ptaki = Aves; „inne” = ssaki, gady i płazy (bez ryb, ślimaków, owadów)
@@ -905,7 +906,21 @@ const SP_TIPS = {
 };
 
 /* ---------- reguły gry ---------- */
-const XP = { sighting:10, photo:10, newSpecies:25, confirmGiven:5, confirmReceived:5 };
+const XP = { sighting:10, photo:10, newSpecies:20, confirmGiven:5, confirmReceived:5, checkin:3 };
+/* Premia za rzadkość — ta sama tabela jest w bazie (dk_rarity w supabase_v10_open_data_xp.sql) */
+const RARE = {
+  30:['Canis','Lynx','Alces','Lutra','Ursus','Bubo','Haliaeetus','Aquila','Grus','Felis'],
+  15:['Strix','Asio','Athene','Tyto','Accipiter','Falco','Buteo','Milvus','Circus','Pernis','Alcedo','Upupa','Merops','Ciconia','Oriolus','Martes','Castor','Mustela','Cervus','Dama','Vipera','Nyctalus','Myotis','Pipistrellus','Eptesicus','Plecotus','Glis','Muscardinus'],
+  5:['Dendrocopos','Dryobates','Picus','Dryocopus','Ardea','Egretta','Phalacrocorax','Sitta','Pyrrhula','Carduelis','Cygnus','Aegithalos','Certhia','Regulus','Erithacus','Lepus','Erinaceus','Natrix','Lacerta','Zootoca','Bufo','Rana','Pelophylax','Triturus','Lissotriton','Podiceps','Mergus','Aythya'],
+};
+const RARE_SP = { 'Wilk':30, 'Borsuk':15, 'Sarna':10, 'Dzik':5, 'Lis':5, 'Jeż':5, 'Wiewiórka':0 };
+function rarity(spName, sci){
+  if(spName in RARE_SP) return RARE_SP[spName];
+  const g = String(sci || '').split(' ')[0];
+  for(const pts of [30, 15, 5]) if(RARE[pts].includes(g)) return pts;
+  return 0;
+}
+const taxKey = s => `${s.species_id}|${String(s.taxon_sci || s.taxon || '').trim().toLowerCase()}`;
 const LEVELS = [
   { pl:'Świeżak',   en:'Rookie',  xp:0 },
   { pl:'Tropiciel', en:'Tracker', xp:100 },
@@ -921,7 +936,7 @@ const PERKS = [
 ];
 const perkFor = lvl => PERKS.find(p => p.lvl === lvl);
 const CELL = 0.009;
-const SP_ORDER = ['Dzik','Lis','Sarna','Ptak','Wilk','Borsuk','Inne'];
+const SP_ORDER = ['Ptak','Wiewiórka','Jeż','Lis','Dzik','Sarna','Borsuk','Wilk','Inne'];
 
 const TZ = {
   'Europe/Warsaw':[52.2297,21.0122],'Europe/Minsk':[53.9045,27.5615],'Europe/Ljubljana':[46.0569,14.5058],
@@ -1041,12 +1056,14 @@ function supaApi(){
     async species(){ return ok(await sb.from('species').select('id,name_pl,icon,danger_level')); },
     async area(b){
       const args = { p_w:b.w, p_s:b.s, p_e:b.e, p_n:b.n, p_limit:3000 };
-      return (await rpcBest('area', ['dk_sightings_in_bbox_v3', 'dk_sightings_in_bbox_v2', 'dk_sightings_in_bbox'], () => args)).map(num);
+      return (await rpcBest('area', ['dk_sightings_in_bbox_v4', 'dk_sightings_in_bbox_v3', 'dk_sightings_in_bbox_v2', 'dk_sightings_in_bbox'], () => args)).map(num);
     },
     async mine(){
       const list = await rpcBest('mine', ['dk_my_sightings_v3', 'dk_my_sightings_v2', 'dk_my_sightings'], () => ({}));
       const conf = ok(await sb.rpc('dk_my_confirmations'));
-      return { list:list.map(num), conf:conf.map(r => new Date(r.created_at).getTime()) };
+      let days = [];
+      try{ days = ok(await sb.rpc('dk_my_checkins')).map(d => typeof d === 'string' ? d : d.dk_my_checkins); }catch(e){ if(!missing(e)) console.warn(e); }
+      return { list:list.map(num), conf:conf.map(r => new Date(r.created_at).getTime()), days };
     },
     async photo(id){ return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url; },
     async add(o){
@@ -1071,9 +1088,10 @@ function supaApi(){
     async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
     async leaderboard(since, near){
       const args = { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null };
-      return rpcBest('rank', ['dk_leaderboard_v2', 'dk_leaderboard'], () => args);
+      return rpcBest('rank', ['dk_leaderboard_v3', 'dk_leaderboard_v2', 'dk_leaderboard'], () => args);
     },
     async getNickname(){ const { data } = await sb.from('profiles').select('nickname').eq('id', uid).maybeSingle(); return data?.nickname || ''; },
+    async checkin(day){ try{ return !!ok(await sb.rpc('dk_checkin', { p_day:day })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
     async setNickname(n){ ok(await sb.rpc('dk_set_nickname', { p_nickname:n })); },
     // --- profil (v8; bez migracji: tylko pseudonim) ---
     async getProfile(){
@@ -1164,6 +1182,8 @@ function demoApi(){
     { id:'borsuk', name_pl:'Borsuk', icon:'🦡', danger_level:0 },
     { id:'ptak', name_pl:'Ptak', icon:'🐦', danger_level:0 },
     { id:'inne', name_pl:'Inne', icon:'🐾', danger_level:0 },
+    { id:'wiew', name_pl:'Wiewiórka', icon:'🐿️', danger_level:0 },
+    { id:'jez', name_pl:'Jeż', icon:'🦔', danger_level:0 },
   ];
   const USERS = ['Ania_W','LisiTrop','Marek.N','DzikaKasia','SowaNocna','Petra_LJ','Andreas.CY','Jess_NYC','Olek_MSQ','Rowerzysta'];
   const POOL = ['dzik','dzik','lis','lis','lis','sarna','sarna','borsuk','inne','wilk','ptak','ptak','ptak'];
@@ -1200,7 +1220,8 @@ function demoApi(){
       if(b.z >= 12 && !db.clusters.some(x => dist(x[0], x[1], c[0], c[1]) < 6000)) seedAround(c[0], c[1]);
       return db.s.filter(s => inBox(s, b)).map(view).sort((a, b) => b.seen_at.localeCompare(a.seen_at));
     },
-    async mine(){ return { list:db.s.filter(s => s.author === 'me').map(view), conf:db.conf.slice() }; },
+    async mine(){ return { list:db.s.filter(s => s.author === 'me').map(view), conf:db.conf.slice(), days:(db.days || []).slice() }; },
+    async checkin(day){ db.days ||= []; if(db.days.includes(day)) return false; db.days.unshift(day); save(); return true; },
     async photo(id){ return db.s.find(x => x.id === id)?.photo_url || null; },
     async add(o){
       const id = 'm' + Date.now().toString(36);
@@ -1249,7 +1270,7 @@ function demoApi(){
    ===================================================================== */
 const S = {
   profile:{ nickname:'' },
-  species:[], spById:{}, area:[], mine:[], myConf:[], mode:'pins', spFilter:new Set(), time:'30',
+  species:[], spById:{}, area:[], mine:[], myConf:[], checkins:[], mode:'auto', spFilter:new Set(), time:'all',
   nickname:'', adding:false, pick:null, tab:'map', rankPeriod:'week', rankScope:'near',
 };
 let API;
@@ -1260,16 +1281,20 @@ function myStats(){
   const photos = my.filter(s => s.has_photo).length;
   const given = S.myConf.length;
   const received = my.reduce((a, s) => a + (s.confirmed_count || 0), 0);
-  const xp = my.length*XP.sighting + photos*XP.photo + species.size*XP.newSpecies + given*XP.confirmGiven + received*XP.confirmReceived;
+  const taxa = new Set(my.map(taxKey));
+  const rare = my.reduce((a, s) => a + rarity(S.spById[s.species_id]?.name_pl, s.taxon_sci), 0);
+  const days = S.checkins.length;
+  const xp = my.length*XP.sighting + photos*XP.photo + taxa.size*XP.newSpecies + rare + given*XP.confirmGiven + received*XP.confirmReceived + days*XP.checkin;
   const cells = new Set(my.map(s => cellOf(s.lat, s.lng).id));
   let far = 0;
   outer: for(let i = 1; i < my.length; i++) for(let j = 0; j < i; j++) if(dist(my[i].lat, my[i].lng, my[j].lat, my[j].lng) > 50000){ far = 1; break outer; }
   const birdId = spIdByName('Ptak');
   const birds = new Set(my.filter(s => s.species_id === birdId && s.taxon).map(s => s.taxon.trim().toLowerCase()));
-  return { my, species, photos, given, received, xp, cells, far, birds, streak:streakOf(my) };
+  return { my, species, taxa, rare, days, photos, given, received, xp, cells, far, birds, streak:streakOf(my) };
 }
+// Seria = dni z rzędu z aplikacją (wejście albo obserwacja) — nie trzeba codziennie spotykać zwierząt
 function streakOf(my){
-  const days = new Set(my.map(s => dayKey(s.seen_at)));
+  const days = new Set([...my.map(s => dayKey(s.seen_at)), ...S.checkins.map(d => dayKey(d + 'T12:00:00'))]);
   const d = new Date(); if(!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
   let n = 0; while(days.has(dayKey(d))){ n++; d.setDate(d.getDate() - 1); }
   return n;
@@ -1289,8 +1314,10 @@ const BADGES = [
   { id:'collector',icon:'star',   pl:['Kolekcjoner','Wszystkie gatunki z atlasu'],               en:['Collector','Every species in the atlas'],             prog: st => { const need = S.species.filter(s => s.name_pl !== 'Inne'); return [need.filter(s => st.species.has(s.id)).length, need.length || 5]; } },
   { id:'birder',   icon:'eye',    pl:['Ornitolog','5 różnych gatunków ptaków'],                  en:['Birder','5 different bird species'],                  prog: st => [st.birds.size, 5] },
   { id:'wolf',     icon:'eye',    pl:['Wilczy zew','Zgłoś wilka'],                               en:['Call of the wild','Report a wolf'],                   prog: st => [st.species.has(spIdByName('Wilk')) ? 1 : 0, 1] },
-  { id:'night',    icon:'moon',   pl:['Nocny marek','Obserwacja między 22:00 a 4:00'],           en:['Night owl','A sighting between 22:00 and 4:00'],      prog: st => [st.my.some(s => hourOf(s) >= 22 || hourOf(s) < 4) ? 1 : 0, 1] },
-  { id:'dawn',     icon:'sun',    pl:['Ranny ptaszek','Obserwacja między 5:00 a 7:00'],          en:['Early bird','A sighting between 5:00 and 7:00'],      prog: st => [st.my.some(s => hourOf(s) >= 5 && hourOf(s) < 7) ? 1 : 0, 1] },
+  { id:'dawn',     icon:'sun',    pl:['Poranny spacer','Obserwacja między 6:00 a 10:00'],       en:['Morning walk','A sighting between 6:00 and 10:00'],   prog: st => [st.my.some(s => hourOf(s) >= 6 && hourOf(s) < 10) ? 1 : 0, 1] },
+  { id:'birder10', icon:'eye',    pl:['Ptasie radio','10 różnych gatunków ptaków'],             en:['Bird radio','10 different bird species'],             prog: st => [st.birds.size, 10] },
+  { id:'rare',     icon:'star',   pl:['Rzadki okaz','Zgłoś rzadki gatunek (np. sowę, borsuka)'], en:['Rare find','Report a rare species (e.g. an owl, a badger)'], prog: st => [st.my.some(s => rarity(S.spById[s.species_id]?.name_pl, s.taxon_sci) >= 15) ? 1 : 0, 1] },
+  { id:'regular',  icon:'flame',  pl:['Stały bywalec','30 dni z aplikacją'],                    en:['Regular','30 days with the app'],                     prog: st => [st.days, 30] },
   { id:'cells5',   icon:'grid',   pl:['Odkrywca','Odkryj 5 kwadratów mapy'],                     en:['Explorer','Discover 5 map squares'],                  prog: st => [st.cells.size, 5] },
   { id:'cells25',  icon:'map',    pl:['Kartograf','Odkryj 25 kwadratów mapy'],                   en:['Cartographer','Discover 25 map squares'],             prog: st => [st.cells.size, 25] },
   { id:'traveler', icon:'globe',  pl:['Podróżnik','Obserwacje w miejscach oddalonych o 50 km'],  en:['Traveller','Sightings 50 km apart'],                  prog: st => [st.far, 1] },
@@ -1308,11 +1335,11 @@ function questCtx(st){
   const wk = st.my.filter(s => at(s) >= ws);
   const before = new Set(st.my.filter(s => at(s) < ws).map(s => cellOf(s.lat, s.lng).id));
   const now = new Set(wk.map(s => cellOf(s.lat, s.lng).id));
-  return { wk, newCells:[...now].filter(c => !before.has(c)).length, conf:S.myConf.filter(c => c >= ws).length };
+  return { wk, newCells:[...now].filter(c => !before.has(c)).length, conf:S.myConf.filter(c => c >= ws).length, days:S.checkins.filter(d => new Date(d + 'T12:00:00').getTime() >= ws).length };
 }
 function weeklyQuests(){
   const r = rng('q' + weekKey());
-  const cands = S.species.filter(s => ['Dzik','Lis','Sarna','Borsuk','Ptak'].includes(s.name_pl));
+  const cands = S.species.filter(s => ['Ptak','Wiewiórka','Jeż','Lis','Dzik'].includes(s.name_pl));
   const sp = cands[Math.floor(r() * cands.length)];
   const T = [
     { id:'add3',    icon:'paw',    pl:'Zgłoś 3 obserwacje',             en:'Report 3 sightings',               target:3, p: c => c.wk.length },
@@ -1321,7 +1348,7 @@ function weeklyQuests(){
     sp && { id:'sp-'+sp.id, icon:'eye', pl:`Wypatrz gatunek: ${sp.name_pl}`, en:`Spot a species: ${SP_EN[sp.name_pl] || sp.name_pl}`, target:1, p: c => c.wk.filter(s => s.species_id === sp.id).length },
     { id:'cells2',  icon:'grid',   pl:'Odkryj 2 nowe kwadraty mapy',    en:'Discover 2 new map squares',       target:2, p: c => c.newCells },
     { id:'bird1',   icon:'eye',    pl:'Zgłoś ptaka',                    en:'Report a bird',                    target:1, p: c => c.wk.filter(s => S.spById[s.species_id]?.name_pl === 'Ptak').length },
-    { id:'dusk',    icon:'moon',   pl:'Obserwacja po 20:00',            en:'A sighting after 20:00',           target:1, p: c => c.wk.filter(s => hourOf(s) >= 20).length },
+    { id:'days3',   icon:'flame',  pl:'Zajrzyj do aplikacji 3 dni w tym tygodniu', en:'Open the app on 3 days this week', target:3, p: c => c.days },
     { id:'variety', icon:'star',   pl:'2 różne gatunki w tym tygodniu', en:'2 different species this week',    target:2, p: c => new Set(c.wk.map(s => s.species_id)).size },
   ].filter(Boolean);
   for(let i = T.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [T[i], T[j]] = [T[j], T[i]]; }
@@ -1334,7 +1361,7 @@ function markProgress(){
 }
 function snapshot(){
   const st = myStats();
-  return { xp:st.xp, level:levelOf(st.xp).idx, badges:new Set(unlocked(st)), quests:new Set(questsDone(st)), cells:new Set(st.cells), species:new Set(st.species) };
+  return { xp:st.xp, level:levelOf(st.xp).idx, badges:new Set(unlocked(st)), quests:new Set(questsDone(st)), cells:new Set(st.cells), species:new Set(st.species), taxa:new Set(st.taxa) };
 }
 
 /* =====================================================================
@@ -1455,6 +1482,7 @@ function initMap(){
     showGhost(e.latlng);
   });
   map.on('dragstart zoomstart', removeGhost);
+  map.on('zoomend', () => { if(S.mode !== 'zones') renderMap(); });
   map.on('move', () => { if(S.adding) updatePickHint(); });
   let tm; map.on('moveend', () => {
     const c = map.getCenter(); LS.set('dk_view', { lat:c.lat, lng:c.lng, z:map.getZoom() });
@@ -1491,22 +1519,26 @@ function pinIcon(s){
   const sp = S.spById[s.species_id] || {};
   const fresh = Date.now() - new Date(s.seen_at) < 6 * 3600e3;
   return L.divIcon({ className:'', iconSize:[40,40], iconAnchor:[20,20],
-    html:`<div class="pin d${sp.danger_level || 0}${fresh ? ' fresh' : ''}${s.is_mine ? ' mine' : ''}${s.is_mine && MY_LEVEL >= 2 ? ' gold' : ''}">${esc(spIcon(sp))}</div>` });
+    html:`<div class="pin d${sp.danger_level || 0}${fresh && !s.source ? ' fresh' : ''}${s.source ? ' ext' : ''}${s.is_mine ? ' mine' : ''}${s.is_mine && MY_LEVEL >= 2 ? ' gold' : ''}">${esc(spIcon(sp))}</div>` });
 }
 function renderMap(){
   if(!map) return;
   markers.clearLayers(); cellsLayer.clearLayers(); map.removeLayer(cellsLayer);
   if(heat){ map.removeLayer(heat); heat = null; }
   const list = visible(), z = map.getZoom();
+  // Widok automatyczny: z daleka „mapa ciepła”, z bliska pinezki. Kwadraty — tylko z Atlasu.
+  const mode = S.mode === 'zones' ? 'zones' : (z < 11 && list.length > 40 ? 'heat' : 'pins');
+  $('#zonesBar').hidden = mode !== 'zones';
+  if(mode === 'zones') $('#zonesBar').innerHTML = `${small(ICON.grid, 18)}<span>${esc(t('cells_bar'))}</span>${small(ICON.close, 18)}`;
   let note = '';
-  if(S.mode === 'pins'){
+  if(mode === 'pins'){
     list.forEach(s => L.marker([s.lat, s.lng], { icon:pinIcon(s), keyboard:false, title:taxonTitle(s) })
       .on('click', () => openCard(s.id)).addTo(markers));
     if(!list.length) note = z < 9 ? t('note_zoom_city') : t('note_empty');
-  } else if(S.mode === 'heat'){
+  } else if(mode === 'heat'){
     if(L.heatLayer && list.length) heat = L.heatLayer(list.map(s => [s.lat, s.lng, .7]), { radius:30, blur:24, maxZoom:15, minOpacity:.3,
       gradient:{ .2:'#7cc39a', .5:'#e9c44a', .8:'#e2832b', 1:'#be3f2c' } }).addTo(map);
-    if(!list.length) note = t('note_heat_empty');
+
   } else {
     const moss = css('--moss'), ink2 = css('--ink-2'), vb = map.getBounds().pad(.2);
     const mineCells = new Map(); S.mine.forEach(s => { const c = cellOf(s.lat, s.lng); mineCells.set(c.id, c); });
@@ -1572,7 +1604,7 @@ function setTab(tb){
 }
 function renderPanel(tb){ if(tb === 'quests') renderQuests(); else if(tb === 'atlas') renderAtlas(); else if(tb === 'rank') renderRank(); }
 function renderPanelIfOpen(tb){ if(S.tab === tb) renderPanel(tb); }
-function setMode(m){ if(m !== S.mode) AN.track('map_mode', { mode:m }); S.mode = m; $$('.seg button[data-mode]').forEach(x => x.classList.toggle('on', x.dataset.mode === m)); renderMap(); }
+function setMode(m){ if(m !== S.mode) AN.track('map_mode', { mode:m }); S.mode = m; renderMap(); }
 function openSheet(id){ closeSheets(); $('#' + id).classList.add('open'); $('#scrim').classList.add('on'); }
 function closeSheets(){ ['card','form','profile'].forEach(i => $('#' + i).classList.remove('open')); $('#scrim').classList.remove('on'); }
 
@@ -1594,12 +1626,13 @@ async function placeName(lat, lng){
 const findSighting = id => S.area.find(x => x.id === id) || S.mine.find(x => x.id === id);
 async function openCard(id){
   const s = findSighting(id); if(!s) return;
-  AN.track('sighting_open', { own:!!s.is_mine, photo:!!s.has_photo });
+  AN.track('sighting_open', { own:!!s.is_mine, photo:!!s.has_photo, ext:!!s.source });
   const sp = S.spById[s.species_id] || { name_pl:'?', icon:'?', danger_level:0 };
   const risky = (sp.danger_level >= 2) || /Agresywny|Ranny/.test(s.behavior || '');
   const when = new Date(s.seen_at);
   let action;
-  if(s.is_mine) action = `<button class="btn block" disabled>${esc(t('your_sighting'))}</button>`;
+  if(s.source) action = `<div class="tip">${ICON.globe || ''}<div>${esc(t('src_note'))}</div></div>${s.source_url ? `<a class="btn ghost block" href="${esc(s.source_url)}" target="_blank" rel="noopener">${esc(t('src_link'))}</a>` : ''}`;
+  else if(s.is_mine) action = `<button class="btn block" disabled>${esc(t('your_sighting'))}</button>`;
   else if(s.confirmed_by_me) action = `<button class="btn moss block" disabled>${ICON.check} ${esc(t('confirmed'))}</button>`;
   else action = `<button class="btn primary block" id="confirmBtn">${ICON.check} ${esc(t('confirm_btn'))} · +${XP.confirmGiven} XP</button>`;
   const tip = SP_TIPS[LANG][sp.name_pl];
@@ -1610,7 +1643,8 @@ async function openCard(id){
     <dl class="kv">
       ${s.behavior ? `<dt>${esc(t('behavior'))}</dt><dd>${esc(behText(s.behavior))}</dd>` : ''}
       <dt>${esc(t('reported_by'))}</dt><dd>${s.is_mine ? esc(t('you')) : esc(s.nickname || t('anon'))}</dd>
-      <dt>${esc(t('confirmations'))}</dt><dd class="mono">${s.confirmed_count || 0}</dd>
+      ${s.source ? `<dt>${esc(t('src_label'))}</dt><dd>${esc(s.source === 'gbif' ? 'GBIF / iNaturalist' : s.source)}${s.license ? ' · ' + esc(s.license) : ''}</dd>`
+                 : `<dt>${esc(t('confirmations'))}</dt><dd class="mono">${s.confirmed_count || 0}</dd>`}
     </dl>
     ${tip ? `<div class="tip${risky ? ' warn' : ''}">${ICON.shield}<div>${esc(tip)}</div></div>` : ''}
     <div class="edu" id="cardEdu"></div>
@@ -1678,7 +1712,7 @@ function openForm(){
   const opt = `<span class="muted" style="font-weight:500">${esc(t('optional'))}</span>`;
   $('#formBody').innerHTML = `
     <div class="field"><label>${esc(t('f_species'))}</label><div class="spgrid" id="spGrid">
-      ${S.species.map(s => `<button class="spbtn" data-id="${esc(s.id)}"><span class="e">${esc(spIcon(s))}</span>${esc(spName(s))}${st.species.has(s.id) ? '' : `<span class="new">+${XP.newSpecies}</span>`}</button>`).join('')}
+      ${S.species.map(s => `<button class="spbtn${s.name_pl === 'Ptak' ? ' hot' : ''}" data-id="${esc(s.id)}"><span class="e">${esc(spIcon(s))}</span>${esc(spName(s))}${(RARE_SP[s.name_pl] || 0) >= 10 ? `<span class="new">💎 +${RARE_SP[s.name_pl]}</span>` : ''}</button>`).join('')}
     </div></div>
     <div class="field" id="taxonField" hidden><label for="fTaxon" id="fTaxonL"></label>
       <input class="input" id="fTaxon" maxlength="60" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="taxSugg">
@@ -1758,11 +1792,14 @@ function pickTaxon(x, pos){
 }
 function xpPreview(){
   const st = myStats(), parts = [`${t('x_sighting')} +${XP.sighting}`];
+  const sp = S.spById[F.species], sci = F.tx?.sci || LATIN[sp?.name_pl] || '', newTx = F.species && !st.taxa.has(`${F.species}|${String(F.tx?.sci || F.tx?.name || '').trim().toLowerCase()}`);
+  const rr = F.species ? rarity(sp?.name_pl, sci) : 0;
   if(F.photo) parts.push(`${t('x_photo')} +${XP.photo}`);
-  if(F.species && !st.species.has(F.species)) parts.push(`${t('x_species')} +${XP.newSpecies}`);
+  if(newTx) parts.push(`${t('x_species')} +${XP.newSpecies}`);
+  if(rr) parts.push(`💎 ${t('x_rare')} +${rr}`);
   if(S.pick && !st.cells.has(cellOf(S.pick.lat, S.pick.lng).id)) parts.push(t('x_cell'));
   $('#xPrev').innerHTML = parts.map(p => `<span>${esc(p)}</span>`).join('');
-  const total = XP.sighting + (F.photo ? XP.photo : 0) + (F.species && !st.species.has(F.species) ? XP.newSpecies : 0);
+  const total = XP.sighting + (F.photo ? XP.photo : 0) + (newTx ? XP.newSpecies : 0) + rr;
   $('#fSubmit').textContent = `${t('submit')} · +${total} XP`;
 }
 function compress(file, max, q){
@@ -1790,7 +1827,7 @@ async function submitForm(){
   const note = $('#fNote').value.trim();
   const behavior = [[...F.behaviors].join(', '), note].filter(Boolean).join(' — ') || null;
   const btn = $('#fSubmit'); btn.disabled = true; btn.textContent = t('saving');
-  const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.species.has(F.species);
+  const before = snapshot(), hadPhoto = !!F.photo, newSp = !before.taxa.has(`${F.species}|${String(taxon_sci || taxon || '').trim().toLowerCase()}`);
   try{ await API.add({ species_id:F.species, taxon:taxon || null, taxon_sci, taxon_inat, lat:S.pick.lat, lng:S.pick.lng, behavior, photo_url:F.photo, seen_at:when.toISOString() }); }
   catch(e){ AN.track('report_fail', { species:spSel?.name_pl, error:String(e.message || e).slice(0, 120) }); toast(t('save_fail') + ': ' + (e.message || e)); btn.disabled = false; xpPreview(); return; }
   AN.track('report_submit', { species:spSel?.name_pl, sci:taxon_sci || null, photo:hadPhoto, new_species:newSp, behaviors:F.behaviors.size, note:!!note,
@@ -1798,9 +1835,9 @@ async function submitForm(){
   closeSheets();
   if(S.spFilter.size && !S.spFilter.has(F.species)) S.spFilter.clear();
   if(S.time !== 'all' && Date.now() - when > (+S.time) * 864e5) S.time = '30';
-  renderChips(); setMode('pins');
+  renderChips(); setMode('auto');
   await reload();
-  reward(before, 'add', { species:F.species, photo:hadPhoto, newSpecies:newSp ? F.species : null });
+  reward(before, 'add', { species:F.species, photo:hadPhoto, newSpecies:newSp ? F.species : null, rare:rarity(spSel?.name_pl, taxon_sci) });
 }
 
 /* ---------- nagroda ---------- */
@@ -1824,7 +1861,9 @@ function reward(before, kind, extra = {}){
     chips.push([spIcon(S.spById[extra.species]), `+${XP.sighting}`]);
     if(extra.photo) chips.push(['📷', `+${XP.photo}`]);
     if(extra.newSpecies) chips.push(['🆕', `+${XP.newSpecies}`]);
-  } else chips.push(['🤝', `+${XP.confirmGiven}`]);
+    if(extra.rare) chips.push(['💎', `+${extra.rare}`]);
+  } else if(kind === 'checkin') chips.push(['📅', `+${XP.checkin}`]);
+  else chips.push(['🤝', `+${XP.confirmGiven}`]);
   if(newCells) chips.push(['🗺️', `${after.cells.size}`]);
   qs.forEach(() => chips.push(['🏁', '✓']));
 
@@ -1855,7 +1894,7 @@ function reward(before, kind, extra = {}){
 function renderQuests(){
   const st = myStats(), c = questCtx(st), qs = weeklyQuests();
   const ws = weekStart(), daysLeft = Math.ceil((ws.getTime() + 7*864e5 - Date.now()) / 864e5);
-  const active = new Set(st.my.map(s => dayKey(s.seen_at)));
+  const active = new Set([...st.my.map(s => dayKey(s.seen_at)), ...S.checkins.map(d => dayKey(d + 'T12:00:00'))]);
   const names = t('days'), today = dayKey(new Date());
   const doneToday = active.has(today);
   $('#questsBody').innerHTML = `
@@ -1909,7 +1948,9 @@ function renderAtlas(){
       <span>${esc(t('p_photo'))}</span><span>+${XP.photo}</span>
       <span>${esc(t('p_species'))}</span><span>+${XP.newSpecies}</span>
       <span>${esc(t('p_give'))}</span><span>+${XP.confirmGiven}</span>
-      <span>${esc(t('p_get'))}</span><span>+${XP.confirmReceived}</span></div></div>
+      <span>${esc(t('p_get'))}</span><span>+${XP.confirmReceived}</span>
+      <span>${esc(t('p_rare'))}</span><span>+5…30</span>
+      <span>${esc(t('p_day'))}</span><span>+${XP.checkin}</span></div></div>
     <div class="sec settings"><h3>${esc(t('settings_h'))}</h3>
       <div class="field"><label>${esc(t('lang_l'))}</label><div class="bchips">
         ${[['auto', t('lang_auto')], ['pl', 'Polski'], ['en', 'English']].map(([v, l]) => `<button class="chip${langSaved === v ? ' on' : ''}" data-lang="${v}">${esc(l)}</button>`).join('')}</div></div>
@@ -1973,7 +2014,7 @@ async function shareImage(kind){
     const st = myStats(), lv = levelOf(st.xp), name = S.nickname || t('anon');
     const card = kind === 'card', W = card ? 1080 : 1754, H = card ? 1350 : 1240;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
-    const g = c.getContext('2d'), F = (w, s) => `${w} ${s}px 'Nunito', system-ui, sans-serif`;
+    const g = c.getContext('2d'), F = (w, s) => `${Math.min(+w, 700)} ${s}px 'Fredoka', 'Nunito', system-ui, sans-serif`;
     const url = location.origin + location.pathname.replace(/index\.html$/, '');
     const spIcons = S.species.filter(s => st.species.has(s.id)).map(spIcon).join(' ');
     const stats = [[st.my.length, pw(st.my.length, 'sighting')], [st.species.size, pw(st.species.size, 'species')], [st.cells.size, 'km²'], [unlocked(st).length, t('badges_h').toLowerCase()]];
@@ -2234,6 +2275,21 @@ const PUSH = {
     return true;
   },
 };
+
+/* Codzienne wejście: +3 XP i seria dni (raz dziennie, data lokalna) */
+async function dailyCheckin(){
+  if(!API?.checkin) return;
+  const d = new Date(), day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  if(S.checkins.includes(day)) return;
+  const before = snapshot();
+  if(!(await API.checkin(day))) return;
+  S.checkins.unshift(day);
+  AN.track('checkin', { streak:myStats().streak });
+  const after = snapshot();
+  renderHud(); renderPanelIfOpen('quests'); renderPanelIfOpen('atlas');
+  if(after.level > before.level || [...after.badges].some(b => !before.badges.has(b))) reward(before, 'checkin');
+  else toast(t('checkin_toast').replace('{n}', myStats().streak), 'xp');
+}
 
 /* Pseudonim wymyślony za użytkownika: „Szybki Lis 27” / „Swift Fox 27” */
 const NICK = {
@@ -2629,7 +2685,7 @@ function renderOnb(){
 /* =====================================================================
    START
    ===================================================================== */
-async function loadMine(){ const m = await API.mine(); S.mine = m.list; S.myConf = m.conf; }
+async function loadMine(){ const m = await API.mine(); S.mine = m.list; S.myConf = m.conf; S.checkins = m.days || []; }
 async function reload(){ await Promise.all([loadMine(), loadArea()]); }
 
 function bindStatic(){
@@ -2648,7 +2704,7 @@ function bindStatic(){
   $('#addBtn').onclick = () => startAdd();
   $('#addCancel').onclick = stopAdd;
   $('#addOk').onclick = () => { const c = map.getCenter(); S.pick = { lat:c.lat, lng:wrap(c.lng) }; stopAdd(); openForm(); };
-  $$('.seg button[data-mode]').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  $('#zonesBar').onclick = () => setMode('auto');
   $('#modal').onclick = e => { if(e.target.id === 'modal') $('#modal').hidden = true; };
   document.addEventListener('keydown', e => { if(e.key !== 'Escape') return; if(!$('#modal').hidden) $('#modal').hidden = true; else if(S.adding) stopAdd(); else if($('.sheet.open:not(.panel)')) closeSheets(); else setTab('map'); });
   initSearch();
@@ -2691,6 +2747,7 @@ async function boot(){
   setTimeout(() => AN.track('app_open', { ...userProps(), first:firstOpen, standalone:isStandalone(),
     days_away:lastOpen ? Math.floor((Date.now() - lastOpen) / 864e5) : null, ref:document.referrer ? new URL(document.referrer).hostname.slice(0, 40) : '' }), 2500);
   PUSH.listen(); PUSH.sync();
+  dailyCheckin();
   // logowanie: dostępni dostawcy, powrót z Google/Apple (strona) i z przeglądarki (aplikacja Android)
   oauthErrorFromUrl();
   const pendingMerge = LS.get('dk_merge', null), merging = pendingMerge && Date.now() - (pendingMerge.ts || 0) < 15 * 60e3;

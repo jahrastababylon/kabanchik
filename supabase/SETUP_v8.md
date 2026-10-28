@@ -101,3 +101,12 @@ select * from analytics.top_events;       -- самые частые событ�
 select name, props, created_at from analytics.events order by id desc limit 100;
 ```
 Схема `analytics` не видна из приложения — только из панели Supabase.
+
+## v10: открытые данные, частые виды, опыт за редкость, ежедневный вход
+
+1. SQL Editor → `supabase/supabase_v10_open_data_xp.sql` → Run (после v8 и v9).
+2. Тестовые данные: `supabase/cleanup_test_data.sql` → Run (удаляет все отметки из приложения, тестовую статистику).
+   Фото: Storage → `photos` → выделить всё → Delete (по желанию и `avatars`).
+3. GitHub → Actions → **Import open data** → Run workflow (сначала можно с галочкой «Tylko pokaż»).
+   Настоящие наблюдения из GBIF/iNaturalist (CC0, CC BY) по ~40 городам Европы за последние 60 дней,
+   с реальными датами и авторами. Дальше — автоматически по понедельникам.
