@@ -1,10 +1,14 @@
 # Import prawdziwych obserwacji z otwartych danych (GBIF / iNaturalist, CC0 i CC BY) dla ~40 miast Europy.
 # Ręcznie: Actions → Import open data → Run workflow. Automatycznie: w każdy poniedziałek.
+# Pełny import (60 dni, 25/miasto, 75 w miastach startowych) uruchamia też zmiana pliku ops/import.request.json.
 name: Import open data
 
 on:
   schedule:
     - cron: '17 4 * * 1'
+  push:
+    branches: [main]
+    paths: ['ops/import.request.json']
   workflow_dispatch:
     inputs:
       days:
@@ -31,7 +35,7 @@ jobs:
         env:
           SUPABASE_URL: https://jxvjurltvjgcqxvhbfhx.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          DAYS: ${{ inputs.days || '30' }}
-          PER_CITY: ${{ inputs.per_city || '15' }}
+          DAYS: ${{ inputs.days || (github.event_name == 'push' && '60') || '30' }}
+          PER_CITY: ${{ inputs.per_city || (github.event_name == 'push' && '25') || '15' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: node scripts/import/gbif.mjs
