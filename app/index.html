@@ -539,7 +539,7 @@ const CONFIG = {
   // W aplikacji z App Store przycisk jest zawsze ukryty (zasady Apple), w APK i w przeglądarce działa.
   SUPPORT_URL: '',
 };
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.6.1';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
 
 /* =====================================================================
@@ -1193,6 +1193,34 @@ function supaApi(){
   sb.auth.onAuthStateChange((_ev, s) => setSession(s));
   const anonSession = async () => { const s = ok(await sb.auth.signInAnonymously()).session; setSession(s); };
   const ok = ({ data, error }) => { if(error) throw error; return data; };
+  // Sesja: token żyje godzinę. Safari/iOS potrafi uśpić kartę i nie odświeżyć go w tle — wtedy zapytanie
+  // poszłoby jako „gość” (permission denied). Przed zapytaniem sprawdzamy sesję, a przy błędzie uprawnień
+  // odświeżamy ją i próbujemy jeszcze raz. Nowe anonimowe konto tylko, gdy stary token odświeżania jest nieważny.
+  const sbRpc = (n, a) => sb.rpc(n, a);
+  const authErr = e => !!e && ((e.code === '42501' && /permission denied for function/i.test(e.message || '')) || e.code === 'PGRST301' || /JWT expired|invalid JWT|JWSError/i.test(e.message || ''));
+  let checkedAt = 0;
+  async function ensureSession(force){
+    if(!force && Date.now() - checkedAt < 15e3) return;
+    checkedAt = Date.now();
+    let session = (await sb.auth.getSession()).data.session;
+    if(!force && session && (session.expires_at || 0) * 1000 > Date.now() + 60e3) return setSession(session);
+    const r = await sb.auth.refreshSession().catch(e => ({ data:{}, error:e }));
+    session = r.data?.session || null;
+    if(!session){
+      const dead = !!r.error && (r.error.status === 400 || r.error.status === 401 || /refresh token|not found|invalid/i.test(r.error.message || ''));
+      if(!dead && !force) return;
+      const had = uid;
+      session = ok(await sb.auth.signInAnonymously()).session;
+      try{ AN.track('session_reset', { had_user:!!had, reason:String(r.error?.message || 'none').slice(0, 60) }); }catch(e){}
+    }
+    setSession(session);
+  }
+  async function rpc(n, a){
+    await ensureSession().catch(e => console.warn('session', e));
+    let r = await sbRpc(n, a);
+    if(r.error && authErr(r.error)){ await ensureSession(true).catch(e => console.warn('session', e)); r = await sbRpc(n, a); }
+    return r;
+  }
   const num = r => ({ ...r, lat:+r.lat, lng:+r.lng });
   // Najnowsza dostępna wersja funkcji w bazie (v7 → v6 → v4); zapamiętujemy, która działa
   const fnUse = {};
@@ -1200,7 +1228,7 @@ function supaApi(){
   async function rpcBest(op, names, argsFor){
     let last;
     for(const n of (fnUse[op] ? [fnUse[op]] : names)){
-      const r = await sb.rpc(n, argsFor(n));
+      const r = await rpc(n, argsFor(n));
       if(!r.error){ fnUse[op] = n; return r.data; }
       last = r.error; if(!missing(r.error)) throw r.error;
     }
@@ -1220,19 +1248,20 @@ function supaApi(){
     },
     async mine(){
       const list = await rpcBest('mine', ['dk_my_sightings_v4', 'dk_my_sightings_v3', 'dk_my_sightings_v2', 'dk_my_sightings'], () => ({}));
-      const conf = ok(await sb.rpc('dk_my_confirmations'));
+      const conf = ok(await rpc('dk_my_confirmations'));
       let days = [];
-      try{ days = ok(await sb.rpc('dk_my_checkins')).map(d => typeof d === 'string' ? d : d.dk_my_checkins); }catch(e){ if(!missing(e)) console.warn(e); }
+      try{ days = ok(await rpc('dk_my_checkins')).map(d => typeof d === 'string' ? d : d.dk_my_checkins); }catch(e){ if(!missing(e)) console.warn(e); }
       return { list:list.map(num), conf:conf.map(r => new Date(r.created_at).getTime()), days };
     },
     async photo(id){
-      const r = await sb.rpc('dk_sighting_photo', { p_id:id });
+      const r = await rpc('dk_sighting_photo', { p_id:id });
       if(!r.error) return r.data || null;
       if(!missing(r.error)) throw r.error;
       return ok(await sb.from('sightings').select('photo_url').eq('id', id).single()).photo_url;
     },
     async add(o){
       let photo = o.photo_url;
+      await ensureSession().catch(() => {});
       if(photo && photo.startsWith('data:')){
         // Zdjęcie idzie do Supabase Storage, w bazie zostaje tylko link.
         // Jeśli magazynu jeszcze nie ma (brak migracji v5), zapisujemy jak dawniej.
@@ -1251,29 +1280,29 @@ function supaApi(){
         // bez migracji v6/v7: nazwę gatunku zapisujemy na początku opisu
         : { ...base, p_behavior:[o.taxon, o.behavior].filter(Boolean).join(' — ') || null });
     },
-    async confirm(id){ ok(await sb.rpc('dk_confirm', { p_sighting:id })); },
+    async confirm(id){ ok(await rpc('dk_confirm', { p_sighting:id })); },
     async leaderboard(since, near){
       const args = { p_since:since, p_lat:near?.lat ?? null, p_lng:near?.lng ?? null, p_radius_m:near ? near.r : null };
       return rpcBest('rank', ['dk_leaderboard_v4', 'dk_leaderboard_v3', 'dk_leaderboard_v2', 'dk_leaderboard'], () => args);
     },
     async getNickname(){ const { data } = await sb.from('profiles').select('nickname').eq('id', uid).maybeSingle(); return data?.nickname || ''; },
-    async checkin(day){ try{ return !!ok(await sb.rpc('dk_checkin', { p_day:day })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
+    async checkin(day){ try{ return !!ok(await rpc('dk_checkin', { p_day:day })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
     // --- v11: premie, zaproszenia, zgłoszenia zdjęć (bez migracji: puste wartości, bez błędów) ---
-    async rewards(){ try{ return ok(await sb.rpc('dk_my_rewards')) || { bonus:[] }; }catch(e){ if(!missing(e)) console.warn(e); return { bonus:[] }; } },
-    async bonus(kind, day, okAns){ try{ return +ok(await sb.rpc('dk_bonus_claim', { p_kind:kind, p_day:day, p_ok:okAns ?? null })) || 0; }catch(e){ if(!missing(e)) console.warn(e); return 0; } },
-    async refCode(){ try{ return ok(await sb.rpc('dk_my_ref_code')); }catch(e){ if(!missing(e)) console.warn(e); return null; } },
-    async refClaim(code){ try{ return !!ok(await sb.rpc('dk_referral_claim', { p_code:code })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
-    async reportPhoto(id, reason){ ok(await sb.rpc('dk_report_photo', { p_sighting:id, p_reason:reason })); },
-    async setNickname(n){ ok(await sb.rpc('dk_set_nickname', { p_nickname:n })); },
+    async rewards(){ try{ return ok(await rpc('dk_my_rewards')) || { bonus:[] }; }catch(e){ if(!missing(e)) console.warn(e); return { bonus:[] }; } },
+    async bonus(kind, day, okAns){ try{ return +ok(await rpc('dk_bonus_claim', { p_kind:kind, p_day:day, p_ok:okAns ?? null })) || 0; }catch(e){ if(!missing(e)) console.warn(e); return 0; } },
+    async refCode(){ try{ return ok(await rpc('dk_my_ref_code')); }catch(e){ if(!missing(e)) console.warn(e); return null; } },
+    async refClaim(code){ try{ return !!ok(await rpc('dk_referral_claim', { p_code:code })); }catch(e){ if(!missing(e)) console.warn(e); return false; } },
+    async reportPhoto(id, reason){ ok(await rpc('dk_report_photo', { p_sighting:id, p_reason:reason })); },
+    async setNickname(n){ ok(await rpc('dk_set_nickname', { p_nickname:n })); },
     // --- profil (v8; bez migracji: tylko pseudonim) ---
     async getProfile(){
-      try{ return ok(await sb.rpc('dk_get_profile'))[0] || {}; }
+      try{ return ok(await rpc('dk_get_profile'))[0] || {}; }
       catch(e){ if(missing(e)) return { nickname:await this.getNickname() }; throw e; }
     },
     async saveProfile(p){
-      const r = await sb.rpc('dk_save_profile', { p_nickname:p.nickname ?? null, p_avatar_url:p.avatar_url ?? null, p_phone:p.phone ?? null,
+      const r = await rpc('dk_save_profile', { p_nickname:p.nickname ?? null, p_avatar_url:p.avatar_url ?? null, p_phone:p.phone ?? null,
         p_marketing_ok:p.marketing_ok ?? null, p_analytics_ok:p.analytics_ok ?? null });
-      if(r.error && missing(r.error) && p.nickname && !p.avatar_url && !p.phone){ ok(await sb.rpc('dk_set_nickname', { p_nickname:p.nickname })); return; }
+      if(r.error && missing(r.error) && p.nickname && !p.avatar_url && !p.phone){ ok(await rpc('dk_set_nickname', { p_nickname:p.nickname })); return; }
       ok(r);
     },
     async uploadAvatar(blob){
@@ -1292,7 +1321,7 @@ function supaApi(){
     },
     async mergeTicket(via){
       let ticket = null;
-      if(this.account().anon){ try{ ticket = ok(await sb.rpc('dk_merge_start')); }catch(e){ console.warn('merge ticket', e); } }
+      if(this.account().anon){ try{ ticket = ok(await rpc('dk_merge_start')); }catch(e){ console.warn('merge ticket', e); } }
       LS.set('dk_merge', { ticket, ts:Date.now(), via });
     },
     async finishMerge(){
@@ -1300,7 +1329,7 @@ function supaApi(){
       if(!m || this.account().anon) return null;
       LS.set('dk_merge', null);
       if(Date.now() - (m.ts || 0) > 2 * 3600e3 || !m.ticket) return { moved:0, via:m.via };
-      try{ return { moved:ok(await sb.rpc('dk_merge_finish', { p_ticket:m.ticket })) || 0, via:m.via }; }
+      try{ return { moved:ok(await rpc('dk_merge_finish', { p_ticket:m.ticket })) || 0, via:m.via }; }
       catch(e){ console.warn('merge', e); return { moved:0, via:m.via }; }
     },
     async oauth(provider){
@@ -1326,9 +1355,9 @@ function supaApi(){
     },
     async verifyEmail(email, code){ setSession(ok(await sb.auth.verifyOtp({ email, token:code, type:'email' })).session); },
     async signOut(){ await sb.auth.signOut(); await anonSession(); },
-    async deleteMe(){ ok(await sb.rpc('dk_delete_me')); await sb.auth.signOut().catch(() => {}); await anonSession(); },
+    async deleteMe(){ ok(await rpc('dk_delete_me')); await sb.auth.signOut().catch(() => {}); await anonSession(); },
     // --- analityka ---
-    async track(events){ return ok(await sb.rpc('dk_track', { p_events:events })); },
+    async track(events){ return ok(await rpc('dk_track', { p_events:events })); },
     trackBeacon(events){
       if(!token) return;
       fetch(`${CONFIG.SUPABASE_URL}/rest/v1/rpc/dk_track`, { method:'POST', keepalive:true,
@@ -1337,10 +1366,10 @@ function supaApi(){
     },
     // --- push ---
     async pushSubscribe(o){
-      ok(await sb.rpc('dk_push_subscribe', { p_kind:o.kind, p_endpoint:o.endpoint, p_p256dh:o.p256dh || null, p_auth:o.auth || null,
+      ok(await rpc('dk_push_subscribe', { p_kind:o.kind, p_endpoint:o.endpoint, p_p256dh:o.p256dh || null, p_auth:o.auth || null,
         p_lang:LANG, p_tz:USER_TZ, p_lat:o.lat ?? null, p_lng:o.lng ?? null, p_prefs:o.prefs || null }));
     },
-    async pushUnsubscribe(endpoint){ ok(await sb.rpc('dk_push_unsubscribe', { p_endpoint:endpoint })); },
+    async pushUnsubscribe(endpoint){ ok(await rpc('dk_push_unsubscribe', { p_endpoint:endpoint })); },
   };
 }
 
