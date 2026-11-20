@@ -46,6 +46,18 @@
         <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/tropami_moss" />
     </application>
 
+    <!-- Udostępnianie prosto do aplikacji (Android 11+: aplikacja musi „widzieć” te pakiety) -->
+    <queries>
+        <package android:name="com.instagram.android" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.twitter.android" />
+        <package android:name="com.whatsapp" />
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="image/*" />
+        </intent>
+    </queries>
+
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />

@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2D5843">
 <meta name="description" content="Mapa dzikich zwierząt w mieście. Zgłaszaj obserwacje, zbieraj XP i odznaki.">
+<meta property="og:url" content="https://tropami.com/app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tropami">
+<meta property="og:title" content="Tropami — mapa dzikich zwierząt w mieście">
+<meta property="og:description" content="Lisy, jeże, wiewiórki, dziki i ptaki — zaznacz, kogo spotykasz, i zobacz, kto mieszka obok. Dołącz: +10 XP na start.">
+<meta property="og:image" content="https://tropami.com/assets/og-tropami.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tropami — mapa dzikich zwierząt w mieście">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tropami — mapa dzikich zwierząt w mieście">
+<meta name="twitter:description" content="Zaznacz, kogo spotykasz w mieście, i zobacz, kto mieszka obok.">
+<meta name="twitter:image" content="https://tropami.com/assets/og-tropami.jpg">
 <script>
 /* Manifest w języku użytkownika (opis aplikacji); nazwa zawsze „Tropami” */
 (function(){
@@ -270,7 +283,12 @@ body.adding .tabbar, body.adding .float, body.adding .top .row2, body.adding .to
 .supportcard{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:var(--fox-soft);color:var(--ink);text-decoration:none}
 .supportcard .e{font-size:30px}.supportcard b{display:block;font:600 16px var(--f-display)}.supportcard small{font-size:12.5px;color:var(--ink-2);line-height:1.3}
 .supportcard .go{margin-left:auto;flex:none;background:var(--fox);color:var(--fox-ink);border-radius:12px;padding:9px 12px;font:600 14px var(--f-display)}
-.shareprev .sp-img{max-height:52vh;max-width:100%;border-radius:16px;box-shadow:var(--shadow)}
+.sharegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 6px;width:100%}
+.sharebtn{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;color:var(--ink);font:500 12.5px var(--f-body);padding:4px 0}
+.sharebtn .sn{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 16px var(--f-display);font-style:normal;color:#fff;box-shadow:0 4px 10px -4px #0004}
+.sn.instagram{background:linear-gradient(45deg,#F6A12B,#E1306C 50%,#8A3AB9)}.sn.facebook{background:#1877F2}.sn.x{background:#111}.sn.whatsapp{background:#25D366}
+.sn.more,.sn.save,.sn.copy{background:var(--surface-2);color:var(--ink);box-shadow:none;font-size:18px}
+.shareprev .sp-img{max-height:38vh;max-width:100%;border-radius:16px;box-shadow:var(--shadow)}
 .rules{display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:14px}
 .rules span:nth-child(even){font:700 13px var(--f-mono);color:var(--moss);text-align:right}
 
@@ -539,7 +557,7 @@ const CONFIG = {
   // W aplikacji z App Store przycisk jest zawsze ukryty (zasady Apple), w APK i w przeglądarce działa.
   SUPPORT_URL: '',
 };
-const APP_VERSION = '1.6.1';
+const APP_VERSION = '1.7.0';
 let DEMO = !CONFIG.SUPABASE_ANON_KEY || CONFIG.SUPABASE_ANON_KEY.startsWith('__');
 
 /* =====================================================================
@@ -792,6 +810,10 @@ Object.assign(STR.pl, {
   report_photo:'Zgłoś zdjęcie', report_q:'Co jest nie tak ze zdjęciem?', rp_not_animal:'Nie ma na nim zwierzęcia', rp_person:'Widać osobę lub tablicę rejestracyjną',
   rp_bad:'Nieodpowiednie treści', rp_thanks:'Dziękujemy — sprawdzimy to zdjęcie', photo_pending:'Zdjęcie czeka na sprawdzenie — inni zobaczą je po akceptacji.',
   streak7_toast:'Tydzień z rzędu! +15 XP',
+  share_prep:'Przygotowuję obrazek…', share_h:'Udostępnij', share_more:'Więcej', share_save_s:'Zapisz', share_copy_s:'Link', share_saved:'Obrazek zapisany',
+  share_note:'Za udostępnienie: +5 XP raz dziennie.', share_pick:'Wybierz {net} z listy aplikacji',
+  share_ig_desk:'Instagram nie pozwala publikować z komputera — zapisaliśmy obrazek. Wyślij go na telefon i dodaj w Instagramie.',
+  share_tags:'#Tropami #DzikieWMieście', sh_sighting:'Spotkanie w mieście: {x} 🐾 Dodaj swoje obserwacje na mapie Tropami (+10 XP na start):',
   support_t:'Wesprzyj Tropami', support_p:'Robimy mapę po godzinach. Kawa pomaga utrzymać serwery i dodawać nowe funkcje.', support_btn:'Postaw kawę',
   b_rare_none:'', groups_h:'Grupy zwierząt',
 });
@@ -812,6 +834,10 @@ Object.assign(STR.en, {
   report_photo:'Report photo', report_q:'What is wrong with the photo?', rp_not_animal:'There is no animal in it', rp_person:'A person or a number plate is visible',
   rp_bad:'Inappropriate content', rp_thanks:'Thank you — we will check this photo', photo_pending:'Your photo is waiting for review — others will see it once approved.',
   streak7_toast:'A full week in a row! +15 XP',
+  share_prep:'Preparing the image…', share_h:'Share', share_more:'More', share_save_s:'Save', share_copy_s:'Link', share_saved:'Image saved',
+  share_note:'Sharing earns +5 XP once a day.', share_pick:'Choose {net} from the app list',
+  share_ig_desk:'Instagram does not allow posting from a computer — we saved the image. Send it to your phone and add it in Instagram.',
+  share_tags:'#Tropami #UrbanWildlife', sh_sighting:'City wildlife encounter: {x} 🐾 Add yours to the Tropami map (+10 XP to start):',
   support_t:'Support Tropami', support_p:'We build the map after hours. A coffee helps keep the servers running and add new features.', support_btn:'Buy a coffee',
   b_rare_none:'', groups_h:'Animal groups',
 });
@@ -2350,41 +2376,94 @@ async function myRefCode(){
   return c;
 }
 const blobToB64 = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(b); });
-async function shareOut({ blob, name, text, url, kind }){
-  const title = appName(), body = url ? `${text} ${url}` : text;
-  // 1) aplikacja Android/iOS (wtyczki Share + Filesystem)
+/* Okno „Udostępnij”: Instagram, Facebook, X, WhatsApp, systemowe „Więcej”, zapis obrazka, link.
+   • aplikacja Android: wtyczka ShareTo otwiera wybraną aplikację od razu z obrazkiem i tekstem,
+   • telefon w przeglądarce: obrazek przez systemowe udostępnianie (użytkownik wybiera aplikację),
+   • komputer: okna udostępniania X i Facebooka z linkiem (podgląd z og:image); Instagram — zapis obrazka.
+   makeBlob(fmt): 'story' 1080×1920 (Instagram/WhatsApp) albo 'post' 1080×1350 (Facebook/X). */
+const NETS = [
+  { id:'instagram', label:'Instagram', pkg:'com.instagram.android', fmt:'story', img:true },
+  { id:'facebook',  label:'Facebook',  pkg:'com.facebook.katana',   fmt:'post',
+    web:(u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+  { id:'x',         label:'X',         pkg:'com.twitter.android',   fmt:'post',
+    web:(u, tx) => `https://x.com/intent/post?text=${encodeURIComponent(tx)}&url=${encodeURIComponent(u)}` },
+  { id:'whatsapp',  label:'WhatsApp',  pkg:'com.whatsapp',          fmt:'story',
+    web:(u, tx) => `https://wa.me/?text=${encodeURIComponent(tx + ' ' + u)}` },
+];
+const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+function openExternal(u){
   const P = window.Capacitor?.Plugins;
-  if(inNativeApp() && P?.Share){
-    try{
-      let files;
-      if(blob && P.Filesystem){ const w = await P.Filesystem.writeFile({ path:name, data:await blobToB64(blob), directory:'CACHE' }); files = [w.uri]; }
-      await P.Share.share({ title, text:body, ...(files ? { files } : { url }), dialogTitle:title });
-      AN.track('share', { kind, method:'native' }); await shareBonus(kind); return true;
-    }catch(e){ if(/cancel/i.test(String(e?.message || e))) return false; console.warn('native share', e); }
-  }
-  // 2) przeglądarka z Web Share
-  const file = blob && new File([blob], name, { type:blob.type || 'image/png' });
-  if(file && navigator.canShare?.({ files:[file] })){
-    try{ await navigator.share({ files:[file], title, text:body }); AN.track('share', { kind, method:'web_files' }); await shareBonus(kind); return true; }
-    catch(e){ if(e.name === 'AbortError') return false; }
-  } else if(!blob && navigator.share){
-    try{ await navigator.share({ title, text, url }); AN.track('share', { kind, method:'web' }); await shareBonus(kind); return true; }
-    catch(e){ if(e.name === 'AbortError') return false; }
-  }
-  // 3) podgląd: zapisz obrazek / skopiuj link
-  AN.track('share', { kind, method:'fallback' });
-  const img = blob ? URL.createObjectURL(blob) : null;
+  if(inNativeApp() && P?.Browser) return P.Browser.open({ url:u }).catch(() => { location.href = u; });
+  const w = isMobile() ? window.open(u, '_blank') : window.open(u, 'tropami_share', 'width=620,height=680');
+  if(w){ try{ w.opener = null; }catch(e){} } else location.href = u;
+}
+function downloadBlob(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function shareOut({ blob, name, text, url, kind, makeBlob }){
+  const cache = {};
+  const getBlob = async fmt => {
+    if(!makeBlob) return blob || null;
+    return cache[fmt] ||= await makeBlob(fmt);
+  };
+  const preview = makeBlob ? await getBlob('story') : blob;
+  const img = preview ? URL.createObjectURL(preview) : null;
+  const tags = t('share_tags'), msg = `${text} ${tags}`.trim();
+  const P = window.Capacitor?.Plugins;
+  const nets = NETS.filter(n => !n.img || preview);
   $('#mcard').innerHTML = `<div class="rw shareprev">
+    <h2 style="font-size:22px;margin:0">${esc(t('share_h'))}</h2>
     ${img ? `<img src="${img}" alt="" class="sp-img">` : ''}
-    ${img ? `<p class="muted" style="margin:0;font-size:13px">${esc(t('share_hold'))}</p><a class="btn primary block" id="spSave" href="${img}" download="${esc(name)}">${esc(t('share_save'))}</a>` : ''}
-    ${url ? `<button class="btn ${img ? 'ghost' : 'primary'} block" id="spCopy">${esc(t('share_copy'))}</button>` : ''}
+    <div class="sharegrid">
+      ${nets.map(n => `<button class="sharebtn" data-net="${n.id}"><i class="sn ${n.id}">${n.id === 'instagram' ? 'IG' : n.id === 'facebook' ? 'FB' : n.id === 'x' ? 'X' : 'WA'}</i><span>${esc(n.label)}</span></button>`).join('')}
+      <button class="sharebtn" data-net="more"><i class="sn more">•••</i><span>${esc(t('share_more'))}</span></button>
+      ${preview ? `<button class="sharebtn" data-net="save"><i class="sn save">↓</i><span>${esc(t('share_save_s'))}</span></button>` : ''}
+      ${url ? `<button class="sharebtn" data-net="copy"><i class="sn copy">🔗</i><span>${esc(t('share_copy_s'))}</span></button>` : ''}
+    </div>
+    <p class="muted" style="margin:0;font-size:12.5px">${esc(t('share_note'))}</p>
     <button class="btn ghost block" id="spClose">${esc(t('close'))}</button></div>`;
   $('#modal').hidden = false;
-  const done = () => shareBonus(kind);
-  if($('#spSave')) $('#spSave').onclick = () => setTimeout(done, 300);
-  if($('#spCopy')) $('#spCopy').onclick = async () => { try{ await navigator.clipboard.writeText(body); toast(t('inv_copied')); }catch(e){ prompt(t('share_copy'), body); } done(); };
+  AN.track('share_open', { kind, native:inNativeApp(), shareto:!!P?.ShareTo });
+  const done = (net, method) => { AN.track('share', { kind, net, method }); shareBonus(kind); };
+  const fileOf = (b, fmt) => new File([b], `tropami-${fmt}.png`, { type:'image/png' });
+  const systemShare = async (fmt, withText = true) => {
+    const b = await getBlob(fmt);
+    if(inNativeApp() && P?.Share){
+      let files; if(b && P.Filesystem){ const w = await P.Filesystem.writeFile({ path:`tropami-${fmt}.png`, data:await blobToB64(b), directory:'CACHE' }); files = [w.uri]; }
+      await P.Share.share({ title:appName(), text:withText ? `${msg} ${url || ''}`.trim() : undefined, ...(files ? { files } : { url }), dialogTitle:appName() });
+      return true;
+    }
+    if(b && navigator.canShare?.({ files:[fileOf(b, fmt)] })){ await navigator.share({ files:[fileOf(b, fmt)], ...(withText ? { text:`${msg} ${url || ''}`.trim() } : {}) }); return true; }
+    if(!b && navigator.share){ await navigator.share({ title:appName(), text:msg, url }); return true; }
+    return false;
+  };
+  const go = async id => {
+    try{
+      if(id === 'save'){ downloadBlob(await getBlob('story'), name || 'tropami-story.png'); toast(t('share_saved')); return done(id, 'download'); }
+      if(id === 'copy'){ const v = `${msg} ${url}`; try{ await navigator.clipboard.writeText(v); toast(t('inv_copied')); }catch(e){ prompt(t('share_copy'), v); } return done(id, 'copy'); }
+      if(id === 'more'){ if(await systemShare('story')) return done(id, 'system'); toast(t('share_fail')); return; }
+      const n = NETS.find(x => x.id === id);
+      // 1) aplikacja Android: prosto do wybranej aplikacji
+      if(inNativeApp() && P?.ShareTo){
+        const b = await getBlob(n.fmt); let path = null;
+        if(b && P.Filesystem){ const w = await P.Filesystem.writeFile({ path:`tropami-${n.fmt}.png`, data:await blobToB64(b), directory:'CACHE' }); path = w.uri; }
+        try{ await P.ShareTo.share({ package:n.pkg, path, text:`${msg} ${url || ''}`.trim() }); return done(id, 'app'); }
+        catch(e){ if(!/not_installed/.test(String(e?.message || e))) console.warn('shareto', e); }
+      }
+      // 2) Instagram nie ma udostępniania z przeglądarki — obrazek przez system albo zapis
+      if(id === 'instagram'){
+        if(isMobile()){ toast(t('share_pick').replace('{net}', n.label)); if(await systemShare('story', false)) return done(id, 'system'); }
+        downloadBlob(await getBlob('story'), 'tropami-story.png'); toast(t('share_ig_desk'), 'xp'); return done(id, 'download');
+      }
+      // 3) telefon: obrazek przez systemowe udostępnianie (X i WhatsApp przyjmą też tekst); komputer: okno serwisu z linkiem
+      if(isMobile() && id !== 'whatsapp' && preview){ toast(t('share_pick').replace('{net}', n.label)); if(await systemShare(n.fmt)) return done(id, 'system'); }
+      openExternal(n.web(url || APP_URL(), msg)); done(id, 'intent');
+    }catch(e){ if(e?.name !== 'AbortError' && !/cancel/i.test(String(e?.message || e))){ console.warn('share', e); toast(t('share_fail')); } }
+  };
+  $$('#mcard [data-net]').forEach(b => b.onclick = () => go(b.dataset.net));
   $('#spClose').onclick = () => { $('#modal').hidden = true; if(img) setTimeout(() => URL.revokeObjectURL(img), 1000); };
-  return false;
+  return true;
 }
 async function shareBonus(kind){
   if(!API.bonus) return;
@@ -2392,7 +2471,7 @@ async function shareBonus(kind){
   if(!xp) return;
   await loadRewards();
   AN.track('share_bonus', { kind });
-  if($('#modal').hidden) reward(before, 'share'); else { renderAll(); toast(t('share_done'), 'xp'); }
+  if($('#modal').hidden) reward(before, 'share'); else { renderAll(); setTimeout(() => toast(t('share_done'), 'xp'), 1200); }
 }
 async function invite(via){
   const code = await myRefCode();
@@ -2404,8 +2483,12 @@ async function invite(via){
 function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 function rr(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function fitText(g, text, max, w, size, min = 40){ let fs = size; g.font = w(fs); while(g.measureText(text).width > max && fs > min){ fs -= 4; g.font = w(fs); } return fs; }
-async function storyBlob(s){
-  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+// fmt: 'story' 1080×1920 (Instagram Stories, WhatsApp) · 'post' 1080×1350 (Facebook, X, Instagram feed)
+async function storyBlob(s, fmt = 'story'){
+  const post = fmt === 'post';
+  const L = post ? { H:1350, hy:118, sy:162, X:150, Y:200, S:780, ty:1078, my:1132, wy:1186 }
+                 : { H:1920, hy:140, sy:188, X:80,  Y:250, S:920, ty:1290, my:1356, wy:1420 };
+  const W = 1080, H = L.H, c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d'), F = (w, px) => `${w} ${px}px 'Fredoka', 'Nunito', system-ui, sans-serif`;
   try{ await Promise.all([document.fonts?.load(F(600, 80)), document.fonts?.load(F(500, 40))]); }catch(e){}
   const code = await myRefCode(), url = inviteUrl(code, 'story');
@@ -2418,10 +2501,10 @@ async function storyBlob(s){
   g.fillStyle = bg; g.fillRect(0, 0, W, H);
   g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 3;
   for(let i = 0; i < 10; i++){ g.beginPath(); g.ellipse(900, 210, 80 + i * 75, 60 + i * 58, -.35, 0, Math.PI * 2); g.stroke(); }
-  g.fillStyle = '#fff'; g.font = F(600, 52); g.fillText('Tropami', 80, 140);
-  g.globalAlpha = .7; g.font = F(500, 32); g.fillText(LANG === 'pl' ? 'mapa dzikich zwierząt w mieście' : 'a map of wild animals in the city', 80, 188); g.globalAlpha = 1;
+  g.fillStyle = '#fff'; g.font = F(600, 52); g.fillText('Tropami', 80, L.hy);
+  g.globalAlpha = .7; g.font = F(500, 32); g.fillText(LANG === 'pl' ? 'mapa dzikich zwierząt w mieście' : 'a map of wild animals in the city', 80, L.sy); g.globalAlpha = 1;
   // zdjęcie albo duża ikona
-  const X = 80, Y = 250, S2 = 920;
+  const X = L.X, Y = L.Y, S2 = L.S;
   g.save(); rr(g, X, Y, S2, S2, 56); g.clip();
   if(photo){
     const k = Math.max(S2 / photo.width, S2 / photo.height), w = photo.width * k, h = photo.height * k;
@@ -2429,7 +2512,7 @@ async function storyBlob(s){
   } else {
     const pg = g.createRadialGradient(X + S2 / 2, Y + S2 / 2, 60, X + S2 / 2, Y + S2 / 2, S2 * .7); pg.addColorStop(0, '#FBF3E6'); pg.addColorStop(1, '#EAD9BE');
     g.fillStyle = pg; g.fillRect(X, Y, S2, S2);
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '380px sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `${Math.round(S2 * .41)}px sans-serif`;
     g.fillText(spIcon(S.spById[s.species_id]), X + S2 / 2, Y + S2 / 2 + 20);
     g.textAlign = 'left'; g.textBaseline = 'alphabetic';
   }
@@ -2438,12 +2521,20 @@ async function storyBlob(s){
     g.fillStyle = 'rgba(20,34,26,.72)'; rr(g, X + 32, Y + S2 - 104, lw, 72, 36); g.fill(); g.fillStyle = '#fff'; g.fillText('🐾 ' + t('ev_traces'), X + 60, Y + S2 - 54); }
   // podpis
   const title = taxonTitle(s);
-  g.fillStyle = '#fff'; fitText(g, title, W - 160, px => F(600, px), 92); g.fillText(title, 80, 1290);
+  g.fillStyle = '#fff'; fitText(g, title, W - 160, px => F(600, px), post ? 80 : 92); g.fillText(title, 80, L.ty);
   const when = new Date(s.seen_at).toLocaleDateString(LOCALE(), { day:'numeric', month:'long' });
   g.globalAlpha = .85; g.font = F(500, 40); const meta = [when, place].filter(Boolean).join(' · ');
-  fitText(g, meta, W - 160, px => F(500, px), 40, 28); g.fillText(meta, 80, 1356); g.globalAlpha = 1;
+  fitText(g, meta, W - 160, px => F(500, px), 40, 28); g.fillText(meta, 80, L.my); g.globalAlpha = 1;
   const who = s.is_mine ? (S.nickname || t('you')) + ' · ' + levelOf(myStats().xp).name : (s.nickname || t('anon'));
-  g.fillStyle = '#F29C4B'; fitText(g, `${t('share_seen_by')}: ${who}`, W - 160, px => F(600, px), 40, 28); g.fillText(`${t('share_seen_by')}: ${who}`, 80, 1420);
+  g.fillStyle = '#F29C4B'; fitText(g, `${t('share_seen_by')}: ${who}`, W - 160, px => F(600, px), 40, 28); g.fillText(`${t('share_seen_by')}: ${who}`, 80, L.wy);
+  if(post){
+    // pasek z adresem zamiast kodu QR (w poście link i tak jest w tekście)
+    g.fillStyle = '#F7F1E6'; rr(g, 60, 1226, 960, 92, 30); g.fill();
+    g.fillStyle = '#E2832B'; g.font = F(600, 44); g.fillText('tropami.com', 100, 1287);
+    g.fillStyle = '#55665B'; fitText(g, t('share_story_cta2'), 560, px => F(500, px), 32, 22);
+    g.textAlign = 'right'; g.fillText(t('share_story_cta2'), 980, 1284); g.textAlign = 'left';
+    return new Promise(r => c.toBlob(r, 'image/png'));
+  }
   // zaproszenie + kod QR
   g.fillStyle = '#F7F1E6'; rr(g, 60, 1500, 960, 340, 44); g.fill();
   g.fillStyle = '#14221A'; fitText(g, t('share_story_cta'), 600, px => F(600, px), 46, 32); g.fillText(t('share_story_cta'), 104, 1588);
@@ -2463,11 +2554,11 @@ async function storyBlob(s){
 async function shareSighting(id, via){
   const s = findSighting(id) || S.mine.find(x => x.id === id);
   if(!s){ toast(t('share_fail')); return; }
-  toast(t('compressing'));
+  toast(t('share_prep'));
   try{
-    const blob = await storyBlob(s), code = await myRefCode();
+    const code = await myRefCode();
     AN.track('share_sighting', { via, own:!!s.is_mine, photo:!!s.has_photo, evidence:s.evidence || 'seen' });
-    await shareOut({ blob, name:'tropami-story.png', text:t('inv_text'), url:inviteUrl(code, 'story'), kind:'sighting' });
+    await shareOut({ makeBlob:fmt => storyBlob(s, fmt), name:'tropami-story.png', text:t('sh_sighting').replace('{x}', taxonTitle(s)), url:inviteUrl(code, 'social'), kind:'sighting' });
   }catch(e){ console.error(e); toast(t('share_fail')); }
 }
 
